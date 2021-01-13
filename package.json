@@ -1,6 +1,6 @@
 {
-  "name": "decentralized-finance",
-  "version": "1.0.0",
+  "name": "decentralized-finance-defi",
+  "version": "1.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -21,9 +21,15 @@
     "@compound-finance/compound-js": "^0.2.4",
     "dotenv": "^8.2.0",
     "ethers": "^5.0.25",
+    "husky": "^4.3.7",
     "web3": "^1.3.1"
   },
   "devDependencies": {
     "@types/node": "^14.14.20"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm publish"
+    }
   }
 }

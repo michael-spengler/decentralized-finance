@@ -15,4 +15,18 @@ async function readAccountInfo() {
    
 }
 
+
+function ensureEnvironmentIsReasonablyConfigured() {
+
+    if (process.env.WALLET_ADDRESS === undefined) {
+        throw new Error(`Please copy the .env.example file to .env and add a value for "WALLET_ADDRESS".`)
+    } else {
+        console.log(`optimizing crypto investments for wallet: ${process.env.WALLET_ADDRESS} on a regular basis`)
+    }
+}
+
+
+ensureEnvironmentIsReasonablyConfigured()
+
+
 readAccountInfo()

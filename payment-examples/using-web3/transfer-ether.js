@@ -55,5 +55,19 @@ async function triggerTransferExample() {
 
 }
 
+function ensureEnvironmentIsReasonablyConfigured() {
+
+    if (process.env.PROVIDER_URL === undefined ||
+        process.env.WALLET_ADDRESS === undefined ||
+        process.env.WALLET_PRIVATE_KEY === undefined ||
+        process.env.CHECK_EACH_X_MINUTES === undefined) {
+        throw new Error(`Please copy the .env.example file to .env and add your data for the wallet you want to optimize.`)
+    } else {
+        console.log(`optimizing crypto investments for wallet: ${process.env.WALLET_ADDRESS} on a regular basis`)
+    }
+}
+
+
+ensureEnvironmentIsReasonablyConfigured()
 
 triggerTransferExample()

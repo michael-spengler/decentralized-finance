@@ -5,7 +5,7 @@ This package provides several examples to use DeFi features.
 
 ## Payment Examples
 ```
-ts-node payment-examples/using-web3/transfer-ether.js
+node payment-examples/using-web3/transfer-ether.js
 ```
 
 ## Deposit Example
