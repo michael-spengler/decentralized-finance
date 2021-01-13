@@ -3,31 +3,40 @@
 ## Usage
 This package provides several examples to use DeFi features.
 
-## Payment Examples
+
+```ts
+const walletAddress = '0xA63CD0d627c34Ce3958c4a82E6bB12F7b9C1c324'
+const accountInfo = await DeFiProvider.getCompoundAccountData(walletAddress as string)
+
+console.log(`The collateral value in ETH is: ${account.accounts[0].total_collateral_value_in_eth.value}.`)
+
 ```
-node payment-examples/using-web3/transfer-ether.js
+
+## Payment Examples
+```ts
+
 ```
 
 ## Deposit Example
 In order to earn interests you can deposit some assets.
-```
-ts-node deposit-examples/using-compound-finance/deposit.ts
+```ts
+
 ```
 
 ## Borrow Examples
 If you provide some assets as collateral you can borrow other assets.
-```
-ts-node borrow-examples/using-compound-finance/borrow.ts
+```ts
+
 ```
 
 ## Compliance Examples
-```
-ts-node compliance-examples/using-compound-finance/get-account-info.ts
+```ts
+
 ```
 
 ## Investment Examples
-```
-ts-node investment-examples/using-compound-finance/invest.ts
+```ts
+
 ```
 
 
