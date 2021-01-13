@@ -1,1 +1,1 @@
-export * from "./defi-provider"
+export * from "./defi.service"
