@@ -1,9 +1,10 @@
 {
   "name": "decentralized-finance-defi",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc --p ./",
     "test": "jest"
   },
   "repository": {
@@ -33,7 +34,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm publish"
+      "pre-commit": "npm run build && npm publish"
     }
   }
 }
