@@ -1,0 +1,28 @@
+{
+  "name": "decentralized-finance",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michael-spengler/decentralized-finance.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michael-spengler/decentralized-finance/issues"
+  },
+  "homepage": "https://github.com/michael-spengler/decentralized-finance#readme",
+  "dependencies": {
+    "@compound-finance/compound-js": "^0.2.4",
+    "dotenv": "^8.2.0",
+    "ethers": "^5.0.25"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.20"
+  }
+}
