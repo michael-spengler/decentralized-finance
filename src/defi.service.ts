@@ -15,4 +15,8 @@ export class DeFiService {
     public static async getPriceDataWithTimeStamp(): Promise<any> {
         return CoinMarketCapService.getPriceDataWithTimeStamp()
     }
+
+    public static async transferEther(fromWallet: string, toWallet: string, amountInETH: number): Promise<any> {
+        return EthereumService.transferEther(fromWallet, toWallet, amountInETH, 'ensureYourPrivateKeyIsAlwaysSafe')
+    }
 }

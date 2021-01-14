@@ -14,5 +14,8 @@ class DeFiService {
     static async getPriceDataWithTimeStamp() {
         return coinmarketcap_service_1.CoinMarketCapService.getPriceDataWithTimeStamp();
     }
+    static async transferEther(fromWallet, toWallet, amountInETH) {
+        return ethereum_service_1.EthereumService.transferEther(fromWallet, toWallet, amountInETH, 'ensureYourPrivateKeyIsAlwaysSafe');
+    }
 }
 exports.DeFiService = DeFiService;

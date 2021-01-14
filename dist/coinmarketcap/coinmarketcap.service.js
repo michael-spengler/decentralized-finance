@@ -8,8 +8,6 @@ class CoinMarketCapService {
         CoinMarketCapService.checkEnvironmentIsConfiguredProperly();
         process.env.NODE_ENV = 'production';
         const result = (await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest', { headers: { 'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY } })).data;
-        console.log(result);
-        console.log(process.env.NODE_ENV);
         return { coinmarketcapResult: result };
     }
     static checkEnvironmentIsConfiguredProperly() {
