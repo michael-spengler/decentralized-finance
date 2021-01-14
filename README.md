@@ -27,6 +27,17 @@ console.log(`The collateral value in ETH is: ${accountInfo.total_collateral_valu
 
 ```
 
+### Get Crypto Currency Prices (API Key Required)
+```ts
+    const { DeFiService } = require("decentralized-finance-defi")
+
+    const pricesWithTimeStamp = DeFiService.getPriceDataWithTimeStamp()
+
+    // There will be ETH :)
+    console.log(pricesWithTimeStamp[1])
+
+```
+
 ## Payment Examples
 ```ts
 
