@@ -13,7 +13,7 @@ export class EthereumService {
     }
 
     public static async transferEther(fromWallet: string, toWallet: string, amountInETH: number, senderPrivateKey: string): Promise<any> {
-        const amountInWei = amountInETH * 1000000000000000000 // this would e.g. transfer 0.01 Ether
+        const amountInWei = amountInETH * 1000000000000000000 
     
         const transactionObject = await EthereumService.getTransactionObject(fromWallet, toWallet, amountInWei)
     
