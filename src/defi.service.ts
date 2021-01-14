@@ -1,6 +1,6 @@
 import { CompoundService } from "./compound/compound.service";
 import { EthereumService } from "./ethereum/ethereum.service";
-
+import { CoinMarketCapService } from "./coinmarketcap/coinmarketcap.service"
 
 export class DeFiService {
 
@@ -10,5 +10,9 @@ export class DeFiService {
     
     public static async getCompoundAccountData(walletAddress: string): Promise<any> {
         return CompoundService.getAccountData(walletAddress)
+    }
+
+    public static async getPriceDataWithTimeStamp(): Promise<any> {
+        return CoinMarketCapService.getPriceDataWithTimeStamp()
     }
 }

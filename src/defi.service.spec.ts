@@ -5,7 +5,7 @@ import { DeFiService } from "./defi.service"
 describe("Processor", () => {
     beforeEach(async () => {
         // not needed yet
-       
+
     })
 
     it("provides wallet info from compound", async () => {
@@ -18,6 +18,11 @@ describe("Processor", () => {
     it("provides current gas price info", async () => {
         const gasPriceInfo = await DeFiService.getGasPriceInfo()
         expect(Number(gasPriceInfo.fastest)).toBeGreaterThan(1)
+    })
+
+    it("provides price data with timestamp from compound", async () => {
+        // for the following jest would need to be configurable properly
+        // const priceInfoWithTimeStamp = await DeFiService.getPriceDataWithTimeStamp()
     })
 
 })
