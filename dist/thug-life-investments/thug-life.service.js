@@ -39,7 +39,7 @@ class ThugLifeService {
             return false;
         }
         if (healthFactor < healthFactorLimitForInvestmentRound) {
-            console.log(`The health factor of ${healthFactor} is below your limit of 2.`);
+            console.log(`The health factor of ${healthFactor} is below your investment round limit of ${healthFactorLimitForInvestmentRound}.`);
             return false;
         }
         console.log(`The gas price of ${gasPriceInfo.fastest} is fine as your limit is set to ${gasLimit}.`);

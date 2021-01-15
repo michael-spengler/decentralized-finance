@@ -1,7 +1,11 @@
 # Decentralized Finance
 This package provides a variety of DeFi features like payments, deposits, loans and automated investment patterns.
 
-Explore the space of distributed ledger based banking.
+In order to cultivate the space of distributed ledger based banking, this package leverages many smart contracts on the Ethereum Blockchain.
+
+The key value proposition of this package is to simplify the accessibility of smart contracts on the Ethereum Blockchain from JavaScript and TypeScript based projects.
+
+Some of the smart contracts which we use here are provided by [aave.com](https://aave.com/) and [compound.finance](https://compound.finance).
 
 Contributions are welcome.
 

@@ -61,7 +61,7 @@ export class ThugLifeService {
         }
 
         if (healthFactor < healthFactorLimitForInvestmentRound) {
-            console.log(`The health factor of ${healthFactor} is below your limit of 2.`)
+            console.log(`The health factor of ${healthFactor} is below your investment round limit of ${healthFactorLimitForInvestmentRound}.`)
 
             return false
         }
