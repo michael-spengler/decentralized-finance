@@ -46,7 +46,7 @@ console.log(`The collateral value in ETH is: ${accountInfo.total_collateral_valu
 
     const fromWalletAddress = process.env.SENDER_WALLET_ADDRESS
     const toWalletAddress = process.env.RECEIVER_WALLET_ADDRESS
-    const amountInETH = amountInETH
+    const amountInETH = 1
     const senderPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
 
     await DeFiService.transferEther(fromWalletAddress, toWalletAddress, amountInETH, senderPrivateKey)

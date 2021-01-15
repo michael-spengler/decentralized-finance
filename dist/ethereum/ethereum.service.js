@@ -10,6 +10,7 @@ class EthereumService {
         return gasPriceInfo;
     }
     static async transferEther(fromWallet, toWallet, amountInETH, senderPrivateKey) {
+        EthereumService.checkEnvironmentIsConfiguredProperly();
         const amountInWei = amountInETH * 1000000000000000000;
         const transactionObject = await EthereumService.getTransactionObject(fromWallet, toWallet, amountInWei);
         await EthereumService.signAndSend(transactionObject, senderPrivateKey);
@@ -41,6 +42,13 @@ class EthereumService {
             value: amountInWei,
             chainId: '0x1',
         };
+    }
+    static checkEnvironmentIsConfiguredProperly() {
+        if (process.env.SENDER_WALLET_ADDRESS === undefined ||
+            process.env.RECEIVER_WALLET_ADDRESS === undefined ||
+            process.env.SENDER_WALLET_PRIVATE_KEY === undefined) {
+            throw new Error('Copy the .env.template file to .env and ensure there is a valid value for SENDER_WALLET_ADDRESS, RECEIVER_WALLET_ADDRESS and SENDER_WALLET_PRIVATE_KEY');
+        }
     }
 }
 exports.EthereumService = EthereumService;

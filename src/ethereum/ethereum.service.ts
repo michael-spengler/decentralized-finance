@@ -13,6 +13,9 @@ export class EthereumService {
     }
 
     public static async transferEther(fromWallet: string, toWallet: string, amountInETH: number, senderPrivateKey: string): Promise<any> {
+
+        EthereumService.checkEnvironmentIsConfiguredProperly()
+        
         const amountInWei = amountInETH * 1000000000000000000 
     
         const transactionObject = await EthereumService.getTransactionObject(fromWallet, toWallet, amountInWei)
@@ -56,6 +59,16 @@ export class EthereumService {
             chainId: '0x1',
         }
     
+    }
+
+    private static checkEnvironmentIsConfiguredProperly() {
+
+        if (process.env.SENDER_WALLET_ADDRESS === undefined ||
+            process.env.RECEIVER_WALLET_ADDRESS === undefined ||
+            process.env.SENDER_WALLET_PRIVATE_KEY === undefined) {
+            throw new Error('Copy the .env.template file to .env and ensure there is a valid value for SENDER_WALLET_ADDRESS, RECEIVER_WALLET_ADDRESS and SENDER_WALLET_PRIVATE_KEY')
+        }
+
     }
     
 }

@@ -11,4 +11,5 @@ export declare class EthereumService {
         value: number;
         chainId: string;
     }>;
+    private static checkEnvironmentIsConfiguredProperly;
 }
