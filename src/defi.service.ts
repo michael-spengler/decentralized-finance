@@ -7,16 +7,21 @@ export class DeFiService {
     public static async getGasPriceInfo(): Promise<any> {
         return EthereumService.getGasPriceInfo()
     }
-    
+
+    public static async transferEther(fromWallet: string, toWallet: string, amountInETH: number): Promise<any> {
+        return EthereumService.transferEther(fromWallet, toWallet, amountInETH, 'ensureYourPrivateKeyIsAlwaysSafe')
+    }
+
     public static async getCompoundAccountData(walletAddress: string): Promise<any> {
         return CompoundService.getAccountData(walletAddress)
+    }
+
+    public static async depositEtherToCompound(amountOfEtherToBeDeposited: number, senderWalletAddress: string, senderWalletPrivateKey: string, web3ProviderURL: string): Promise<void> {
+        return CompoundService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletAddress, senderWalletPrivateKey, web3ProviderURL)
     }
 
     public static async getPriceDataWithTimeStamp(): Promise<any> {
         return CoinMarketCapService.getPriceDataWithTimeStamp()
     }
 
-    public static async transferEther(fromWallet: string, toWallet: string, amountInETH: number): Promise<any> {
-        return EthereumService.transferEther(fromWallet, toWallet, amountInETH, 'ensureYourPrivateKeyIsAlwaysSafe')
-    }
 }

@@ -29,55 +29,42 @@ console.log(`The collateral value in ETH is: ${accountInfo.total_collateral_valu
 
 ### Get Crypto Currency Prices (API Key Required)
 ```ts
-    const { DeFiService } = require("decentralized-finance-defi")
+const { DeFiService } = require("decentralized-finance-defi")
 
-    const pricesWithTimeStamp = DeFiService.getPriceDataWithTimeStamp()
+const pricesWithTimeStamp = DeFiService.getPriceDataWithTimeStamp()
 
-    // There will be ETH :)
-    console.log(pricesWithTimeStamp[1])
+// There will be ETH :)
+console.log(pricesWithTimeStamp[1])
 
 ```
 
 ### Transfer Ether
 ```ts
-    require('dotenv').config()
+require('dotenv').config()
     
-    const { DeFiService } = require("decentralized-finance-defi")
+const { DeFiService } = require("decentralized-finance-defi")
 
-    const fromWalletAddress = process.env.SENDER_WALLET_ADDRESS
-    const toWalletAddress = process.env.RECEIVER_WALLET_ADDRESS
-    const amountInETH = 1
-    const senderPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
+const fromWalletAddress = process.env.SENDER_WALLET_ADDRESS
+const toWalletAddress = process.env.RECEIVER_WALLET_ADDRESS
+const amountInETH = 1
+const senderPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
 
-    await DeFiService.transferEther(fromWalletAddress, toWalletAddress, amountInETH, senderPrivateKey)
-
-
-```
-
-## Payment Examples
-```ts
+await DeFiService.transferEther(fromWalletAddress, toWalletAddress, amountInETH, senderPrivateKey)
 
 ```
 
-## Deposit Example
-In order to earn interests you can deposit some assets.
+### Deposit Ether to Compound
 ```ts
+require('dotenv').config()
+    
+const { DeFiService } = require("decentralized-finance-defi")
 
-```
+const amountOfEtherToBeDeposited = 1
+const senderWalletAddress = process.env.SENDER_WALLET_ADDRESS
+const senderPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
+const web3ProviderURL = process.env.PROVIDER_URL
 
-## Borrow Examples
-If you provide some assets as collateral you can borrow other assets.
-```ts
-
-```
-
-## Compliance Examples
-```ts
-
-```
-
-## Investment Examples
-```ts
+await DeFiService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletAddress, senderWalletPrivateKey, web3ProviderURL)
 
 ```
 

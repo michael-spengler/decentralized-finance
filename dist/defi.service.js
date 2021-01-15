@@ -8,14 +8,17 @@ class DeFiService {
     static async getGasPriceInfo() {
         return ethereum_service_1.EthereumService.getGasPriceInfo();
     }
+    static async transferEther(fromWallet, toWallet, amountInETH) {
+        return ethereum_service_1.EthereumService.transferEther(fromWallet, toWallet, amountInETH, 'ensureYourPrivateKeyIsAlwaysSafe');
+    }
     static async getCompoundAccountData(walletAddress) {
         return compound_service_1.CompoundService.getAccountData(walletAddress);
     }
+    static async depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletAddress, senderWalletPrivateKey, web3ProviderURL) {
+        return compound_service_1.CompoundService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletAddress, senderWalletPrivateKey, web3ProviderURL);
+    }
     static async getPriceDataWithTimeStamp() {
         return coinmarketcap_service_1.CoinMarketCapService.getPriceDataWithTimeStamp();
-    }
-    static async transferEther(fromWallet, toWallet, amountInETH) {
-        return ethereum_service_1.EthereumService.transferEther(fromWallet, toWallet, amountInETH, 'ensureYourPrivateKeyIsAlwaysSafe');
     }
 }
 exports.DeFiService = DeFiService;
