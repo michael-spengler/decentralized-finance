@@ -10,16 +10,31 @@ class CompoundService {
         });
         return account.accounts[0];
     }
-    static async depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletAddress, senderWalletPrivateKey, web3ProviderURL) {
+    static async depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletPrivateKey, gasLimit, web3ProviderURL) {
         const compound = new Compound(web3ProviderURL, {
             privateKey: senderWalletPrivateKey,
         });
+        const trxOptions = { gasLimit, mantissa: false };
         try {
-            const trx = await compound.supply(Compound.ETH, amountOfEtherToBeDeposited);
+            const trx = await compound.supply(Compound.ETH, amountOfEtherToBeDeposited, trxOptions);
             console.log(`You can check the deposit to compound transaction at https://etherscan.io/tx/${trx.hash}`);
         }
         catch (error) {
-            console.log('Something went wrong while depositing Ether to compound.finance');
+            console.log(`Something went wrong while depositing Ether to compound.finance: ${error.message}`);
+        }
+    }
+    static async borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL) {
+        const compound = new Compound(web3ProviderURL, {
+            privateKey: walletPrivateKey,
+        });
+        const daiScaledUp = amountOfDAIToBeBorrowed * 1000000000000000000;
+        const trxOptions = { gasLimit, mantissa: true };
+        try {
+            const trx = await compound.borrow(Compound.DAI, daiScaledUp, trxOptions);
+            console.log(`You can check the borrow dai from compound transaction at https://etherscan.io/tx/${trx.hash}`);
+        }
+        catch (error) {
+            console.log(`Something went wrong while depositing Ether to compound.finance: ${error.message}`);
         }
     }
 }

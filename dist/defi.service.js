@@ -14,8 +14,11 @@ class DeFiService {
     static async getCompoundAccountData(walletAddress) {
         return compound_service_1.CompoundService.getAccountData(walletAddress);
     }
-    static async depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletAddress, senderWalletPrivateKey, web3ProviderURL) {
-        return compound_service_1.CompoundService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletAddress, senderWalletPrivateKey, web3ProviderURL);
+    static async depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletPrivateKey, gasLimit, web3ProviderURL) {
+        return compound_service_1.CompoundService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletPrivateKey, gasLimit, web3ProviderURL);
+    }
+    static async borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL) {
+        return compound_service_1.CompoundService.borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL);
     }
     static async getPriceDataWithTimeStamp() {
         return coinmarketcap_service_1.CoinMarketCapService.getPriceDataWithTimeStamp();

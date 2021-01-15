@@ -16,8 +16,11 @@ export class DeFiService {
         return CompoundService.getAccountData(walletAddress)
     }
 
-    public static async depositEtherToCompound(amountOfEtherToBeDeposited: number, senderWalletAddress: string, senderWalletPrivateKey: string, web3ProviderURL: string): Promise<void> {
-        return CompoundService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletAddress, senderWalletPrivateKey, web3ProviderURL)
+    public static async depositEtherToCompound(amountOfEtherToBeDeposited: number, senderWalletPrivateKey: string, gasLimit: number, web3ProviderURL: string): Promise<void> {
+        return CompoundService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletPrivateKey, gasLimit, web3ProviderURL)
+    }
+    public static async borrowDAIFromCompound(amountOfDAIToBeBorrowed: number, walletPrivateKey: string, gasLimit: number, web3ProviderURL: string) {
+        return CompoundService.borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL)
     }
 
     public static async getPriceDataWithTimeStamp(): Promise<any> {

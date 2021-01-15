@@ -40,7 +40,7 @@ console.log(pricesWithTimeStamp[1])
 
 ### Transfer Ether
 ```ts
-require('dotenv').config()
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
     
 const { DeFiService } = require("decentralized-finance-defi")
 
@@ -55,16 +55,31 @@ await DeFiService.transferEther(fromWalletAddress, toWalletAddress, amountInETH,
 
 ### Deposit Ether to Compound
 ```ts
-require('dotenv').config()
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
     
 const { DeFiService } = require("decentralized-finance-defi")
 
 const amountOfEtherToBeDeposited = 1
-const senderWalletAddress = process.env.SENDER_WALLET_ADDRESS
 const senderPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
-const web3ProviderURL = process.env.PROVIDER_URL
+const gasLimit = 250000
+const web3ProviderURL = process.env.PROVIDER_URL // e.g. https://mainnet.infura.io/v3/yourinfuraprojectid
 
-await DeFiService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletAddress, senderWalletPrivateKey, web3ProviderURL)
+await DeFiService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletPrivateKey, gasLimit web3ProviderURL)
+
+```
+
+### Borrow Ether from Compound
+```ts
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
+    
+const { DeFiService } = require("decentralized-finance-defi")
+
+const amountOfDAIToBeBorrowed = 100
+const walletPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
+const gasLimit = 250000
+const web3ProviderURL = process.env.PROVIDER_URL // e.g. https://mainnet.infura.io/v3/yourinfuraprojectid
+
+await DeFiService.borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL)
 
 ```
 
