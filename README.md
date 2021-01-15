@@ -1,15 +1,11 @@
 # Decentralized Finance
-This package simplifies the development of Decentralized Finance features.
+This package provides a variety of DeFi features like payments, deposits, loans and automated investment patterns.
 
-Explore the space of distributed ledger based payments, deposits and loans.
+Explore the space of distributed ledger based banking.
 
 Contributions are welcome.
 
-## Usage
-
-1. npm i decentralized-finance-defi
-2. try some of the following examples in your code
-
+## Usage Examples
 
 ### Get Current Gas Price Info
 
@@ -103,6 +99,24 @@ await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPriv
 
 ```
 
+### Redeem Asset from Compound 
+```ts
+
+    require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
+    
+    const { DeFiService } = require("decentralized-finance-defi")
+    
+    const walletAddress = process.env.SENDER_WALLET_ADDRESS
+    const walletPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
+    const gasLimit = 250000
+    const web3ProviderURL = process.env.PROVIDER_URL // e.g. https://mainnet.infura.io/v3/yourinfuraprojectid
+    const amount = 1 // redeem 1 cETH
+    
+    await DeFiService.redeemAssetFromCompound(walletAddress,  walletPrivateKey, gasLimit, web3ProviderURL, amount)
+
+```
+
+## Further Features
 
 You can find many more simple and general examples in the [DeFi Service](https://github.com/michael-spengler/decentralized-finance/blob/main/src/defi.service.ts) file.
 

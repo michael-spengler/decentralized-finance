@@ -3,6 +3,7 @@ import { EthereumService } from "./ethereum/ethereum.service";
 import { CoinMarketCapService } from "./coinmarketcap/coinmarketcap.service"
 import { UniSwapService } from "./uniswap/uniswap.service";
 import { ERC20Service } from "./ethereum/erc20.service";
+import { ThugLifeService } from "./thug-life-investments/thug-life.service";
 
 export class DeFiService {
 
@@ -26,10 +27,8 @@ export class DeFiService {
         return CompoundService.borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL)
     }
 
-    public static async redeem(walletAddress: string,  walletPrivateKey: string, gasLimit: number, web3ProviderURL: string) {
-        const amountOfcETHInWallet = await ERC20Service.getBalanceOfcETHInWallet(walletAddress, walletPrivateKey)
-
-        return CompoundService.redeem(amountOfcETHInWallet, walletPrivateKey, gasLimit, web3ProviderURL)
+    public static async redeemAssetFromCompound(walletAddress: string,  walletPrivateKey: string, gasLimit: number, web3ProviderURL: string, amount?: number) {
+        return CompoundService.redeemAsset(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount)
     }
 
     public static async getPriceDataWithTimeStamp(): Promise<any> {
@@ -38,6 +37,16 @@ export class DeFiService {
 
     public static async swapDAIToETH(amountOfDAIToBeSwapped: number, walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<void> {
         await UniSwapService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL)
+    }
+
+    public static async startTheAutomatedManagedFund(amountOfDAIToBeSwapped: number, walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<any> {
+
+        const healthFactorLimitForInvestmentRound = 1.6
+        const healthFactorLimitForRedemptionToStart = 1.1
+        const gasLimit = 250000
+
+        return ThugLifeService.startTheAutomatedManagedFund(walletAddress, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL)
+
     }
 
 }

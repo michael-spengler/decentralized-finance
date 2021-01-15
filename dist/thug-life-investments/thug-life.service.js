@@ -7,7 +7,7 @@ const ethereum_service_1 = require("../ethereum/ethereum.service");
 const uniswap_service_1 = require("../uniswap/uniswap.service");
 class ThugLifeService {
     static async startTheAutomatedManagedFund(walletToBeOptimized, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL) {
-        setInterval(async () => {
+        const intervalHandle = setInterval(async () => {
             const gasPriceInfo = await ethereum_service_1.EthereumService.getGasPriceInfo();
             const compoundAccountInfo = await compound_service_1.CompoundService.getAccountData(walletToBeOptimized);
             const totalCollateralValueInETH = compoundAccountInfo.total_collateral_value_in_eth.value;
@@ -25,12 +25,13 @@ class ThugLifeService {
                 await compound_service_1.CompoundService.depositEtherToCompound(amoutOfEtherToBeDepositedToCompound, walletPrivateKey, gasLimit, web3ProviderURL);
             }
             else if (ThugLifeService.shallWeRedeemSomeBorrowingsNow(gasLimit, gasPriceInfo, healthFactor, healthFactorLimitForRedemptionToStart)) {
-                await compound_service_1.CompoundService.redeem(0.5, walletPrivateKey, gasLimit, web3ProviderURL);
+                await compound_service_1.CompoundService.redeemAsset(walletToBeOptimized, walletPrivateKey, gasLimit, web3ProviderURL, undefined);
             }
             else {
                 console.log("At the moment it does not make sense to trigger another investment round.");
             }
         }, 1000 * 60 * Number(process.env.CHECK_EACH_X_MINUTES));
+        return intervalHandle;
     }
     static async isAnInvestmentRoundReasonable(gasLimit, gasPriceInfo, healthFactor, healthFactorLimitForInvestmentRound) {
         console.log(`The current gas price on the Ethereum Blockchain is about ${gasPriceInfo.fastest} for the fastest transaction speed.`);
@@ -48,7 +49,16 @@ class ThugLifeService {
     }
     ;
     static shallWeRedeemSomeBorrowingsNow(gasLimit, gasPriceInfo, healthFactor, healthFactorLimitForRedemptionToStart) {
-        return ((gasLimit < gasPriceInfo.fastest) && (healthFactor < healthFactorLimitForRedemptionToStart));
+        if (healthFactor > healthFactorLimitForRedemptionToStart) {
+            console.log(`We do not need to redeem our assets from compound at the moment. Our healthfactor is: ${healthFactor} - the limit for redemption is: ${healthFactorLimitForRedemptionToStart}`);
+            return false;
+        }
+        if (gasLimit <= gasPriceInfo.fastest) {
+            console.log(`We would start a redemption if our gasPrice of ${gasPriceInfo.fastest} was not higher than our gas limit of ${gasLimit}.`);
+            return false;
+        }
+        console.log("A redemption seems reasonable now and will be triggered.");
+        return true;
     }
 }
 exports.ThugLifeService = ThugLifeService;
