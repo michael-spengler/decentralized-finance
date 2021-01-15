@@ -1,11 +1,11 @@
 
-import { Fetcher, Percent, Route, TokenAmount, Trade, TradeType, WETH } from "@uniswap/sdk";
-import { ethers } from "ethers";
-import { uniswapJSONInterface } from "./constants";
+import { Fetcher, Percent, Route, TokenAmount, Trade, TradeType, WETH } from "@uniswap/sdk"
+import { ethers } from "ethers"
+import { uniswapJSONInterface } from "./constants"
 
-const { erc20Abi } = require('../contracts.json');
+const { erc20Abi } = require('../miscellaneous-contract-abis/contracts.json')
 
-const underlyingAddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F';
+const underlyingAddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 
 export class UniSwapService {
 
