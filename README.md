@@ -134,15 +134,15 @@ console.log(gasPriceInfo.fastest)
 
 ## Further Features
 
-You can find many more simple and general examples in the [DeFi Service](https://github.com/michael-spengler/decentralized-finance/blob/main/src/defi.service.ts{:target="_blank"} file. If you are looking for anything more specific, feel free to check the corresponding folders and class definitions within the [src](https://github.com/michael-spengler/decentralized-finance/tree/main/src){:target="_blank"} folder.
+You can find many more simple and general examples in the [DeFi Service](https://github.com/michael-spengler/decentralized-finance/blob/main/src/defi.service.ts file. If you are looking for anything more specific, feel free to check the corresponding folders and class definitions within the [src](https://github.com/michael-spengler/decentralized-finance/tree/main/src) folder.
 
 If you have not found what you are looking for, feel free to raise an issue or even better raise a Pull Request. 
 
 
 ## Smart Contract Development
-You can find some simple examples for solidity based smart contract development projects within the [smart-contracts-development](./src/smart-contracts-development) folder.
+You can find some simple examples for solidity based smart contract development projects within the [smart-contracts-development](https://github.com/michael-spengler/decentralized-finance/tree/main/src/smart-contracts-development) folder.
 
 
 ## General Recommendations
-You might also check [aave.com](https://aave.com/){:target="_blank"}, [klopapier.exchange](https://klopapier.exchange/){:target="_blank"} and [compound.finance](https://compound.finance){:target="_blank"}. 
+You might also check [aave.com](https://aave.com/), [klopapier.exchange](https://klopapier.exchange/) and [compound.finance](https://compound.finance). 
 
