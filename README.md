@@ -1,48 +1,14 @@
 # Decentralized Finance
-This package provides a variety of DeFi features like payments, deposits, loans and automated investment patterns.
+This package provides a variety of distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
 
-In order to cultivate the space of distributed ledger based banking, this package leverages many smart contracts on the Ethereum Blockchain.
+The key value proposition of this package is to connect TypeScript based projects with smart contracts on the Ethereum Blockchain.
 
-The key value proposition of this package is to simplify the accessibility of smart contracts on the Ethereum Blockchain from JavaScript and TypeScript based projects.
-
-Some of the smart contracts which we use here are provided by [aave.com](https://aave.com/) and [compound.finance](https://compound.finance).
-
-Contributions are welcome.
+Some of the smart contracts are also accessible via [aave.com](https://aave.com/), [klopapier.exchange/](https://klopapier.exchange/) and [compound.finance](https://compound.finance). 
 
 ## Usage Examples
 
-### Get Current Gas Price Info
-
-```ts
-const { DeFiService } = require("decentralized-finance-defi")
-
-const gasPriceInfo = await DeFiService.getGasPriceInfo()
-console.log(gasPriceInfo.fastest)
-```
-
-### Get Compound Account Data
-```ts
-const { DeFiService } = require("decentralized-finance-defi")
-
-const walletAddress = '0xA63CD0d627c34Ce3958c4a82E6bB12F7b9C1c324'
-const accountInfo = await DeFiService.getCompoundAccountData(walletAddress)
-
-console.log(`The collateral value in ETH is: ${accountInfo.total_collateral_value_in_eth.value}.`)
-
-```
-
-### Get Crypto Currency Prices (API Key Required)
-```ts
-const { DeFiService } = require("decentralized-finance-defi")
-
-const pricesWithTimeStamp = DeFiService.getPriceDataWithTimeStamp()
-
-// There will be ETH :)
-console.log(pricesWithTimeStamp[1])
-
-```
-
-### Transfer Ether
+### Payments
+#### Transfer Ether
 ```ts
 require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
     
@@ -57,7 +23,10 @@ await DeFiService.transferEther(fromWalletAddress, toWalletAddress, amountInETH,
 
 ```
 
-### Deposit Ether to Compound
+### Deposits
+
+#### Deposit Ether to Compound
+You can also test this feature via the [compound.finance](https://compound.finance) user interface.
 ```ts
 require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
     
@@ -72,7 +41,9 @@ await DeFiService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalle
 
 ```
 
-### Borrow Ether from Compound
+### Loans
+#### Borrow Ether from Compound
+You can also test this feature via the [compound.finance](https://compound.finance) user interface.
 ```ts
 require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
     
@@ -87,23 +58,8 @@ await DeFiService.borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKe
 
 ```
 
-
-### Swap DAI to Ether via Uniswap
-```ts
-require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
-    
-const { DeFiService } = require("decentralized-finance-defi")
-
-const amountOfDAIToBeSwapped = 50
-const walletAddress = process.env.SENDER_WALLET_ADDRESS
-const walletPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
-const web3ProviderURL = process.env.PROVIDER_URL // e.g. https://mainnet.infura.io/v3/yourinfuraprojectid
-
-await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL)
-
-```
-
-### Redeem Asset from Compound 
+#### Redeem Asset from Compound 
+You can also test this feature via the [compound.finance](https://compound.finance) user interface.
 ```ts
 
     require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
@@ -119,6 +75,64 @@ await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPriv
     await DeFiService.redeemAssetFromCompound(walletAddress,  walletPrivateKey, gasLimit, web3ProviderURL, amount)
 
 ```
+
+
+### Account Management
+#### Get Compound Account Data
+You can also test this feature via the [compound.finance](https://compound.finance) user interface.
+```ts
+const { DeFiService } = require("decentralized-finance-defi")
+
+const walletAddress = '0xA63CD0d627c34Ce3958c4a82E6bB12F7b9C1c324'
+const accountInfo = await DeFiService.getCompoundAccountData(walletAddress)
+
+console.log(`The collateral value in ETH is: ${accountInfo.total_collateral_value_in_eth.value}.`)
+
+```
+
+### Exchange Features
+#### Swap DAI to Ether via Uniswap
+You can also test this feature via the [uniswap.org](https://uniswap.org) user interface.
+```ts
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
+    
+const { DeFiService } = require("decentralized-finance-defi")
+
+const amountOfDAIToBeSwapped = 50
+const walletAddress = process.env.SENDER_WALLET_ADDRESS
+const walletPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
+const web3ProviderURL = process.env.PROVIDER_URL // e.g. https://mainnet.infura.io/v3/yourinfuraprojectid
+
+await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL)
+
+```
+
+
+### Crypto Currency Insights 
+#### Get Price Data with Timestamp from Coinmarketcap (API Key Required)
+You can compare the results via the [coinmarketcap.com](https://coinmarketcap.com) user interface.
+```ts
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
+
+const { DeFiService } = require("decentralized-finance-defi")
+
+const pricesWithTimeStamp = DeFiService.getPriceDataWithTimeStamp(process.env.COINMARKETCAP_API_KEY)
+
+// There will be ETH :)
+console.log(pricesWithTimeStamp[1])
+
+```
+
+### Distributed Ledger Insights
+#### Get Current Gas Price Info
+
+```ts
+const { DeFiService } = require("decentralized-finance-defi")
+
+const gasPriceInfo = await DeFiService.getGasPriceInfo()
+console.log(gasPriceInfo.fastest)
+```
+
 
 ## Further Features
 

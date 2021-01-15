@@ -25,8 +25,8 @@ class DeFiService {
     static async redeemAssetFromCompound(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount) {
         return compound_service_1.CompoundService.redeemAsset(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount);
     }
-    static async getPriceDataWithTimeStamp() {
-        return coinmarketcap_service_1.CoinMarketCapService.getPriceDataWithTimeStamp();
+    static async getPriceDataWithTimeStamp(coinMarketCapAPIKey) {
+        return coinmarketcap_service_1.CoinMarketCapService.getPriceDataWithTimeStamp(coinMarketCapAPIKey);
     }
     static async swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL) {
         await uniswap_service_1.UniSwapService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL);

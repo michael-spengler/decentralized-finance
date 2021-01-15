@@ -1,4 +1,3 @@
 export declare class CoinMarketCapService {
-    static getPriceDataWithTimeStamp(): Promise<any>;
-    private static checkEnvironmentIsConfiguredProperly;
+    static getPriceDataWithTimeStamp(coinMarketCapAPIKey: string): Promise<any>;
 }

@@ -14,8 +14,9 @@ describe("Processor", () => {
         const gasPriceInfo = await defi_service_1.DeFiService.getGasPriceInfo();
         expect(Number(gasPriceInfo.fastest)).toBeGreaterThan(1);
     });
-    it("provides price data with timestamp from compound", async () => {
+    it("provides price data with timestamp from coinmarketcap", async () => {
+        const coinMarketCapAPIKey = process.env.COINMARKETCAP_API_KEY;
         // for the following jest would need to be configurable properly
-        // const priceInfoWithTimeStamp = await DeFiService.getPriceDataWithTimeStamp()
+        // const priceInfoWithTimeStamp = await DeFiService.getPriceDataWithTimeStamp(coinMarketCapAPIKey)
     });
 });

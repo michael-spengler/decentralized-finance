@@ -31,8 +31,8 @@ export class DeFiService {
         return CompoundService.redeemAsset(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount)
     }
 
-    public static async getPriceDataWithTimeStamp(): Promise<any> {
-        return CoinMarketCapService.getPriceDataWithTimeStamp()
+    public static async getPriceDataWithTimeStamp(coinMarketCapAPIKey: string): Promise<any> {
+        return CoinMarketCapService.getPriceDataWithTimeStamp(coinMarketCapAPIKey)
     }
 
     public static async swapDAIToETH(amountOfDAIToBeSwapped: number, walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<void> {
