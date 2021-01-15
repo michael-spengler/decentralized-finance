@@ -5,9 +5,9 @@ import { UniSwapService } from "../uniswap/uniswap.service";
 
 export class ThugLifeService {
 
-    public static async startTheAutomatedManagedFund(walletToBeOptimized: string, walletPrivateKey: string, gasLimit: number, healthFactorLimitForInvestmentRound: number, healthFactorLimitForRedemptionToStart: number, web3ProviderURL: string, checkEachXMinutes: number = 60): Promise<any> {
+    public static async startTheAutomatedManagedFund(walletToBeOptimized: string, walletPrivateKey: string, gasLimit: number, healthFactorLimitForInvestmentRound: number, healthFactorLimitForRedemptionToStart: number, web3ProviderURL: string, checkEachXMinutes: number): Promise<void> {
 
-        const intervalHandle = setInterval(async () => {
+        setInterval(async () => {
 
             const gasPriceInfo = await EthereumService.getGasPriceInfo()
 
@@ -44,7 +44,6 @@ export class ThugLifeService {
 
         }, 1000 * 60 * checkEachXMinutes)
 
-        return intervalHandle
     }
 
 

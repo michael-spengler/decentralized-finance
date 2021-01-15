@@ -31,8 +31,8 @@ class DeFiService {
     static async swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL) {
         await uniswap_service_1.UniSwapService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL);
     }
-    static async startTheAutomatedManagedFund(walletAddress, walletPrivateKey, web3ProviderURL, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, gasLimit) {
-        return thug_life_service_1.ThugLifeService.startTheAutomatedManagedFund(walletAddress, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL);
+    static async startTheAutomatedManagedFund(walletAddress, walletPrivateKey, web3ProviderURL, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, gasLimit, checkEachXMinutes) {
+        return thug_life_service_1.ThugLifeService.startTheAutomatedManagedFund(walletAddress, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL, checkEachXMinutes);
     }
 }
 exports.DeFiService = DeFiService;

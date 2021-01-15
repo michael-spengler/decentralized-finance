@@ -6,8 +6,8 @@ const erc20_service_1 = require("../ethereum/erc20.service");
 const ethereum_service_1 = require("../ethereum/ethereum.service");
 const uniswap_service_1 = require("../uniswap/uniswap.service");
 class ThugLifeService {
-    static async startTheAutomatedManagedFund(walletToBeOptimized, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL, checkEachXMinutes = 60) {
-        const intervalHandle = setInterval(async () => {
+    static async startTheAutomatedManagedFund(walletToBeOptimized, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL, checkEachXMinutes) {
+        setInterval(async () => {
             const gasPriceInfo = await ethereum_service_1.EthereumService.getGasPriceInfo();
             const compoundAccountInfo = await compound_service_1.CompoundService.getAccountData(walletToBeOptimized);
             const totalCollateralValueInETH = compoundAccountInfo.total_collateral_value_in_eth.value;
@@ -31,7 +31,6 @@ class ThugLifeService {
                 console.log("At the moment it does not make sense to trigger another investment round.");
             }
         }, 1000 * 60 * checkEachXMinutes);
-        return intervalHandle;
     }
     static async isAnInvestmentRoundReasonable(gasLimit, gasPriceInfo, healthFactor, healthFactorLimitForInvestmentRound) {
         console.log(`The current gas price on the Ethereum Blockchain is about ${gasPriceInfo.fastest} for the fastest transaction speed.`);
