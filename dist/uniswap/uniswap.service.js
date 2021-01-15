@@ -15,27 +15,24 @@ class UniSwapService {
         const account = signer.connect(provider);
         const daiSmartContract = new ethers_1.ethers.Contract(underlyingAddress, constants_1.erc20Abi, account);
         const balanceOfDaiOnAccount = await daiSmartContract.balanceOf(walletAddress);
-        console.log(`balance of DAI on account: ${balanceOfDaiOnAccount}`);
-        // amountOfDAIToBeSwapped = balanceOfDaiOnAccount
-        // // const trade = new Trade(route, new TokenAmount(dai, balanceOfDaiOnAccount), TradeType.EXACT_INPUT)
-        // const trade = new Trade(route, new TokenAmount(dai, balanceOfDaiOnAccount), TradeType.EXACT_INPUT)
-        // console.log(route.midPrice.toSignificant(6))
-        // console.log(trade.executionPrice.toSignificant(6))
-        // const slippageTolerance = new Percent('50', '10000')
-        // const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw
-        // console.log(amountOutMin.toString())
-        // console.log(ethers.BigNumber.from("42"))
-        // const path = [underlyingAddress, WETH[1].address]
-        // const deadline = Math.floor(Date.now() / 1000) + 60 * 2
-        // const uniswapSmartContract = new ethers.Contract('0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D', uniswapJSONInterface, account)
-        // const tx = await uniswapSmartContract.swapExactTokensForETH(
-        //     balanceOfDaiOnAccount,
-        //     amountOutMin.toString(),
-        //     path,
-        //     walletAddress,
-        //     deadline
-        // )
-        // console.log(`Check your uniswap swap transaction at https://etherscan.io/tx/${tx.hash}`)
+        const balanceScaledDown = balanceOfDaiOnAccount / 1000000000000000000;
+        console.log(`balance of DAI on account: ${balanceScaledDown}`);
+        if (balanceScaledDown < amountOfDAIToBeSwapped) {
+            throw new Error(`The balance of DAI on this account is ${balanceScaledDown}. How would I swap ${amountOfDAIToBeSwapped} DAI with that?`);
+        }
+        const amountOfDAIToBeSwappedScaledUp = amountOfDAIToBeSwapped * 1000000000000000000;
+        const trade = new sdk_1.Trade(route, new sdk_1.TokenAmount(dai, amountOfDAIToBeSwappedScaledUp.toString()), sdk_1.TradeType.EXACT_INPUT);
+        console.log(route.midPrice.toSignificant(6));
+        console.log(trade.executionPrice.toSignificant(6));
+        const slippageTolerance = new sdk_1.Percent('50', '10000');
+        const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw;
+        console.log(amountOutMin.toString());
+        console.log(ethers_1.ethers.BigNumber.from("42"));
+        const path = [underlyingAddress, sdk_1.WETH[1].address];
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 2;
+        const uniswapSmartContract = new ethers_1.ethers.Contract('0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D', constants_1.uniswapJSONInterface, account);
+        const tx = await uniswapSmartContract.swapExactTokensForETH(balanceOfDaiOnAccount, amountOutMin.toString(), path, walletAddress, deadline);
+        console.log(`Check your uniswap swap transaction at https://etherscan.io/tx/${tx.hash}`);
     }
 }
 exports.UniSwapService = UniSwapService;

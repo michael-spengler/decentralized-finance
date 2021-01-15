@@ -18,36 +18,40 @@ export class UniSwapService {
         const daiSmartContract = new ethers.Contract(underlyingAddress, erc20Abi, account)
         const balanceOfDaiOnAccount = await daiSmartContract.balanceOf(walletAddress)
 
-        console.log(`balance of DAI on account: ${balanceOfDaiOnAccount}`)
+        const balanceScaledDown = balanceOfDaiOnAccount / 1000000000000000000
+        console.log(`balance of DAI on account: ${balanceScaledDown}`)
 
-        // amountOfDAIToBeSwapped = balanceOfDaiOnAccount
+        if (balanceScaledDown < amountOfDAIToBeSwapped) {
+            throw new Error(`The balance of DAI on this account is ${balanceScaledDown}. How would I swap ${amountOfDAIToBeSwapped} DAI with that?`)
+        }
 
-        // // const trade = new Trade(route, new TokenAmount(dai, balanceOfDaiOnAccount), TradeType.EXACT_INPUT)
-        // const trade = new Trade(route, new TokenAmount(dai, balanceOfDaiOnAccount), TradeType.EXACT_INPUT)
-        // console.log(route.midPrice.toSignificant(6))
-        // console.log(trade.executionPrice.toSignificant(6))
+        const amountOfDAIToBeSwappedScaledUp = amountOfDAIToBeSwapped * 1000000000000000000 
 
-        // const slippageTolerance = new Percent('50', '10000')
-        // const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw
+        const trade = new Trade(route, new TokenAmount(dai, amountOfDAIToBeSwappedScaledUp.toString()), TradeType.EXACT_INPUT)
+        console.log(route.midPrice.toSignificant(6))
+        console.log(trade.executionPrice.toSignificant(6))
 
-        // console.log(amountOutMin.toString())
+        const slippageTolerance = new Percent('50', '10000')
+        const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw
 
-        // console.log(ethers.BigNumber.from("42"))
+        console.log(amountOutMin.toString())
 
-        // const path = [underlyingAddress, WETH[1].address]
+        console.log(ethers.BigNumber.from("42"))
 
-        // const deadline = Math.floor(Date.now() / 1000) + 60 * 2
+        const path = [underlyingAddress, WETH[1].address]
 
-        // const uniswapSmartContract = new ethers.Contract('0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D', uniswapJSONInterface, account)
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 2
 
-        // const tx = await uniswapSmartContract.swapExactTokensForETH(
-        //     balanceOfDaiOnAccount,
-        //     amountOutMin.toString(),
-        //     path,
-        //     walletAddress,
-        //     deadline
-        // )
+        const uniswapSmartContract = new ethers.Contract('0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D', uniswapJSONInterface, account)
 
-        // console.log(`Check your uniswap swap transaction at https://etherscan.io/tx/${tx.hash}`)
+        const tx = await uniswapSmartContract.swapExactTokensForETH(
+            balanceOfDaiOnAccount,
+            amountOutMin.toString(),
+            path,
+            walletAddress,
+            deadline
+        )
+
+        console.log(`Check your uniswap swap transaction at https://etherscan.io/tx/${tx.hash}`)
     }
 }
