@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UniSwapService = void 0;
 const sdk_1 = require("@uniswap/sdk");
 const ethers_1 = require("ethers");
-const { erc20Abi } = require('../miscellaneous-contract-abis/contracts.json');
+const constants_1 = require("./constants");
 const underlyingAddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F';
 class UniSwapService {
     static async swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL) {
@@ -13,7 +13,7 @@ class UniSwapService {
         const signer = new ethers_1.ethers.Wallet(walletPrivateKey);
         const provider = ethers_1.ethers.getDefaultProvider('mainnet', { infura: web3ProviderURL });
         const account = signer.connect(provider);
-        const daiSmartContract = new ethers_1.ethers.Contract(underlyingAddress, erc20Abi, account);
+        const daiSmartContract = new ethers_1.ethers.Contract(underlyingAddress, constants_1.erc20Abi, account);
         const balanceOfDaiOnAccount = await daiSmartContract.balanceOf(walletAddress);
         console.log(`balance of DAI on account: ${balanceOfDaiOnAccount}`);
         // amountOfDAIToBeSwapped = balanceOfDaiOnAccount

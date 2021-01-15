@@ -1,9 +1,7 @@
 
 import { Fetcher, Percent, Route, TokenAmount, Trade, TradeType, WETH } from "@uniswap/sdk"
 import { ethers } from "ethers"
-import { uniswapJSONInterface } from "./constants"
-
-const { erc20Abi } = require('../miscellaneous-contract-abis/contracts.json')
+import { uniswapJSONInterface, erc20Abi } from "./constants"
 
 const underlyingAddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 
