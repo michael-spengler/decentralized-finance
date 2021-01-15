@@ -6,7 +6,7 @@ const erc20_service_1 = require("../ethereum/erc20.service");
 const ethereum_service_1 = require("../ethereum/ethereum.service");
 const uniswap_service_1 = require("../uniswap/uniswap.service");
 class ThugLifeService {
-    static async startTheAutomatedManagedFund(walletToBeOptimized, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL) {
+    static async startTheAutomatedManagedFund(walletToBeOptimized, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL, checkEachXMinutes = 60) {
         const intervalHandle = setInterval(async () => {
             const gasPriceInfo = await ethereum_service_1.EthereumService.getGasPriceInfo();
             const compoundAccountInfo = await compound_service_1.CompoundService.getAccountData(walletToBeOptimized);
@@ -30,7 +30,7 @@ class ThugLifeService {
             else {
                 console.log("At the moment it does not make sense to trigger another investment round.");
             }
-        }, 1000 * 60 * Number(process.env.CHECK_EACH_X_MINUTES));
+        }, 1000 * 60 * checkEachXMinutes);
         return intervalHandle;
     }
     static async isAnInvestmentRoundReasonable(gasLimit, gasPriceInfo, healthFactor, healthFactorLimitForInvestmentRound) {

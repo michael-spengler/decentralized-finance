@@ -5,7 +5,7 @@ import { UniSwapService } from "../uniswap/uniswap.service";
 
 export class ThugLifeService {
 
-    public static async startTheAutomatedManagedFund(walletToBeOptimized: string, walletPrivateKey: string, gasLimit: number, healthFactorLimitForInvestmentRound: number, healthFactorLimitForRedemptionToStart: number, web3ProviderURL: string): Promise<any> {
+    public static async startTheAutomatedManagedFund(walletToBeOptimized: string, walletPrivateKey: string, gasLimit: number, healthFactorLimitForInvestmentRound: number, healthFactorLimitForRedemptionToStart: number, web3ProviderURL: string, checkEachXMinutes: number = 60): Promise<any> {
 
         const intervalHandle = setInterval(async () => {
 
@@ -42,7 +42,7 @@ export class ThugLifeService {
 
             }
 
-        }, 1000 * 60 * Number(process.env.CHECK_EACH_X_MINUTES))
+        }, 1000 * 60 * checkEachXMinutes)
 
         return intervalHandle
     }
