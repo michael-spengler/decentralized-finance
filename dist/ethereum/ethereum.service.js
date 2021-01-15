@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EthereumService = void 0;
+const constants_1 = require("../constants");
 const axios = require('axios');
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(process.env.PROVIDER_URL));
@@ -8,6 +9,13 @@ class EthereumService {
     static async getGasPriceInfo() {
         const gasPriceInfo = (await axios.get('https://ethgasstation.info/json/ethgasAPI.json')).data;
         return gasPriceInfo;
+    }
+    static async getEtherPriceInDAI() {
+        const priceFeedAddress = '0x922018674c12a7f0d394ebeef9b58f186cde13c1';
+        const priceFeed = new web3.eth.Contract(constants_1.priceFeedAbi, priceFeedAddress);
+        let priceInDAI = (await priceFeed.methods.price('ETH').call()) / 1000000;
+        console.log(`According to the price feed address ${priceFeedAddress}: The price for Ether is about ${priceInDAI} DAI.`);
+        return priceInDAI;
     }
     static async transferEther(fromWallet, toWallet, amountInETH, senderPrivateKey) {
         EthereumService.checkEnvironmentIsConfiguredProperly();

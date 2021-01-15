@@ -21,6 +21,9 @@ class DeFiService {
     static async borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL) {
         return compound_service_1.CompoundService.borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL);
     }
+    static async redeem(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL) {
+        return compound_service_1.CompoundService.redeem(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL);
+    }
     static async getPriceDataWithTimeStamp() {
         return coinmarketcap_service_1.CoinMarketCapService.getPriceDataWithTimeStamp();
     }

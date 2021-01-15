@@ -1,7 +1,7 @@
 
 import { Fetcher, Percent, Route, TokenAmount, Trade, TradeType, WETH } from "@uniswap/sdk"
 import { ethers } from "ethers"
-import { uniswapJSONInterface, erc20Abi } from "./constants"
+import { uniswapJSONInterface, erc20Abi } from "../constants"
 
 const underlyingAddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UniSwapService = void 0;
 const sdk_1 = require("@uniswap/sdk");
 const ethers_1 = require("ethers");
-const constants_1 = require("./constants");
+const constants_1 = require("../constants");
 const underlyingAddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F';
 class UniSwapService {
     static async swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL) {
