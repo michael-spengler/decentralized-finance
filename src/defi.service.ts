@@ -1,6 +1,7 @@
 import { CompoundService } from "./compound/compound.service";
 import { EthereumService } from "./ethereum/ethereum.service";
 import { CoinMarketCapService } from "./coinmarketcap/coinmarketcap.service"
+import { UniSwapService } from "./uniswap/uniswap.service";
 
 export class DeFiService {
 
@@ -25,6 +26,10 @@ export class DeFiService {
 
     public static async getPriceDataWithTimeStamp(): Promise<any> {
         return CoinMarketCapService.getPriceDataWithTimeStamp()
+    }
+
+    public static async swapDAIToETH(amountOfDAIToBeSwapped: number, walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<void> {
+        await UniSwapService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL)
     }
 
 }

@@ -4,6 +4,7 @@ exports.DeFiService = void 0;
 const compound_service_1 = require("./compound/compound.service");
 const ethereum_service_1 = require("./ethereum/ethereum.service");
 const coinmarketcap_service_1 = require("./coinmarketcap/coinmarketcap.service");
+const uniswap_service_1 = require("./uniswap/uniswap.service");
 class DeFiService {
     static async getGasPriceInfo() {
         return ethereum_service_1.EthereumService.getGasPriceInfo();
@@ -22,6 +23,9 @@ class DeFiService {
     }
     static async getPriceDataWithTimeStamp() {
         return coinmarketcap_service_1.CoinMarketCapService.getPriceDataWithTimeStamp();
+    }
+    static async swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL) {
+        await uniswap_service_1.UniSwapService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL);
     }
 }
 exports.DeFiService = DeFiService;
