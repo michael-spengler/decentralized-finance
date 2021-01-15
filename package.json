@@ -1,6 +1,6 @@
 {
   "name": "decentralized-finance-defi",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -11,7 +11,13 @@
     "type": "git",
     "url": "git+https://github.com/michael-spengler/decentralized-finance.git"
   },
-  "keywords": [],
+  "keywords": [
+    "DeFi",
+    "Ethereum",
+    "Crypto",
+    "Blockchain",
+    "Distributed Ledger"
+  ],
   "author": "",
   "license": "MIT",
   "bugs": {
