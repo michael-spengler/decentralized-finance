@@ -7,5 +7,5 @@ export declare class DeFiService {
     static redeemAssetFromCompound(walletAddress: string, walletPrivateKey: string, gasLimit: number, web3ProviderURL: string, amount?: number): Promise<void>;
     static getPriceDataWithTimeStamp(): Promise<any>;
     static swapDAIToETH(amountOfDAIToBeSwapped: number, walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<void>;
-    static startTheAutomatedManagedFund(amountOfDAIToBeSwapped: number, walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<any>;
+    static startTheAutomatedManagedFund(walletAddress: string, walletPrivateKey: string, web3ProviderURL: string, healthFactorLimitForInvestmentRound: number, healthFactorLimitForRedemptionToStart: number, gasLimit: number): Promise<any>;
 }

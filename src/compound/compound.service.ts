@@ -55,7 +55,7 @@ export class CompoundService {
     
     public static async redeemAsset(walletAddress: string, senderWalletPrivateKey: string, gasLimit: number, web3ProviderURL: string, amount?: number): Promise<void> {
 
-        const amountOfcETHInWallet = await ERC20Service.getBalanceOfcETHInWallet(walletAddress, senderWalletPrivateKey)
+        const amountOfcETHInWallet = await ERC20Service.getBalanceOfcETHInWallet(walletAddress, senderWalletPrivateKey, web3ProviderURL)
         const amountToBeRedeemed = (amount === undefined) ?
             (amountOfcETHInWallet * 0.33) : // if no amount is specified we redeem about one third - this turned out to make sense e.g. for the ThugLifeService
             amount

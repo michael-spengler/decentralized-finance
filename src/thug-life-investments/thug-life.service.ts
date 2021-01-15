@@ -26,7 +26,7 @@ export class ThugLifeService {
                 const amountOfDAIToBeBorrowedInThisRound = freeValueInETH * etherPriceInDAI * 0.9 // the "* 0.9" just ensures we handle the investment carefully
                 await CompoundService.borrowDAIFromCompound(amountOfDAIToBeBorrowedInThisRound, walletPrivateKey, gasLimit, web3ProviderURL)
 
-                const balanceOfDAIInWallet = await ERC20Service.getBalanceOfDAIInWallet(walletToBeOptimized, walletPrivateKey)
+                const balanceOfDAIInWallet = await ERC20Service.getBalanceOfDAIInWallet(walletToBeOptimized, walletPrivateKey, web3ProviderURL)
                 await  UniSwapService.swapDAIToETH(balanceOfDAIInWallet, walletToBeOptimized, walletPrivateKey, web3ProviderURL)
 
                 const amoutOfEtherToBeDepositedToCompound = freeValueInETH * 0.7 // times 0.7 ensuring there stays more than enough ETH for gas in wallet

@@ -19,7 +19,7 @@ class ThugLifeService {
                 const etherPriceInDAI = await ethereum_service_1.EthereumService.getEtherPriceInDAI();
                 const amountOfDAIToBeBorrowedInThisRound = freeValueInETH * etherPriceInDAI * 0.9; // the "* 0.9" just ensures we handle the investment carefully
                 await compound_service_1.CompoundService.borrowDAIFromCompound(amountOfDAIToBeBorrowedInThisRound, walletPrivateKey, gasLimit, web3ProviderURL);
-                const balanceOfDAIInWallet = await erc20_service_1.ERC20Service.getBalanceOfDAIInWallet(walletToBeOptimized, walletPrivateKey);
+                const balanceOfDAIInWallet = await erc20_service_1.ERC20Service.getBalanceOfDAIInWallet(walletToBeOptimized, walletPrivateKey, web3ProviderURL);
                 await uniswap_service_1.UniSwapService.swapDAIToETH(balanceOfDAIInWallet, walletToBeOptimized, walletPrivateKey, web3ProviderURL);
                 const amoutOfEtherToBeDepositedToCompound = freeValueInETH * 0.7; // times 0.7 ensuring there stays more than enough ETH for gas in wallet
                 await compound_service_1.CompoundService.depositEtherToCompound(amoutOfEtherToBeDepositedToCompound, walletPrivateKey, gasLimit, web3ProviderURL);

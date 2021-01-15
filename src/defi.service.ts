@@ -27,7 +27,7 @@ export class DeFiService {
         return CompoundService.borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL)
     }
 
-    public static async redeemAssetFromCompound(walletAddress: string,  walletPrivateKey: string, gasLimit: number, web3ProviderURL: string, amount?: number) {
+    public static async redeemAssetFromCompound(walletAddress: string, walletPrivateKey: string, gasLimit: number, web3ProviderURL: string, amount?: number) {
         return CompoundService.redeemAsset(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount)
     }
 
@@ -39,14 +39,8 @@ export class DeFiService {
         await UniSwapService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL)
     }
 
-    public static async startTheAutomatedManagedFund(amountOfDAIToBeSwapped: number, walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<any> {
-
-        const healthFactorLimitForInvestmentRound = 1.6
-        const healthFactorLimitForRedemptionToStart = 1.1
-        const gasLimit = 250000
-
+    public static async startTheAutomatedManagedFund(walletAddress: string, walletPrivateKey: string, web3ProviderURL: string, healthFactorLimitForInvestmentRound: number, healthFactorLimitForRedemptionToStart: number, gasLimit: number): Promise<any> {
         return ThugLifeService.startTheAutomatedManagedFund(walletAddress, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL)
-
     }
 
 }
