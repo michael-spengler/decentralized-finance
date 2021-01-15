@@ -2,6 +2,7 @@ import { CompoundService } from "./compound/compound.service";
 import { EthereumService } from "./ethereum/ethereum.service";
 import { CoinMarketCapService } from "./coinmarketcap/coinmarketcap.service"
 import { UniSwapService } from "./uniswap/uniswap.service";
+import { ERC20Service } from "./ethereum/erc20.service";
 
 export class DeFiService {
 
@@ -25,8 +26,10 @@ export class DeFiService {
         return CompoundService.borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL)
     }
 
-    public static async redeem(amountOfDAIToBeBorrowed: number, walletPrivateKey: string, gasLimit: number, web3ProviderURL: string) {
-        return CompoundService.redeem(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL)
+    public static async redeem(walletAddress: string,  walletPrivateKey: string, gasLimit: number, web3ProviderURL: string) {
+        const amountOfcETHInWallet = await ERC20Service.getBalanceOfcETHInWallet(walletAddress, walletPrivateKey)
+
+        return CompoundService.redeem(amountOfcETHInWallet, walletPrivateKey, gasLimit, web3ProviderURL)
     }
 
     public static async getPriceDataWithTimeStamp(): Promise<any> {

@@ -3,12 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CompoundService = void 0;
 const Compound = require('@compound-finance/compound-js');
 class CompoundService {
-    static async redeem(amountOfDAIToBeRedeemed, senderWalletPrivateKey, gasLimit, web3ProviderURL) {
+    static async redeem(amount, senderWalletPrivateKey, gasLimit, web3ProviderURL) {
         const compound = new Compound(web3ProviderURL, {
             privateKey: senderWalletPrivateKey,
         });
         try {
-            const trx = await compound.redeem(Compound.cETH, amountOfDAIToBeRedeemed);
+            const trx = await compound.redeem(Compound.cETH, amount);
             console.log(`You can check the redemption transaction at https://etherscan.io/tx/${trx.hash}`);
         }
         catch (error) {

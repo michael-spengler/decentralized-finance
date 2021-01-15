@@ -1,5 +1,9 @@
 # Decentralized Finance
-This package provides several examples to use DeFi features.
+This package simplifies the development of Decentralized Finance features.
+
+Explore the space of distributed ledger based payments, deposits and loans.
+
+Contributions are welcome.
 
 ## Usage
 
@@ -98,5 +102,12 @@ const web3ProviderURL = process.env.PROVIDER_URL // e.g. https://mainnet.infura.
 await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPrivateKey, web3ProviderURL)
 
 ```
+
+
+You can find many more simple and general examples in the [DeFi Service](https://github.com/michael-spengler/decentralized-finance/blob/main/src/defi.service.ts) file.
+
+If you are looking for something more specific, feel free to check the corresponding folders and class definitions within the [src](https://github.com/michael-spengler/decentralized-finance/tree/main/src) folder.
+
+If you did not find what you are looking for, feel free to raise an issue or even better raise a Pull Request. 
 
 
