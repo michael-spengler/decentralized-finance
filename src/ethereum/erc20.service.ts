@@ -34,4 +34,17 @@ export class ERC20Service {
 
         return ERC20Service.getBalanceOfERC20TokenInWallet(walletAddress, walletPrivateKey, cETHAddress, web3ProviderURL)
     }
+
+    public static async getBalanceOfBATInWallet(walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<number>{
+        const batAddress = '0x0d8775f648430679a709e98d2b0cb6250d2887ef'
+
+        return ERC20Service.getBalanceOfERC20TokenInWallet(walletAddress, walletPrivateKey, batAddress, web3ProviderURL)
+    }
+
+    public static async getBalanceOfLINKInWallet(walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<number>{
+        const linkAddress = '0x514910771af9ca656af840dff83e8264ecf986ca'
+
+        return ERC20Service.getBalanceOfERC20TokenInWallet(walletAddress, walletPrivateKey, linkAddress, web3ProviderURL)
+    }
+    
 }
