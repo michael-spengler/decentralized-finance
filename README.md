@@ -4,7 +4,7 @@
 # Decentralized Finance
 This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
 
-The key value proposition of this package is to connect TypeScript based projects with smart contracts on the Ethereum Blockchain.
+Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the following usage examples.
 
 
 [![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![NPM Downloads](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)
@@ -67,17 +67,17 @@ await DeFiService.borrowDAIFromCompound(amountOfDAIToBeBorrowed, walletPrivateKe
 You can also test this feature via the [compound.finance](https://compound.finance) user interface.
 ```ts
 
-    require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
     
-    const { DeFiService } = require("decentralized-finance-defi")
+const { DeFiService } = require("decentralized-finance-defi")
     
-    const walletAddress = process.env.SENDER_WALLET_ADDRESS
-    const walletPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
-    const gasLimit = 250000
-    const web3ProviderURL = process.env.PROVIDER_URL // e.g. https://mainnet.infura.io/v3/yourinfuraprojectid
-    const amount = 1 // redeem 1 cETH
+const walletAddress = process.env.SENDER_WALLET_ADDRESS
+const walletPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
+const gasLimit = 250000
+const web3ProviderURL = process.env.PROVIDER_URL // e.g. https://mainnet.infura.io/v3/yourinfuraprojectid
+const amount = 1 // redeem 1 cETH
     
-    await DeFiService.redeemAssetFromCompound(walletAddress,  walletPrivateKey, gasLimit, web3ProviderURL, amount)
+await DeFiService.redeemAssetFromCompound(walletAddress,  walletPrivateKey, gasLimit, web3ProviderURL, amount)
 
 ```
 

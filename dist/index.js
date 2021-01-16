@@ -14,6 +14,7 @@ __exportStar(require("./defi.service"), exports);
 __exportStar(require("./coinmarketcap/coinmarketcap.service"), exports);
 __exportStar(require("./compliance/compliance.service"), exports);
 __exportStar(require("./compound/compound.service"), exports);
+__exportStar(require("./aave/aave.service"), exports);
 __exportStar(require("./ethereum/erc20.service"), exports);
 __exportStar(require("./ethereum/ethereum.service"), exports);
 __exportStar(require("./thug-life-investments/thug-life.service"), exports);
