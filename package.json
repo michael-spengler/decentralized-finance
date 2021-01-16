@@ -1,7 +1,7 @@
 {
   "name": "decentralized-finance-defi",
-  "version": "2.2.3",
-  "description": "",
+  "version": "2.3.0",
+  "description": "This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc --p ./",
@@ -18,7 +18,7 @@
     "Blockchain",
     "Distributed Ledger"
   ],
-  "author": "",
+  "author": "Michael Spengler",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/michael-spengler/decentralized-finance/issues"

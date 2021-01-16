@@ -1,13 +1,14 @@
   
     
 
-[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![NPM Downloads](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)
-
-
 # Decentralized Finance
 This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
 
 The key value proposition of this package is to connect TypeScript based projects with smart contracts on the Ethereum Blockchain.
+
+
+[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![NPM Downloads](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)
+
 
 ## Usage Examples
 
