@@ -1,3 +1,6 @@
+  
+    
+
 [![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![NPM Downloads](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)
 
 
@@ -150,11 +153,20 @@ You can find some simple examples for solidity based smart contract development 
 You might also check [aave.com](https://aave.com/), [klopapier.exchange](https://klopapier.exchange/) and [compound.finance](https://compound.finance). 
 
 ## Distributed Domain Name Services
-For a sustainable provisioning of your user interfaces you might check [ens.domains](https://ens.domains). If you want to try it out, you might check [this tutorial](https://www.youtube.com/watch?v=oA4oOY5zgU0).
+To provide your user interfaces in a sustainable way you might check [ens.domains](https://ens.domains). If you want to try it, you might check [this tutorial](https://www.youtube.com/watch?v=oA4oOY5zgU0).
 
 ## Blockchain based Deployments
-For Permaweb deployments you might check [argoapp.live/](https://argoapp.live/). I tested it for a vuejs frontend project. It works pretty straight forward already.
+For Permaweb deployments you might check [argoapp.live](https://argoapp.live). I tested it for a vuejs frontend project. It works pretty straight forward already.
 
 ## Fund Contributions
 If you see an issue in the DeFi space which you want to see solved, consider funding the solution via [gitcoin.co](https://gitcoin.co).
 
+## Deno based DeFi
+I prepared [the corresponding Deno module](https://deno.land/x/defi) and wait until the dependencies of the package at hand are ready for Deno.
+
+## Support my Open Source Contributions
+
+If you like my work, you might download the Brave Browser via my
+promotion link: [https://brave.com/fan464](https://brave.com/fan464).
+
+![![](https://brave.com/)](https://brave.com/wp-content/uploads/2019/01/logotype-full-color.svg)
