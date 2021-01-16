@@ -1,3 +1,6 @@
+![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)  ![NPM Downloads](https://img.shields.io/discord/799926751039979520) 
+
+
 # Decentralized Finance
 This package provides a variety of distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
 
