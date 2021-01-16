@@ -1,4 +1,6 @@
 "use strict";
+// 1 Ether === 1.000.000.000 GWEI
+// https://etherchain.org/tools/unitConverter
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EthereumService = void 0;
 const constants_1 = require("../constants");

@@ -1,4 +1,7 @@
 
+// 1 Ether === 1.000.000.000 GWEI
+// https://etherchain.org/tools/unitConverter
+
 import { priceFeedAbi } from "../constants"
 
 const axios = require('axios')
@@ -10,6 +13,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider(process.env.PROVIDER_URL))
 export class EthereumService {
 
     public static async getGasPriceInfo(): Promise<any> {
+
         const gasPriceInfo = (await axios.get('https://ethgasstation.info/json/ethgasAPI.json')).data
 
         return gasPriceInfo

@@ -1,5 +1,5 @@
 # Decentralized Finance
-This package provides a variety of distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
+This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
 
 The key value proposition of this package is to connect TypeScript based projects with smart contracts on the Ethereum Blockchain.
 
@@ -32,7 +32,7 @@ const { DeFiService } = require("decentralized-finance-defi")
 
 const amountOfEtherToBeDeposited = 1
 const senderPrivateKey = process.env.SENDER_WALLET_PRIVATE_KEY
-const gasLimit = 250000
+const gasLimit = 250000 // GWEI --> 0.00025 ETH --> currently January 15th 2021 about 
 const web3ProviderURL = process.env.PROVIDER_URL // e.g. https://mainnet.infura.io/v3/yourinfuraprojectid
 
 await DeFiService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalletPrivateKey, gasLimit web3ProviderURL)
@@ -145,4 +145,13 @@ You can find some simple examples for solidity based smart contract development 
 
 ## General Recommendations
 You might also check [aave.com](https://aave.com/), [klopapier.exchange](https://klopapier.exchange/) and [compound.finance](https://compound.finance). 
+
+## Distributed Domain Name Services
+For a sustainable provisioning of your user interfaces you might check [ens.domains](https://ens.domains). If you want to try it out, you might check [this tutorial](https://www.youtube.com/watch?v=oA4oOY5zgU0).
+
+## Blockchain based Deployments
+For Permaweb deployments you might check [argoapp.live/](https://argoapp.live/). I tested it for a vuejs frontend project. It works pretty straight forward already.
+
+## Fund Contributions
+If you see an issue in the DeFi space which you want to see solved, consider funding the solution via [gitcoin.co](https://gitcoin.co).
 
