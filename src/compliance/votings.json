@@ -1,0 +1,14 @@
+[
+    {
+        "initiatingWalletAddress": "0xasdfjsödf",
+        "transactionId": "1234",
+        "timeStampTriggered": "asdfölkjsdöfj",
+        "timestampFinalized": "asdfölkjsdöfz",
+        "votes": [
+            {
+                "ups": 10,
+                "downs": 2
+            }
+        ]
+    }
+]

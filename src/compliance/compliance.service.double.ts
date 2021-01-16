@@ -1,10 +1,9 @@
 
 import { IStakeEntry, IWalletReputation } from "./interfaces";
 
-import { p2pStakingPoolAbi } from "../constants"
 import { EthereumService } from "../ethereum/ethereum.service";
 import { IComplianceInterface } from "./compliance.interface";
-import { StakingPool } from "./staking-pool";
+import { ComplianceService } from "./compliance.service";
 
 const Web3 = require('web3');
 
@@ -14,7 +13,7 @@ export enum VOTING_DIRECTION {
     up = 1,
     down = 2
 } 
-export class ComplianceService implements IComplianceInterface {
+export class ComplianceServiceDouble implements IComplianceInterface {
     
     // checke die legimität des posts an sich --> 24 h monatlich 1 h weniger bis 2 h
 
@@ -22,17 +21,14 @@ export class ComplianceService implements IComplianceInterface {
 
     public static async stakeETHBeforeMakingATransaction(walletAddress: string, amount: number): Promise<string> {
 
-        const reputation = ComplianceService.walletReputations.filter((entry: IWalletReputation) => entry.walletAddress === walletAddress )[0].reputation
+        const reputation = ComplianceServiceDouble.walletReputations.filter((entry: IWalletReputation) => entry.walletAddress === walletAddress )[0].reputation
 
         const currentEtherPriceInDAI = await EthereumService.getEtherPriceInDAI()
 
         const stakingAmount = 0.01 // e.g. Ether
 
-        const p2pStakingPoolAddress = 'to be entered after deployment on mainnet';
-
-        const p2pStakingPoolContract = new web3.eth.Contract(p2pStakingPoolAbi, p2pStakingPoolAddress);
-        const referredTransactioId = StakingPool.stakeETHBeforeMakingATransaction()
-
+        const referredTransactioId = ComplianceServiceDouble.stakeETHBeforeMakingATransaction('asdfökl', 1000)
+        
         return referredTransactioId
     }
 
