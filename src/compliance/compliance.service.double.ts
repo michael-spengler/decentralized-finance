@@ -2,8 +2,6 @@
 import { IStakeEntry, IWalletReputation } from "./interfaces";
 
 import { EthereumService } from "../ethereum/ethereum.service";
-import { IComplianceInterface } from "./compliance.interface";
-import { ComplianceService } from "./compliance.service";
 
 const Web3 = require('web3');
 
@@ -13,7 +11,7 @@ export enum VOTING_DIRECTION {
     up = 1,
     down = 2
 } 
-export class ComplianceServiceDouble implements IComplianceInterface {
+export class ComplianceServiceDouble {
     
     // checke die legimität des posts an sich --> 24 h monatlich 1 h weniger bis 2 h
 
@@ -28,7 +26,7 @@ export class ComplianceServiceDouble implements IComplianceInterface {
         const stakingAmount = 0.01 // e.g. Ether
 
         const referredTransactioId = ComplianceServiceDouble.stakeETHBeforeMakingATransaction('asdfökl', 1000)
-        
+
         return referredTransactioId
     }
 
