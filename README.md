@@ -1,4 +1,4 @@
-![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)  ![NPM Downloads](https://img.shields.io/discord/799926751039979520) 
+![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)  [![NPM Downloads](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)
 
 
 # Decentralized Finance
