@@ -1,6 +1,6 @@
 {
   "name": "decentralized-finance-defi",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.",
   "main": "./dist/index.js",
   "scripts": {
@@ -26,6 +26,8 @@
   "homepage": "https://github.com/michael-spengler/decentralized-finance#readme",
   "dependencies": {
     "@compound-finance/compound-js": "^0.2.4",
+    "@dydxprotocol/perpetual": "^1.2.1",
+    "@dydxprotocol/solo": "^0.39.2",
     "@uniswap/sdk": "^3.0.3",
     "axios": "^0.21.1",
     "dotenv": "^8.2.0",

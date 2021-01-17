@@ -4,6 +4,7 @@ import { STAKING_POOL_TYPE, VOTING_DIRECTION } from "../compliance/interfaces"
 import { Peer2PeerExchangeService } from "./peer2peer.exchange.service"
 
 describe("Peer2PeerExchangeService", () => {
+    
     let peer2PeerExchangeService: Peer2PeerExchangeService
     beforeEach(async () => {
         peer2PeerExchangeService = new Peer2PeerExchangeService(STAKING_POOL_TYPE.TYPESCRIPT_PROGRAM)

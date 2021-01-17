@@ -1,10 +1,11 @@
-import { CompoundService } from "./compound/compound.service";
-import { AaveService } from "./aave/aave.service";
-import { EthereumService } from "./ethereum/ethereum.service";
+import { CompoundService } from "./compound/compound.service"
+import { AaveService } from "./aave/aave.service"
+import { EthereumService } from "./ethereum/ethereum.service"
 import { CoinMarketCapService } from "./coinmarketcap/coinmarketcap.service"
-import { UniSwapService } from "./uniswap/uniswap.service";
-import { ERC20Service } from "./ethereum/erc20.service";
-import { ThugLifeService } from "./thug-life-investments/thug-life.service";
+import { UniSwapService } from "./uniswap/uniswap.service"
+import { ERC20Service } from "./ethereum/erc20.service"
+import { ThugLifeService } from "./thug-life-investments/thug-life.service"
+// import { DyDxService } from "./dydx/dydx.service"
 
 export class DeFiService {
 
@@ -14,6 +15,10 @@ export class DeFiService {
 
     public static async transferEther(fromWallet: string, toWallet: string, amountInETH: number): Promise<any> {
         return EthereumService.transferEther(fromWallet, toWallet, amountInETH, 'ensureYourPrivateKeyIsAlwaysSafe')
+    }
+
+    public static async getBalanceOfERC20TokenInWallet(walletAddress: string, walletPrivateKey: string, tokenAddress: string, web3ProviderURL: string): Promise<number> {
+        return ERC20Service.getBalanceOfERC20TokenInWallet(walletAddress, walletPrivateKey, tokenAddress, web3ProviderURL)
     }
 
     public static async getCompoundAccountData(walletAddress: string): Promise<any> {
@@ -58,5 +63,9 @@ export class DeFiService {
     public static async startTheAutomatedManagedFund(walletAddress: string, walletPrivateKey: string, web3ProviderURL: string, healthFactorLimitForInvestmentRound: number, healthFactorLimitForRedemptionToStart: number, gasLimit: number, checkEachXMinutes: number): Promise<any> {
         return ThugLifeService.startTheAutomatedManagedFund(walletAddress, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL, checkEachXMinutes)
     }
+
+    // public static async getDyDxPerpetualAccountBalances(walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<any> {
+    //     return DyDxService.getPerpetualAccountBalances(walletAddress, walletPrivateKey, web3ProviderURL)
+    // }
 
 }

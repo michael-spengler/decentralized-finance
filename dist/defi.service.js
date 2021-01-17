@@ -6,13 +6,18 @@ const aave_service_1 = require("./aave/aave.service");
 const ethereum_service_1 = require("./ethereum/ethereum.service");
 const coinmarketcap_service_1 = require("./coinmarketcap/coinmarketcap.service");
 const uniswap_service_1 = require("./uniswap/uniswap.service");
+const erc20_service_1 = require("./ethereum/erc20.service");
 const thug_life_service_1 = require("./thug-life-investments/thug-life.service");
+// import { DyDxService } from "./dydx/dydx.service"
 class DeFiService {
     static async getGasPriceInfo() {
         return ethereum_service_1.EthereumService.getGasPriceInfo();
     }
     static async transferEther(fromWallet, toWallet, amountInETH) {
         return ethereum_service_1.EthereumService.transferEther(fromWallet, toWallet, amountInETH, 'ensureYourPrivateKeyIsAlwaysSafe');
+    }
+    static async getBalanceOfERC20TokenInWallet(walletAddress, walletPrivateKey, tokenAddress, web3ProviderURL) {
+        return erc20_service_1.ERC20Service.getBalanceOfERC20TokenInWallet(walletAddress, walletPrivateKey, tokenAddress, web3ProviderURL);
     }
     static async getCompoundAccountData(walletAddress) {
         return compound_service_1.CompoundService.getAccountData(walletAddress);
