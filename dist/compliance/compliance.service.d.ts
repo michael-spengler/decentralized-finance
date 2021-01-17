@@ -1,9 +1,8 @@
-export declare enum VOTING_DIRECTION {
-    UP = 1,
-    DOWN = 2
-}
+import { STAKING_POOL_TYPE, VOTING_DIRECTION } from "./interfaces";
 export declare class ComplianceService {
-    static stakeETHAndMakeTransaction(walletAddress: string, amount: number): Promise<string>;
-    static repayStakedETHToSuccessfulContributors(referredTransactioId: string): void;
-    static voteOnTransaction(walletAddress: string, referredTransactioId: string, votingDirection: VOTING_DIRECTION): void;
+    private stakingPoolType;
+    constructor(stakingPoolType: STAKING_POOL_TYPE);
+    stakeETHAndMakeTransaction(walletAddress: string, amount: number, transactionInput: any): Promise<string>;
+    repayStakedETHToSuccessfulContributorsAndVoters(referredTransactioId: string): Promise<any>;
+    voteOnTransaction(walletAddress: string, referredTransactioId: string, votingDirection: VOTING_DIRECTION): Promise<string>;
 }
