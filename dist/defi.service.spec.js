@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const defi_service_1 = require("./defi.service");
-describe("Processor", () => {
+describe("DeFiService", () => {
     beforeEach(async () => {
         // not needed yet
     });

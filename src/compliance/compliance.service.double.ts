@@ -1,43 +1,38 @@
 
-import { IStakeEntry, IWalletReputation } from "./interfaces";
+// import { EthereumService } from "../ethereum/ethereum.service";
+import { StakingPool } from "./staking-pool";
 
-import { EthereumService } from "../ethereum/ethereum.service";
+// const Web3 = require('web3');
 
-const Web3 = require('web3');
-
-const web3 = new Web3(new Web3.providers.HttpProvider(process.env.PROVIDER_URL));
+// const web3 = new Web3(new Web3.providers.HttpProvider(process.env.PROVIDER_URL));
 
 export enum VOTING_DIRECTION {
-    up = 1,
-    down = 2
+    UP = 1,
+    DOWN = 2
 } 
 export class ComplianceServiceDouble {
     
     // checke die legimität des posts an sich --> 24 h monatlich 1 h weniger bis 2 h
 
-    public static walletReputations: IWalletReputation[] = []
+    public static async stakeETHAndMakeTransaction(walletAddress: string, stakingAmount: number, transactionInput: any): Promise<string> {
 
-    public static async stakeETHBeforeMakingATransaction(walletAddress: string, amount: number): Promise<string> {
+        const reputation =  StakingPool.getWalletReputation(walletAddress) 
 
-        const reputation = ComplianceServiceDouble.walletReputations.filter((entry: IWalletReputation) => entry.walletAddress === walletAddress )[0].reputation
+        // const currentEtherPriceInDAI = await EthereumService.getEtherPriceInDAI()
 
-        const currentEtherPriceInDAI = await EthereumService.getEtherPriceInDAI()
+        const referredTransactionId = StakingPool.stakeETHAndMakeTransaction(walletAddress, stakingAmount, transactionInput)
 
-        const stakingAmount = 0.01 // e.g. Ether
-
-        const referredTransactioId = ComplianceServiceDouble.stakeETHBeforeMakingATransaction('asdfökl', 1000)
-
-        return referredTransactioId
+        return referredTransactionId
+        
     }
 
-    public static repayStakedETHToSuccessfulContributors(referredTransactioId: string) {
-        // tbd
+    public static async repayStakedETHToSuccessfulContributorsAndVoters(referredTransactioId: string): Promise<any> {
+        const rewardTransactionId = await StakingPool.repayStakedETHToSuccessfulContributorsAndVoters(referredTransactioId)
+        
+        return rewardTransactionId
     }
 
-    public static voteOnTransaction(walletAddress: string, referredTransactioId: string, votingDirection: VOTING_DIRECTION) {
-        // tbd
+    public static async voteOnTransaction(walletAddress: string, referredTransactioId: string, votingDirection: VOTING_DIRECTION): Promise<string> {
+        return 'h726'
     }
-
-
-
 }

@@ -2,7 +2,7 @@
 
 import { DeFiService } from "./defi.service"
 
-describe("Processor", () => {
+describe("DeFiService", () => {
     beforeEach(async () => {
         // not needed yet
 

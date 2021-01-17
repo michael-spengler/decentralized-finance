@@ -17,6 +17,7 @@ export interface IP2PExchangeTransaction {
         transactionId: string,
         timeStampTriggered: string,
         timestampFinalized: string,
+        transactionInput: any,
         votes: [
             {
                 ups: number,

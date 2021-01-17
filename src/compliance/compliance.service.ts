@@ -1,6 +1,4 @@
 
-import { IWalletReputation } from "./interfaces";
-
 import { p2pStakingPoolAbi } from "../constants"
 import { EthereumService } from "../ethereum/ethereum.service";
 import { StakingPool } from "./staking-pool";
@@ -10,14 +8,14 @@ const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(process.env.PROVIDER_URL));
 
 export enum VOTING_DIRECTION {
-    up = 1,
-    down = 2
+    UP = 1,
+    DOWN = 2
 } 
 export class ComplianceService {
     
     // checke die legimität des posts an sich --> 24 h monatlich 1 h weniger bis 2 h
 
-    public static async stakeETHBeforeMakingATransaction(walletAddress: string, amount: number): Promise<string> {
+    public static async stakeETHAndMakeTransaction(walletAddress: string, amount: number): Promise<string> {
 
         const reputation = StakingPool.getWalletReputation(walletAddress) 
 
@@ -28,7 +26,7 @@ export class ComplianceService {
         const p2pStakingPoolAddress = 'to be entered after deployment on mainnet';
 
         const p2pStakingPoolContract = new web3.eth.Contract(p2pStakingPoolAbi, p2pStakingPoolAddress);
-        const referredTransactioId = await p2pStakingPoolContract.stakeETHBeforeMakingATransaction().call()
+        const referredTransactioId = await p2pStakingPoolContract.stakeETHAndMakeTransaction().call()
 
         return referredTransactioId
     }

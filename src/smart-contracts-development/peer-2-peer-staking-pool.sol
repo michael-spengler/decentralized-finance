@@ -48,10 +48,10 @@
 //     }
 
 //     /** 
-//      * @dev stakeETHBeforeMakingATransaction.
+//      * @dev stakeETHAndMakeTransaction.
 //      * @param amount amount which is being staked
 //      */
-//     function stakeETHBeforeMakingATransaction(uint256 amount) public {
+//     function stakeETHAndMakeTransaction(uint256 amount) public {
 //         //     uint deadline = block.timestamp + 15; 
 
 //         require(
