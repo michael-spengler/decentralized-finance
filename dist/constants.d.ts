@@ -1,3 +1,4 @@
+export declare const p2pStakingPoolAbi: never[];
 export declare const uniswapJSONInterface: ({
     inputs: {
         internalType: string;

@@ -1,4 +1,5 @@
 import { CompoundService } from "./compound/compound.service";
+import { AaveService } from "./aave/aave.service";
 import { EthereumService } from "./ethereum/ethereum.service";
 import { CoinMarketCapService } from "./coinmarketcap/coinmarketcap.service"
 import { UniSwapService } from "./uniswap/uniswap.service";
@@ -31,6 +32,21 @@ export class DeFiService {
         return CompoundService.redeemAsset(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount)
     }
 
+    public static async getAaveAccountData(walletAddress: string, web3ProviderURL: string): Promise<any> {
+        return AaveService.getAccountData(walletAddress, web3ProviderURL)
+    }
+
+    public static async depositEtherToAave(amountOfEtherToBeDeposited: number, senderWalletPrivateKey: string, gasLimit: number, web3ProviderURL: string): Promise<void> {
+        return AaveService.depositEtherToAave(amountOfEtherToBeDeposited, senderWalletPrivateKey, gasLimit, web3ProviderURL)
+    }
+
+    public static async borrowDAIFromAave(amountOfDAIToBeBorrowed: number, walletPrivateKey: string, gasLimit: number, web3ProviderURL: string) {
+        return AaveService.borrowDAIFromAave(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL)
+    }
+
+    public static async redeemAssetFromAave(walletAddress: string, walletPrivateKey: string, gasLimit: number, web3ProviderURL: string, amount?: number) {
+        return AaveService.redeemAsset(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount)
+    }
     public static async getPriceDataWithTimeStamp(coinMarketCapAPIKey: string): Promise<any> {
         return CoinMarketCapService.getPriceDataWithTimeStamp(coinMarketCapAPIKey)
     }

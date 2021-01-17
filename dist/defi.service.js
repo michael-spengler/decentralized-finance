@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeFiService = void 0;
 const compound_service_1 = require("./compound/compound.service");
+const aave_service_1 = require("./aave/aave.service");
 const ethereum_service_1 = require("./ethereum/ethereum.service");
 const coinmarketcap_service_1 = require("./coinmarketcap/coinmarketcap.service");
 const uniswap_service_1 = require("./uniswap/uniswap.service");
@@ -24,6 +25,18 @@ class DeFiService {
     }
     static async redeemAssetFromCompound(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount) {
         return compound_service_1.CompoundService.redeemAsset(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount);
+    }
+    static async getAaveAccountData(walletAddress, web3ProviderURL) {
+        return aave_service_1.AaveService.getAccountData(walletAddress, web3ProviderURL);
+    }
+    static async depositEtherToAave(amountOfEtherToBeDeposited, senderWalletPrivateKey, gasLimit, web3ProviderURL) {
+        return aave_service_1.AaveService.depositEtherToAave(amountOfEtherToBeDeposited, senderWalletPrivateKey, gasLimit, web3ProviderURL);
+    }
+    static async borrowDAIFromAave(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL) {
+        return aave_service_1.AaveService.borrowDAIFromAave(amountOfDAIToBeBorrowed, walletPrivateKey, gasLimit, web3ProviderURL);
+    }
+    static async redeemAssetFromAave(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount) {
+        return aave_service_1.AaveService.redeemAsset(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount);
     }
     static async getPriceDataWithTimeStamp(coinMarketCapAPIKey) {
         return coinmarketcap_service_1.CoinMarketCapService.getPriceDataWithTimeStamp(coinMarketCapAPIKey);
