@@ -1,7 +1,7 @@
   
     
 
-# Decentralized Finance
+# Decentralized Finance (DeFi)
 This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
 
 Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the following usage examples.
@@ -199,6 +199,14 @@ The disclosure of security vulnerabilities helps us ensure the security of our u
 
 #### How to report a security vulnerability?
 If you have found a potential security vulnerability in our code, please raise a general issue **without revealing the vulnerability itself**. Just mention that you want to get in touch regarding a potential security vulnerability and let us know how we can contact you.
+
+#### Protect against Postinstall Exploits
+In order to protect your project against postinstall exploits, we recommend to follow the following dependencies installation- / update pattern: 
+```sh
+npm config set ignore-scripts true
+npm install
+npm config set ignore-scripts false
+```
 
 ## Support our Open Source Contributions
 If you like our work, you might download the Brave Browser via our

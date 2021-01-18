@@ -4,6 +4,7 @@
   "description": "This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.",
   "main": "./dist/index.js",
   "scripts": {
+    "install-safe": "npm config set ignore-scripts true && npm i && npm config set ignore-scripts false",
     "build": "tsc --p ./",
     "test": "jest"
   },
