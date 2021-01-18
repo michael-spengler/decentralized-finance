@@ -189,16 +189,7 @@ One option to do so is described in [this tutorial](https://www.youtube.com/watc
 Depending on your specific jurisdiction you might check [tornadocash.eth.link/compliance](https://tornadocash.eth.link/compliance).
 
 ## Security
-
-### Independent Audits
-We did not trigger any audits yet. The plan is to do so as soon as this package has a strong adoption and contributor base.
-We will then trigger audits via [Zeppelin Solutions](https://zeppelin.solutions/) and publish the Zeppelin Solutions Audit Report.
-
-### Vulnerability Disclosure Policy
-The disclosure of security vulnerabilities helps us ensure the security of our users.
-
-#### How to report a security vulnerability?
-If you have found a potential security vulnerability in our code, please raise a general issue **without revealing the vulnerability itself**. Just mention that you want to get in touch regarding a potential security vulnerability and let us know how we can contact you.
+See [Security Policy](https://github.com/michael-spengler/decentralized-finance/blob/main/SECURITY.md).
 
 #### Protect against Postinstall Exploits
 In order to protect your project against postinstall exploits, we recommend to follow the following dependencies installation- / update pattern: 
