@@ -13,4 +13,5 @@ export declare class DeFiService {
     static getPriceDataWithTimeStamp(coinMarketCapAPIKey: string): Promise<any>;
     static swapDAIToETH(amountOfDAIToBeSwapped: number, walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<void>;
     static startTheAutomatedManagedFund(walletAddress: string, walletPrivateKey: string, web3ProviderURL: string, healthFactorLimitForInvestmentRound: number, healthFactorLimitForRedemptionToStart: number, gasLimit: number, checkEachXMinutes: number): Promise<any>;
+    static getDyDxPerpetualAccountBalances(walletAddress: string): Promise<any>;
 }

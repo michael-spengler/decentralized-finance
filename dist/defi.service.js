@@ -8,6 +8,7 @@ const coinmarketcap_service_1 = require("./coinmarketcap/coinmarketcap.service")
 const uniswap_service_1 = require("./uniswap/uniswap.service");
 const erc20_service_1 = require("./ethereum/erc20.service");
 const thug_life_service_1 = require("./thug-life-investments/thug-life.service");
+const dydx_service_1 = require("./dydx/dydx.service");
 // import { DyDxService } from "./dydx/dydx.service"
 class DeFiService {
     static async getGasPriceInfo() {
@@ -51,6 +52,9 @@ class DeFiService {
     }
     static async startTheAutomatedManagedFund(walletAddress, walletPrivateKey, web3ProviderURL, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, gasLimit, checkEachXMinutes) {
         return thug_life_service_1.ThugLifeService.startTheAutomatedManagedFund(walletAddress, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL, checkEachXMinutes);
+    }
+    static async getDyDxPerpetualAccountBalances(walletAddress) {
+        return dydx_service_1.DyDxService.getPerpetualAccountBalances(walletAddress);
     }
 }
 exports.DeFiService = DeFiService;

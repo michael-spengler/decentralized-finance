@@ -5,6 +5,7 @@ import { CoinMarketCapService } from "./coinmarketcap/coinmarketcap.service"
 import { UniSwapService } from "./uniswap/uniswap.service"
 import { ERC20Service } from "./ethereum/erc20.service"
 import { ThugLifeService } from "./thug-life-investments/thug-life.service"
+import { DyDxService } from "./dydx/dydx.service"
 // import { DyDxService } from "./dydx/dydx.service"
 
 export class DeFiService {
@@ -64,8 +65,8 @@ export class DeFiService {
         return ThugLifeService.startTheAutomatedManagedFund(walletAddress, walletPrivateKey, gasLimit, healthFactorLimitForInvestmentRound, healthFactorLimitForRedemptionToStart, web3ProviderURL, checkEachXMinutes)
     }
 
-    // public static async getDyDxPerpetualAccountBalances(walletAddress: string, walletPrivateKey: string, web3ProviderURL: string): Promise<any> {
-    //     return DyDxService.getPerpetualAccountBalances(walletAddress, walletPrivateKey, web3ProviderURL)
-    // }
+    public static async getDyDxPerpetualAccountBalances(walletAddress: string): Promise<any> {
+        return DyDxService.getPerpetualAccountBalances(walletAddress)
+    }
 
 }

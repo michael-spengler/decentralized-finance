@@ -112,6 +112,23 @@ await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPriv
 
 ```
 
+### Leverage Investing
+#### Get account info from DyDx.exchange
+You can also test this feature via the [dydx.exchange](https://dydx.exchange/) user interface.
+```ts
+
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
+    
+const { DeFiService } = require("decentralized-finance-defi")
+    
+const walletAddress = process.env.SENDER_WALLET_ADDRESS
+
+const result = await DeFiService.getDyDxPerpetualAccountBalances(walletAddress)
+
+console.log(result)
+
+
+```
 
 ### Crypto Currency Insights 
 #### Get Price Data with Timestamp from Coinmarketcap (API Key Required)
@@ -163,7 +180,7 @@ For Permaweb deployments you might check [argoapp.live](https://argoapp.live). I
 If you see an issue in the DeFi space which you want to see solved, consider funding the solution via [gitcoin.co](https://gitcoin.co).
 
 ## Deno based DeFi
-I prepared [the corresponding Deno module](https://deno.land/x/defi) and wait until the dependencies of the package at hand are ready for Deno.
+I prepared [the corresponding Deno module](https://deno.land/x/defi) and wait until the dependencies of the package at hand are ready for [Deno](https://deno.land) resp. [nest.land](https://nest.land).
 
 
 ## GDPR related Data Privacy
