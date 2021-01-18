@@ -200,6 +200,9 @@ The disclosure of security vulnerabilities helps us ensure the security of our u
 #### How to report a security vulnerability?
 If you have found a potential security vulnerability in our code, please raise a general issue **without revealing the vulnerability itself**. Just mention that you want to get in touch regarding a potential security vulnerability and let us know how we can contact you.
 
+#### Protect your Project
+In order to protect your project from potentially questionable dependencies of dependencies of dependencies ... we recommend to take a look at [this issue](https://github.com/michael-spengler/decentralized-finance/issues/2) describing the general postinstall exploit.
+
 ## Support our Open Source Contributions
 If you like our work, you might download the Brave Browser via our
 promotion link: [https://brave.com/fan464](https://brave.com/fan464).
