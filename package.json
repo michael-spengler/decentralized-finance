@@ -4,9 +4,9 @@
   "description": "This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.",
   "main": "./dist/index.js",
   "scripts": {
-    "install-safe": "npm config set ignore-scripts true && npm i && npm config set ignore-scripts false",
     "build": "tsc --p ./",
-    "test": "jest"
+    "test": "jest",
+    "ignore-scripts": "npm config set ignore-scripts true"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
     "@dydxprotocol/solo": "^0.39.2",
     "@uniswap/sdk": "^3.0.3",
     "axios": "^0.21.1",
+    "brain.js": "^2.0.0-beta.2",
     "dotenv": "^8.2.0",
     "ethers": "^5.0.25",
     "fs-extra": "^9.0.1",

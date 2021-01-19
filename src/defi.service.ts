@@ -6,7 +6,7 @@ import { UniSwapService } from "./uniswap/uniswap.service"
 import { ERC20Service } from "./ethereum/erc20.service"
 import { ThugLifeService } from "./thug-life-investments/thug-life.service"
 import { DyDxService } from "./dydx/dydx.service"
-// import { DyDxService } from "./dydx/dydx.service"
+import { Trader } from "./artificial-neural-nets/trader"
 
 export class DeFiService {
 
@@ -67,6 +67,14 @@ export class DeFiService {
 
     public static async getDyDxPerpetualAccountBalances(walletAddress: string): Promise<any> {
         return DyDxService.getPerpetualAccountBalances(walletAddress)
+    }
+
+    public static async charterATrader(earningWindowInMinutes: number = 5, binaryThresh: number = 0.5, hiddenLayers: any[] = [3], activation: string = 'sigmoid', leakyReluAlpha: number = 0.01): Promise<any> {
+
+        const trader = new Trader(earningWindowInMinutes, binaryThresh, hiddenLayers, activation, leakyReluAlpha)
+        trader.observe()
+        trader.giveMeYourGuess()
+
     }
 
 }

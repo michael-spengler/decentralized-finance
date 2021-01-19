@@ -9,7 +9,7 @@ const uniswap_service_1 = require("./uniswap/uniswap.service");
 const erc20_service_1 = require("./ethereum/erc20.service");
 const thug_life_service_1 = require("./thug-life-investments/thug-life.service");
 const dydx_service_1 = require("./dydx/dydx.service");
-// import { DyDxService } from "./dydx/dydx.service"
+const trader_1 = require("./artificial-neural-nets/trader");
 class DeFiService {
     static async getGasPriceInfo() {
         return ethereum_service_1.EthereumService.getGasPriceInfo();
@@ -55,6 +55,11 @@ class DeFiService {
     }
     static async getDyDxPerpetualAccountBalances(walletAddress) {
         return dydx_service_1.DyDxService.getPerpetualAccountBalances(walletAddress);
+    }
+    static async charterATrader(earningWindowInMinutes = 5, binaryThresh = 0.5, hiddenLayers = [3], activation = 'sigmoid', leakyReluAlpha = 0.01) {
+        const trader = new trader_1.Trader(earningWindowInMinutes, binaryThresh, hiddenLayers, activation, leakyReluAlpha);
+        trader.observe();
+        trader.giveMeYourGuess();
     }
 }
 exports.DeFiService = DeFiService;

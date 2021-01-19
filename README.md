@@ -127,6 +127,16 @@ const result = await DeFiService.getDyDxPerpetualAccountBalances(walletAddress)
 
 console.log(result)
 
+```
+
+### Leverage Neural Networks
+#### Explore FeedForward Neural Nets with Backpropagation
+```ts
+
+// This one is in experimental mode - check the code to check whether it is fine for you.
+const { DeFiService } = require("decentralized-finance-defi")
+
+DeFiService.charterATrader() // observe the console output
 
 ```
 
@@ -191,8 +201,8 @@ Depending on your specific jurisdiction you might check [tornadocash.eth.link/co
 ## Security
 See [Security Policy](https://github.com/michael-spengler/decentralized-finance/blob/main/SECURITY.md).
 
-#### Protect against Postinstall Exploits
-In order to protect your project against postinstall exploits, we recommend to follow the following dependencies installation- / update pattern: 
+### Protect against Postinstall Exploits
+To be on the safe side even if a dependency of a dependency of a dependency .... tries to exploit the [potential postinstall weak spot]([here](https://github.com/michael-spengler/decentralized-finance/issues/2)) we recommend to adhere to the following pattern: 
 ```sh
 npm config set ignore-scripts true
 npm install
