@@ -1,5 +1,5 @@
   
-# Decentralized Finance (DeFi) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://raw.githubusercontent.com/michael-spengler/decentralized-finance/main/logo.svg" alt="drawing" width="200"/>
+# Decentralized Finance &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [<img src="https://raw.githubusercontent.com/michael-spengler/decentralized-finance/main/logo.svg" alt="drawing" width="200"/>](https://www.npmjs.com/package/decentralized-finance-defi)
 This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
 
 Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the following usage examples.
