@@ -1,5 +1,9 @@
 
+
+// Experimental Mode - Trying things out here
 // checke die legimität des posts an sich --> 24 h monatlich 1 h weniger bis 2 h
+
+
 
 import { p2pStakingPoolAbi } from "../constants"
 import { EthereumService } from "../ethereum/ethereum.service";

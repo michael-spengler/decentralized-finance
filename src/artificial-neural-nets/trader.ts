@@ -10,10 +10,12 @@ export class Trader {
 
     private earningWindowInMinutes: number
 
-    private relativePathToTrainingData: string
+    private observationRateInMinutes: number
+
+    private pathToTrainingData: string
 
 
-    public constructor(earningWindowInMinutes: number, binaryThresh: number, hiddenLayers: any[], activation: string, leakyReluAlpha: number) {
+    public constructor(earningWindowInMinutes: number, observationRateInMinutes: number, binaryThresh: number, hiddenLayers: any[], activation: string, leakyReluAlpha: number) {
 
         const hyperParameters = {
             binaryThresh,
@@ -26,14 +28,20 @@ export class Trader {
 
         this.earningWindowInMinutes = earningWindowInMinutes
 
-        this.relativePathToTrainingData = './src/artificial-neural-nets/example-data-history.json'
+        this.observationRateInMinutes = observationRateInMinutes
+
+        this.pathToTrainingData = `${__dirname}/example-data-history.json`
+
+        if ((earningWindowInMinutes / observationRateInMinutes) < 2) {
+            throw new Error("Please make sure that the earningWindowInMinutes is at least twice as high as the observationRateInMinutes.")
+        }
     }
 
 
     public async trainModel(trainingData?: any[]) {
 
         if (trainingData === undefined) {
-            const exampleDataHistory = await fsExtra.readJson(this.relativePathToTrainingData)
+            const exampleDataHistory = await fsExtra.readJson(this.pathToTrainingData)
 
             let previousEtherPrice: number = 0
 
@@ -43,17 +51,19 @@ export class Trader {
                 const bitcoin = entry.data[0]
                 const ether = entry.data[1]
 
-                
-                if (previousEtherPrice === 0 || previousEtherPrice === ether.quote.USD.price) {
-                    // relax
+
+                if (previousEtherPrice === ether.quote.USD.price) {
+                    console.log(`not adding entry related to timestamp ${entry.status.timestamp} and ether price ${ether.quote.USD.price}`)
                 } else if (previousEtherPrice < ether.quote.USD.price) {
                     const neuralNetInputArrayEntry = { input: [bitcoin.quote.USD.price, ether.quote.USD.price], output: [1] }
                     neuralNetInputArray.push(neuralNetInputArrayEntry)
+                    console.log(`pushing a new concrete rise pattern.`)
                 } else if (previousEtherPrice > ether.quote.USD.price) {
                     const neuralNetInputArrayEntry = { input: [bitcoin.quote.USD.price, ether.quote.USD.price], output: [0] }
                     neuralNetInputArray.push(neuralNetInputArrayEntry)
+                    console.log(`pushing a new concrete dip pattern.`)
                 }
-                
+
                 previousEtherPrice = ether.quote.USD.price
             }
 
@@ -72,6 +82,7 @@ export class Trader {
     public async giveMeYourGuess(): Promise<void> {
         setInterval(async () => {
 
+            await this.trainModel()
             const currentData = (await axios.get('https://openforce.de/getPrice')).data.coinmarketcapResult
 
             const bitcoin = currentData.data[0]
@@ -94,26 +105,33 @@ export class Trader {
 
         let exampleDataHistory: any[] = []
 
+        let previousTimeStamp: string
+
         setInterval(async () => {
 
             try {
-                exampleDataHistory = await fsExtra.readJson(this.relativePathToTrainingData)
+                exampleDataHistory = await fsExtra.readJson(this.pathToTrainingData)
             } catch (error) {
-                await fsExtra.writeFileSync(this.relativePathToTrainingData, JSON.stringify(exampleDataHistory))
+
+                const dataFromDenoRepo = (await axios.get('https://github.com/michael-spengler/defi-deno/blob/main/feedforward-net-with-backpropagation/test-data.json')).data
+
+                await fsExtra.writeFileSync(this.pathToTrainingData, JSON.stringify(dataFromDenoRepo))
+                // await fsExtra.writeFileSync(this.pathToTrainingData, JSON.stringify(exampleDataHistory))
             }
 
             const currentData = (await axios.get('https://openforce.de/getPrice')).data.coinmarketcapResult
 
-            exampleDataHistory.push(currentData)
+            console.log(previousTimeStamp)
+            console.log(currentData.status.timestamp)
 
-            await fsExtra.writeFileSync(this.relativePathToTrainingData, JSON.stringify(exampleDataHistory))
+            if (previousTimeStamp === undefined || (new Date(currentData.status.timestamp) > new Date(previousTimeStamp))) {
+                exampleDataHistory.push(currentData)
+                previousTimeStamp = currentData.status.timestamp
+            }
 
-            const bitcoin = currentData.data[0]
-            const ether = currentData.data[1]
+            await fsExtra.writeFileSync(this.pathToTrainingData, JSON.stringify(exampleDataHistory))
 
-            await this.trainModel()
-
-        }, 1000 * 60 * 0.1) // every 10 seconds
+        }, 1000 * 60 * this.observationRateInMinutes) // every observationRateInMinutes minutes
 
     }
 }

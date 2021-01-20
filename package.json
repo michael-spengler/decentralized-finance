@@ -1,12 +1,13 @@
 {
   "name": "decentralized-finance-defi",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "description": "This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc --p ./",
     "test": "jest",
-    "ignore-scripts": "npm config set ignore-scripts true"
+    "ignore-scripts": "npm config set ignore-scripts true",
+    "npm-publish": "npm run build && npm publish"
   },
   "repository": {
     "type": "git",
@@ -47,7 +48,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run test"
+      "pre-commit": "npm run test && npm run build"
     }
   }
 }

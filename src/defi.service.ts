@@ -1,3 +1,4 @@
+
 import { CompoundService } from "./compound/compound.service"
 import { AaveService } from "./aave/aave.service"
 import { EthereumService } from "./ethereum/ethereum.service"
@@ -53,6 +54,7 @@ export class DeFiService {
     public static async redeemAssetFromAave(walletAddress: string, walletPrivateKey: string, gasLimit: number, web3ProviderURL: string, amount?: number) {
         return AaveService.redeemAsset(walletAddress, walletPrivateKey, gasLimit, web3ProviderURL, amount)
     }
+    
     public static async getPriceDataWithTimeStamp(coinMarketCapAPIKey: string): Promise<any> {
         return CoinMarketCapService.getPriceDataWithTimeStamp(coinMarketCapAPIKey)
     }
@@ -69,9 +71,9 @@ export class DeFiService {
         return DyDxService.getPerpetualAccountBalances(walletAddress)
     }
 
-    public static async charterATrader(earningWindowInMinutes: number = 5, binaryThresh: number = 0.5, hiddenLayers: any[] = [3], activation: string = 'sigmoid', leakyReluAlpha: number = 0.01): Promise<any> {
+    public static async charterATrader(earningWindowInMinutes: number = 5, observationRateInMinutes: number = 1, binaryThresh: number = 0.5, hiddenLayers: any[] = [3], activation: string = 'sigmoid', leakyReluAlpha: number = 0.01): Promise<any> {
 
-        const trader = new Trader(earningWindowInMinutes, binaryThresh, hiddenLayers, activation, leakyReluAlpha)
+        const trader = new Trader(earningWindowInMinutes, observationRateInMinutes, binaryThresh, hiddenLayers, activation, leakyReluAlpha)
         trader.observe()
         trader.giveMeYourGuess()
 

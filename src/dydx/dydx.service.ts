@@ -1,12 +1,17 @@
 
+
+// https://docs.dydx.exchange/#perpetual-place-order
+
 // https://docs.instadapp.io/installation/ ??
 
 // https://docs.dydx.exchange/#introduction
 
 // import { BigNumber } from '@dydxprotocol/solo';
-import { Perpetual, PerpetualMarket, Networks } from '@dydxprotocol/perpetual';
+import { ApiSide, ApiMarketName, BigNumber, Perpetual, PerpetualMarket, Networks } from '@dydxprotocol/perpetual';
+import axios from 'axios';
 
 const Web3 = require('web3');
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
 
 export class DyDxService {
 
@@ -87,4 +92,65 @@ export class DyDxService {
     // });
 
   }
+
+
+  public static async placeOrder(walletAddress: string) {
+
+    if (!DyDxService.isReadyToServe) {
+      await DyDxService.initialize()
+    }
+
+    const orderbook = (await axios.get('https://api.dydx.exchange/v1/orderbook/WETH-DAI')).data
+    console.log(orderbook)
+
+    const orderIdFromActiveOrderBook = '0xd17ae8439b99c6c7637808be36d856c6f6f497ab132a7f394f611396b5594844'
+    // await DyDxService.dydxPerpetual.api.getOrderV2({ id: orderIdFromActiveOrderBook })
+
+    // const orders = (await axios.get('https://api.dydx.exchange/v2/orders')).data.orders.filter((e: any) => e.market === 'WETH-USDC')
+    // console.log(orders.length)
+
+    // console.log(orders[0])
+
+    // const order1 = (await axios.get(`https://api.dydx.exchange/v2/orders/${orderIdFromActiveOrderBook}`)).data
+
+
+
+
+    // order has type ApiOrder
+    const { order } = await DyDxService.dydxPerpetual.api.placePerpetualOrder({
+      order: {
+        side: ApiSide.BUY,
+        amount: new BigNumber('1e8'),
+        price: '72.00',
+        maker: walletAddress,
+        taker: '0x7a94831b66a7ae1948b1a94a9555a7efa99cb426',
+        expiration: new BigNumber('1000'), // the order would expire after 1000 seconds
+        limitFee: '0.0075',
+      },
+      fillOrKill: false,
+      postOnly: false,
+      clientId: 'foo',
+      cancelId: '0x2c45cdcd3bce2dd0f2b40502e6bea7975f6daa642d12d28620deb18736619fa2',
+      cancelAmountOnRevert: false,
+      market: ApiMarketName.PBTC_USDC,
+    });
+  }
 }
+
+
+
+
+// async function test() {
+
+//   const walletAddress = process.env.SENDER_WALLET_ADDRESS
+
+//   // const result = await DyDxService.getPerpetualAccountBalances(walletAddress as string)
+//   // console.log(result.balances)
+//   // // console.log(result.balances['WETH-PUSD'])
+
+//   DyDxService.placeOrder(walletAddress)
+// }
+
+// test()
+
+

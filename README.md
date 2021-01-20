@@ -7,7 +7,7 @@ This package provides distributed ledger based banking features like payments, d
 Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the following usage examples.
 
 
-[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![NPM Downloads](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)
+[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![NPM Downloads](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)  [![NPM Downloads](https://img.shields.io/github/package-json/:key/:user/:repo)](https://github.com/michael-spengler/decentralized-finance)
 
 
 ## Usage Examples
@@ -129,7 +129,7 @@ console.log(result)
 
 ```
 
-### Leverage Neural Networks
+### Neural Networks
 #### Explore FeedForward Neural Nets with Backpropagation
 ```ts
 
@@ -178,7 +178,7 @@ You can find some simple examples for solidity based smart contract development 
 
 
 ## General Recommendations
-You might also check [aave.com](https://aave.com/), [klopapier.exchange](https://klopapier.exchange/) and [compound.finance](https://compound.finance). 
+You might also check [aave.com](https://aave.com/), [klopapier.exchange](https://klopapier.exchange/) and [compound.finance](https://compound.finance). If you want to get a general overview on DeFi Services, you might check the [defipulse.com](https://defipulse.com/).
 
 ## Distributed Domain Name Services
 To provide your user interfaces in a sustainable way you might check [ens.domains](https://ens.domains). If you want to try it, you might check [this tutorial](https://www.youtube.com/watch?v=oA4oOY5zgU0).
@@ -208,6 +208,16 @@ npm config set ignore-scripts true
 npm install
 npm config set ignore-scripts false
 ```
+
+## OpenBits based Open Source Incentive Engineering
+With this package we also explore the features of [openbits.world](https://openbits.world).  
+If you want to support this adventure, consider installing the package via:
+```sh
+openbits install decentralized-finance-defi
+```
+You can find background information on that via: 
+https://openbits.world/#/explore-openbit/decentralized-finance-defi
+
 
 ## Support our Open Source Contributions
 If you like our work, you might download the Brave Browser via our
