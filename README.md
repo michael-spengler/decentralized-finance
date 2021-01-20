@@ -7,7 +7,7 @@ This package provides distributed ledger based banking features like payments, d
 Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the following usage examples.
 
 
-[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![NPM Downloads](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)  ![NPM Downloads](https://img.shields.io/maintenance/maintained/2021)
+[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![Chat](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)  [![Maintained](https://img.shields.io/maintenance/maintained/2021)](https://github.com/michael-spengler/decentralized-finance)  [![License](https://img.shields.io/npm/l/decentralized-finance-defi)](https://github.com/michael-spengler/decentralized-finance/blob/main/LICENSE)
 
 
 ## Usage Examples
