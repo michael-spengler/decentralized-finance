@@ -7,7 +7,7 @@ This package provides distributed ledger based banking features like payments, d
 Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the following usage examples.
 
 
-[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![Chat](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)  [![Maintained](https://img.shields.io/maintenance/maintained/2021)](https://github.com/michael-spengler/decentralized-finance)  [![License](https://img.shields.io/npm/l/decentralized-finance-defi)](https://github.com/michael-spengler/decentralized-finance/blob/main/LICENSE)
+[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![Chat](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)  [![Maintained](https://img.shields.io/maintenance/maintained/2021)](https://github.com/michael-spengler/decentralized-finance)  
 
 
 ## Usage Examples
@@ -189,6 +189,16 @@ For Permaweb deployments you might check [argoapp.live](https://argoapp.live). I
 ## Fund Contributions
 If you see an issue in the DeFi space which you want to see solved, consider funding the solution via [gitcoin.co](https://gitcoin.co).
 
+## OpenBits based Open Source Incentive Engineering
+With this package we also explore the features of [openbits.world](https://openbits.world).  
+If you want to support this adventure, consider installing the package via:
+```sh
+openbits install decentralized-finance-defi
+```
+You can find background information on that via: 
+https://openbits.world/#/explore-openbit/decentralized-finance-defi
+
+
 ## Deno based DeFi
 I prepared [the corresponding Deno module](https://deno.land/x/defi) and wait until the dependencies of the package at hand are ready for [Deno](https://deno.land) resp. [nest.land](https://nest.land).
 
@@ -208,16 +218,6 @@ npm config set ignore-scripts true
 npm install
 npm config set ignore-scripts false
 ```
-
-## OpenBits based Open Source Incentive Engineering
-With this package we also explore the features of [openbits.world](https://openbits.world).  
-If you want to support this adventure, consider installing the package via:
-```sh
-openbits install decentralized-finance-defi
-```
-You can find background information on that via: 
-https://openbits.world/#/explore-openbit/decentralized-finance-defi
-
 
 ## Support our Open Source Contributions
 If you like our work, you might download the Brave Browser via our
