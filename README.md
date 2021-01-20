@@ -1,14 +1,11 @@
   
-    
-
 # Decentralized Finance (DeFi)
 This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
 
 Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the following usage examples.
 
 
-[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![Chat](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)  [![Maintained](https://img.shields.io/maintenance/maintained/2021)](https://github.com/michael-spengler/decentralized-finance)  
-
+[![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![Chat](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)  [![Maintained](https://img.shields.io/maintenance/maintained/2021)](https://github.com/michael-spengler/decentralized-finance)  <span style="item-align:right"><img src="https://user-images.githubusercontent.com/43786652/105228094-6ab37300-5b62-11eb-8d96-50d0618b2f16.png" alt="drawing" width="200"/></span>
 
 ## Usage Examples
 
@@ -195,7 +192,7 @@ If you want to support this adventure, consider installing the package via:
 ```sh
 openbits install decentralized-finance-defi
 ```
-You can find background information on that via: 
+You can find background information on that via:   
 https://openbits.world/#/explore-openbit/decentralized-finance-defi
 
 
