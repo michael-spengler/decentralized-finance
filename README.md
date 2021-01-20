@@ -168,7 +168,7 @@ console.log(gasPriceInfo.fastest)
 
 ## Further Features
 
-You can find many more simple and general examples in the [DeFi Service](https://github.com/michael-spengler/decentralized-finance/blob/main/src/defi.service.ts) file. If you are looking for anything more specific, feel free to check the corresponding folders and class definitions within the [src](https://github.com/michael-spengler/decentralized-finance/tree/main/src) folder.
+You can find further examples in the [DeFi Service](https://github.com/michael-spengler/decentralized-finance/blob/main/src/defi.service.ts) file. If you are looking for anything more specific, feel free to check the corresponding folders and class definitions within the [src](https://github.com/michael-spengler/decentralized-finance/tree/main/src) folder.
 
 If you have not found what you are looking for, feel free to [raise an issue](https://github.com/michael-spengler/decentralized-finance/issues/new) or even better raise a Pull Request. 
 
@@ -184,7 +184,7 @@ You might also check [aave.com](https://aave.com/), [klopapier.exchange](https:/
 To provide your user interfaces in a sustainable way you might check [ens.domains](https://ens.domains). If you want to try it, you might check [this tutorial](https://www.youtube.com/watch?v=oA4oOY5zgU0).
 
 ## Blockchain based Deployments
-For Permaweb deployments you might check [argoapp.live](https://argoapp.live). I tested it for a vuejs frontend project. It works pretty straight forward already.
+For Permaweb deployments you might check [argoapp.live](https://argoapp.live). I tested it for a vuejs frontend project. It works pretty straight forward already. If you are in general a fan of the decentralized web (dWeb), you might also check the new (2021) [IPFS browser standard](https://brave.com/brave-integrates-ipfs/).
 
 ## Fund Contributions
 If you see an issue in the DeFi space which you want to see solved, consider funding the solution via [gitcoin.co](https://gitcoin.co).
