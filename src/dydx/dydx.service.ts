@@ -18,28 +18,6 @@ export class DyDxService {
   private static isReadyToServe = false
   private static dydxPerpetual: any
 
-  public static async initialize() {
-
-    const provider = new Web3(new Web3.providers.HttpProvider(process.env.PROVIDER_URL));
-
-    DyDxService.dydxPerpetual = new Perpetual(
-      provider,
-      PerpetualMarket.PBTC_USDC,
-      Networks.MAINNET, // Optional
-      {
-        defaultAccount: '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1',
-        accounts: [
-          {
-            address: '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1',
-            privateKey: '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d', // from the public documentation - seems uncritical
-          },
-        ],
-      }, // Optional
-    );
-
-    DyDxService.isReadyToServe = true
-  }
-
   public static async getPerpetualAccountBalances(walletAddress: string): Promise<any> {
     if (!DyDxService.isReadyToServe) {
       await DyDxService.initialize()
@@ -101,10 +79,13 @@ export class DyDxService {
     }
 
     const orderbook = (await axios.get('https://api.dydx.exchange/v1/orderbook/WETH-DAI')).data
-    console.log(orderbook)
+    console.log(orderbook.bids[0])
+    console.log(orderbook.asks[0])
 
-    const orderIdFromActiveOrderBook = '0xd17ae8439b99c6c7637808be36d856c6f6f497ab132a7f394f611396b5594844'
-    // await DyDxService.dydxPerpetual.api.getOrderV2({ id: orderIdFromActiveOrderBook })
+    // const orderIdFromActiveOrderBook = '0xd17ae8439b99c6c7637808be36d856c6f6f497ab132a7f394f611396b5594844'
+    const orderIdFromActiveOrderBook = orderbook.bids[0].id
+    const specificOrder = await DyDxService.dydxPerpetual.api.getOrderV2({ id: orderIdFromActiveOrderBook })
+    console.log(specificOrder)
 
     // const orders = (await axios.get('https://api.dydx.exchange/v2/orders')).data.orders.filter((e: any) => e.market === 'WETH-USDC')
     // console.log(orders.length)
@@ -116,25 +97,49 @@ export class DyDxService {
 
 
 
-    // order has type ApiOrder
-    const { order } = await DyDxService.dydxPerpetual.api.placePerpetualOrder({
-      order: {
-        side: ApiSide.BUY,
-        amount: new BigNumber('1e8'),
-        price: '72.00',
-        maker: walletAddress,
-        taker: '0x7a94831b66a7ae1948b1a94a9555a7efa99cb426',
-        expiration: new BigNumber('1000'), // the order would expire after 1000 seconds
-        limitFee: '0.0075',
-      },
-      fillOrKill: false,
-      postOnly: false,
-      clientId: 'foo',
-      cancelId: '0x2c45cdcd3bce2dd0f2b40502e6bea7975f6daa642d12d28620deb18736619fa2',
-      cancelAmountOnRevert: false,
-      market: ApiMarketName.PBTC_USDC,
-    });
+    // // order has type ApiOrder
+    // const { order } = await DyDxService.dydxPerpetual.api.placePerpetualOrder({
+    //   order: {
+    //     side: ApiSide.BUY,
+    //     amount: new BigNumber('1e8'),
+    //     price: '72.00',
+    //     maker: walletAddress,
+    //     taker: '0x7a94831b66a7ae1948b1a94a9555a7efa99cb426',
+    //     expiration: new BigNumber('1000'), // the order would expire after 1000 seconds
+    //     limitFee: '0.0075',
+    //   },
+    //   fillOrKill: false,
+    //   postOnly: false,
+    //   clientId: 'foo',
+    //   cancelId: '0x2c45cdcd3bce2dd0f2b40502e6bea7975f6daa642d12d28620deb18736619fa2',
+    //   cancelAmountOnRevert: false,
+    //   market: ApiMarketName.PBTC_USDC,
+    // });
   }
+
+
+  private static async initialize() {
+
+    const provider = new Web3(new Web3.providers.HttpProvider(process.env.PROVIDER_URL));
+
+    DyDxService.dydxPerpetual = new Perpetual(
+      provider,
+      PerpetualMarket.PBTC_USDC,
+      Networks.MAINNET, // Optional
+      {
+        defaultAccount: '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1',
+        accounts: [
+          {
+            address: '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1',
+            privateKey: '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d', // from the public documentation - seems uncritical
+          },
+        ],
+      }, // Optional
+    );
+
+    DyDxService.isReadyToServe = true
+  }
+
 }
 
 
@@ -148,7 +153,7 @@ export class DyDxService {
 //   // console.log(result.balances)
 //   // // console.log(result.balances['WETH-PUSD'])
 
-//   DyDxService.placeOrder(walletAddress)
+//   DyDxService.placeOrder(walletAddress as string)
 // }
 
 // test()
