@@ -9,8 +9,8 @@ export class Peer2PeerExchangeService {
         this.complianceService = new ComplianceService(stakingPoolType)
     }
     public async createAPost(walletAddress: string, text: string): Promise<string> {
-        const amount = this.getCurrentStakingAmountForPost()
-        const transactionId = await this.complianceService.stakeETHAndMakeTransaction(walletAddress, amount, text)
+        const stakingAmount = this.getCurrentStakingAmountForPost()
+        const transactionId = await this.complianceService.stakeETHAndMakeTransaction(walletAddress, stakingAmount, text)
 
         return transactionId
     }
@@ -23,13 +23,17 @@ export class Peer2PeerExchangeService {
 
 
     public async vote(walletAddress: string, postCreationTransactionId: string, votingDirection: VOTING_DIRECTION): Promise<string> {
-        const votingTransactionID = await this.complianceService.voteOnTransaction(walletAddress, postCreationTransactionId, VOTING_DIRECTION.UP)
+        const votingTransactionID = await this.complianceService.voteOnTransaction(walletAddress, postCreationTransactionId, VOTING_DIRECTION.UP, this.getCurrentStakingAmountForVote())
 
         return votingTransactionID
     }
 
     public getCurrentStakingAmountForPost(): number {
         return 0.001
+    }
+
+    public getCurrentStakingAmountForVote(): number {
+        return 0.0001
     }
 
 }

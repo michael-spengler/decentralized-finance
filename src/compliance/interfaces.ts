@@ -1,5 +1,5 @@
 export interface IStakeEntry {
-
+    referenceTransactionId: string,
     stakingWalletAddress: string,
     amountStaked: number,
     timestamp: any

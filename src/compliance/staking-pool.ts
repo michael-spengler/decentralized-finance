@@ -1,5 +1,5 @@
 
-import { IP2PExchangeTransaction, IStakeEntry, IWalletReputation } from "./interfaces";
+import { IP2PExchangeTransaction, IStakeEntry, IWalletReputation, VOTING_DIRECTION } from "./interfaces";
 const fsExtra = require('fs-extra')
 
 export class StakingPool {
@@ -14,20 +14,42 @@ export class StakingPool {
         p2pExchangeTransactions.initiatingWalletAddress = walletAddress
         p2pExchangeTransactions.transactionInput = transactionInput
 
-        const originalTransactionId =  '12345'
+        const originalTransactionId = '12345'
+
+        const stakeEntry: IStakeEntry = {
+            referenceTransactionId: originalTransactionId,
+            stakingWalletAddress: walletAddress,
+            amountStaked: amount,
+            timestamp: Date.now()
+        }
+
+        StakingPool.stakeEntries.push(stakeEntry)
 
         return originalTransactionId
     }
 
+    public static voteOnTransaction(walletAddress: string, referredTransactioId: string, votingDirection: VOTING_DIRECTION, amount: number): string {
+        const stakeEntry: IStakeEntry = {
+            referenceTransactionId: referredTransactioId,
+            stakingWalletAddress: walletAddress,
+            amountStaked: amount,
+            timestamp: Date.now()
+        }
+
+        StakingPool.stakeEntries.push(stakeEntry)
+
+        return 'ourfancyVotingTransactionIDh726'
+    }
+
     public static async repayStakedETHToSuccessfulContributorsAndVoters(transactionId: string): Promise<string> {
-        const repaymentTransactionId =  'h725'
+        const repaymentTransactionId = 'ourfancyRepaymentTransactionIDh726'
 
         return repaymentTransactionId
     }
 
     public static getWalletReputation(walletAddress: string): number {
         const entry = StakingPool.walletReputations.filter((entry: IWalletReputation) => entry.walletAddress === walletAddress)[0]
-        if (entry === undefined){
+        if (entry === undefined) {
             return 1 // this is the initial reputation score
         } else {
             return entry.reputation
