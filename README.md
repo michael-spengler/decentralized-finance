@@ -9,7 +9,7 @@ Connect your TypeScript based projects with smart contracts on the Ethereum Bloc
 
 ## Usage Examples
 
-### Payments
+### [Payments](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 #### Transfer Ether
 ```ts
 require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
@@ -25,7 +25,7 @@ await DeFiService.transferEther(fromWalletAddress, toWalletAddress, amountInETH,
 
 ```
 
-### Deposits
+### [Deposits](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 
 #### Deposit Ether to Compound
 You can also test this feature via the [compound.finance](https://compound.finance) user interface.
@@ -43,7 +43,7 @@ await DeFiService.depositEtherToCompound(amountOfEtherToBeDeposited, senderWalle
 
 ```
 
-### Loans
+### [Loans](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 #### Borrow Ether from Compound
 You can also test this feature via the [compound.finance](https://compound.finance) user interface.
 ```ts
@@ -79,7 +79,7 @@ await DeFiService.redeemAssetFromCompound(walletAddress,  walletPrivateKey, gasL
 ```
 
 
-### Account Management
+### [Account Management](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 #### Get Compound Account Data
 You can also test this feature via the [compound.finance](https://compound.finance) user interface.
 ```ts
@@ -92,7 +92,7 @@ console.log(`The collateral value in ETH is: ${accountInfo.total_collateral_valu
 
 ```
 
-### Exchange Features
+### [Exchange Features](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 #### Swap DAI to Ether via Uniswap
 You can also test this feature via the [uniswap.org](https://uniswap.org) user interface.
 ```ts
@@ -109,7 +109,7 @@ await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPriv
 
 ```
 
-### Leverage Investing
+### [Leverage Investing](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 #### Get account info from DyDx.exchange
 You can also test this feature via the [dydx.exchange](https://dydx.exchange/) user interface.
 ```ts
@@ -126,7 +126,7 @@ console.log(result)
 
 ```
 
-### Neural Networks
+### [Neural Networks](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 #### Explore FeedForward Neural Nets with Backpropagation
 ```ts
 
@@ -137,7 +137,7 @@ DeFiService.charterATrader() // observe the console output
 
 ```
 
-### Crypto Currency Insights 
+### [Crypto Currency Insights](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 #### Get Price Data with Timestamp from Coinmarketcap (API Key Required)
 You can compare the results via the [coinmarketcap.com](https://coinmarketcap.com) user interface.
 ```ts
@@ -152,7 +152,7 @@ console.log(pricesWithTimeStamp[1])
 
 ```
 
-### Distributed Ledger Insights
+### [Distributed Ledger Insights](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 #### Get Current Gas Price Info
 
 ```ts
@@ -216,8 +216,11 @@ npm install
 npm config set ignore-scripts false
 ```
 
+## Philosophy
+This package shall increase freedom for those who increase freedom. Actions of the weak shall be private. Actions of the powerful shall be transparent.
+
 ## Support our Open Source Contributions
 If you like our work, you might download the Brave Browser via our
-promotion link: [https://brave.com/fan464](https://brave.com/fan464).
+promotion link: [https://brave.com/fan464](https://brave.com/fan464) and enjoy the new (2021) [IPFS browser standard](https://brave.com/brave-integrates-ipfs/).
 
 ![![](https://brave.com/)](https://brave.com/wp-content/uploads/2019/01/logotype-full-color.svg)
