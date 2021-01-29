@@ -54,10 +54,8 @@ export class ComplianceService {
         return referredTransactioId
     }
 
-    public async repayStakedETHToSuccessfulContributorsAndVoters(referredTransactioId: string): Promise<any> {
-        const rewardTransactionId = await StakingPool.repayStakedETHToSuccessfulContributorsAndVoters(referredTransactioId)
-
-        return rewardTransactionId
+    public async repayStakedETHToSuccessfulContributorsAndVoters(referredTransactioId: string): Promise<any[]> {
+        return StakingPool.repayStakedETHToSuccessfulContributorsAndVoters(referredTransactioId)
     }
 
     public async voteOnTransaction(walletAddress: string, referredTransactioId: string, votingDirection: VOTING_DIRECTION, amount: number): Promise<string> {

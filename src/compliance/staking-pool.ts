@@ -41,10 +41,26 @@ export class StakingPool {
         return 'ourfancyVotingTransactionIDh726'
     }
 
-    public static async repayStakedETHToSuccessfulContributorsAndVoters(transactionId: string): Promise<string> {
+    public static async repayStakedETHToSuccessfulContributorsAndVoters(transactionId: string): Promise<any[]> {
+
         const repaymentTransactionId = 'ourfancyRepaymentTransactionIDh726'
 
-        return repaymentTransactionId
+        const result = []
+        for (const e of this.stakeEntries) {
+            if (transactionId === e.referenceTransactionId) {
+
+                const resultEntry = {
+                    rewardedWalletAddress: e.stakingWalletAddress,
+                    referenceTransactionId: e.referenceTransactionId,
+                    rewardAmount: e.amountStaked
+                }
+
+                result.push(resultEntry)
+            }
+        }
+
+
+        return result
     }
 
     public static getWalletReputation(walletAddress: string): number {
@@ -73,6 +89,11 @@ export class StakingPool {
             ]
         }
     }
+
+    private static async repay() {
+
+    }
+
 
 
 }

@@ -15,10 +15,8 @@ export class Peer2PeerExchangeService {
         return transactionId
     }
 
-    public async rewardSuccessfulContributorsAndVoters(postCreationTransactionId: string): Promise<string> {
-        const rewardTransactionId = await this.complianceService.repayStakedETHToSuccessfulContributorsAndVoters(postCreationTransactionId)
-
-        return rewardTransactionId
+    public async rewardSuccessfulContributorsAndVoters(postCreationTransactionId: string): Promise<any[]> {
+        return this.complianceService.repayStakedETHToSuccessfulContributorsAndVoters(postCreationTransactionId)
     }
 
 
