@@ -219,7 +219,8 @@ npm config set ignore-scripts false
 
 
 ## Reference Projects
-Some of the most famous projects using this package 
+Some of the most famous projects using this package:  
+
 [<img src="https://user-images.githubusercontent.com/43786652/106395210-475db300-6401-11eb-857a-492c52b1c837.jpg" alt="drawing" width="200"/>](https://klopapier.exchange)
 
 ## Philosophy
