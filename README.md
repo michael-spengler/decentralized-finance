@@ -4,6 +4,7 @@ This package provides distributed ledger based banking features like payments, d
 
 Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the following usage examples.
 
+This package shall increase freedom for those who increase freedom. As such it supports [wallstreetbets](https://www.reddit.com/r/wallstreetbets/) and the [klopapier.exchange](https://klopapier.exchange).
 
 [![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![Chat](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)  [![Maintained](https://img.shields.io/maintenance/maintained/2021)](https://github.com/michael-spengler/decentralized-finance)  
 
