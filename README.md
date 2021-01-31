@@ -2,7 +2,7 @@
 # Decentralized Finance &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [<img src="https://raw.githubusercontent.com/michael-spengler/decentralized-finance/main/logo-v2.svg" alt="drawing" width="200"/>](https://www.npmjs.com/package/decentralized-finance-defi)
 This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.
 
-Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the following usage examples.
+Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the usage examples below.
 
 This package shall increase freedom for those who increase freedom. As such it supports [wallstreetbets](https://www.reddit.com/r/wallstreetbets/) and the [klopapier.exchange](https://klopapier.exchange).
 
@@ -216,6 +216,11 @@ npm config set ignore-scripts true
 npm install
 npm config set ignore-scripts false
 ```
+
+
+## Reference Projects
+Some of the most famous projects using this package 
+[<img src="https://user-images.githubusercontent.com/43786652/106395210-475db300-6401-11eb-857a-492c52b1c837.jpg" alt="drawing" width="200"/>](https://klopapier.exchange)
 
 ## Philosophy
 This package shall increase freedom for those who increase freedom. Actions of the weak shall be private. Actions of the powerful shall be transparent.
