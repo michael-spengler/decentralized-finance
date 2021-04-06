@@ -1,6 +1,8 @@
 
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
 
 import { aaveLendingPoolABI, addressProviderABI } from '../constants'
+import { Liquidator } from './liquidator';
 
 const Web3 = require('web3');
 
@@ -16,15 +18,23 @@ export class AaveService {
     public static async getAccountData(walletAddress: string, web3ProviderURL: string): Promise<any> {
 
         await AaveService.initialize(web3ProviderURL)
-        
+
         const userAccountData = await AaveService.aaveLendingPoolContract.methods.getUserAccountData(walletAddress).call()
-        
+
         return userAccountData
     }
-    
-    
+
+    // https://docs.aave.com/developers/guides/liquidations#javascript
+    public static async startLiquidationInterval(web3ProviderURL: string) {
+        await AaveService.initialize(web3ProviderURL)
+        setInterval(async() => {
+            console.log('getting relevant wallets')
+            await Liquidator.liquidate(AaveService.web3Connection, aaveLendingPoolABI, addressProviderABI)
+        }, 1000)
+    }
+
     public static async depositEtherToAave(amountOfEtherToBeDeposited: number, senderWalletPrivateKey: string, gasLimit: number, web3ProviderURL: string): Promise<void> {
-        
+
         await AaveService.initialize(web3ProviderURL)
 
         AaveService.aaveLendingPoolContract.methods.deposit(
@@ -38,7 +48,7 @@ export class AaveService {
             .on('error', (error: any) => {
                 console.log(error);
             });
-            
+
     }
 
 
@@ -59,8 +69,8 @@ export class AaveService {
                 console.log(error);
             });
 
-        }
-            
+    }
+
 
     public static async redeemAsset(walletAddress: string, senderWalletPrivateKey: string, gasLimit: number, web3ProviderURL: string, amount?: number): Promise<void> {
 
@@ -68,7 +78,7 @@ export class AaveService {
         // tbd
     }
 
-    
+
     private static async initialize(web3ProviderURL: string): Promise<void> {
         if (AaveService.isReadyToPerform) {
             // everything is already set up
@@ -81,3 +91,6 @@ export class AaveService {
         }
     }
 }
+
+// console.log(process.env.PROVIDER_URL)
+// AaveService.startLiquidationInterval(process.env.PROVIDER_URL as string)

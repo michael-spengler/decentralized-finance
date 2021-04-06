@@ -4,7 +4,7 @@ This package provides distributed ledger based banking features like payments, d
 
 Connect your TypeScript based projects with smart contracts on the Ethereum Blockchain by checking the usage examples below.
 
-This package shall increase freedom for those who increase freedom. As such it supports [wallstreetbets](https://www.reddit.com/r/wallstreetbets/) and the [klopapier.exchange](https://klopapier.exchange).
+This package shall increase freedom for those who increase freedom. As such it supports the [klopapier.exchange](https://toiletpaper.eth.link).
 
 [![NPM Downloads](https://img.shields.io/npm/dw/decentralized-finance-defi)](https://www.npmjs.com/package/decentralized-finance-defi)  [![Chat](https://img.shields.io/discord/799926751039979520)](https://discord.gg/6mAtkXMf3Z)  [![Maintained](https://img.shields.io/maintenance/maintained/2021)](https://github.com/michael-spengler/decentralized-finance)  
 
@@ -176,7 +176,7 @@ You can find some simple examples for solidity based smart contract development 
 
 
 ## General Recommendations
-You might also check [aave.com](https://aave.com/), [klopapier.exchange](https://klopapier.exchange/) and [compound.finance](https://compound.finance). If you want to get a general overview on DeFi Services, you might check the [defipulse.com](https://defipulse.com/).
+You might also check [aave.com](https://aave.com/), [klopapier.exchange](https://toiletpaper.eth.link/) and [compound.finance](https://compound.finance). If you want to get a general overview on DeFi Services, you might check the [defipulse.com](https://defipulse.com/).
 
 ## Distributed Domain Name Services
 To provide your user interfaces in a sustainable way you might check [ens.domains](https://ens.domains). If you want to try it, you might check [this tutorial](https://www.youtube.com/watch?v=oA4oOY5zgU0).
@@ -220,7 +220,7 @@ npm config set ignore-scripts false
 
 ## Reference Projects
 Some of the most famous projects using this package 
-[<img src="https://user-images.githubusercontent.com/43786652/106395210-475db300-6401-11eb-857a-492c52b1c837.jpg" alt="drawing" width="200"/>](https://klopapier.exchange)
+[<img src="https://user-images.githubusercontent.com/43786652/106395210-475db300-6401-11eb-857a-492c52b1c837.jpg" alt="drawing" width="200"/>](https://toiletpaper.eth.link)
 
 ## Philosophy
 This package shall increase freedom for those who increase freedom. Actions of the weak shall be private. Actions of the powerful shall be transparent.
