@@ -22,6 +22,10 @@ export class BinanceConnector {
         binance.sell(pair, amount, maxPrice, { stopPrice: stopLossPrice, type: "STOP_LOSS_LIMIT" })
         .then((resp: any) => console.log(resp)).catch((err: any) => console.log(err.body))
     }
-    
+
+    public static async placeFuturesBuyOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
+        console.log(await binance.futuresBuy( pair, amount, limitPrice ))
+    }
+
 }
 
