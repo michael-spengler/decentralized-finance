@@ -25,14 +25,17 @@ export class BinanceConnector {
         return btcBalance
     }
 
-    public static async placeStopLossOrder(pair: string, amount: number, maxPrice: number, stopLossPrice: number): Promise<void> {
+    public static async placeStopLossOrder(pair: string, amount: any, maxPrice: any, stopLossPrice: any): Promise<void> {
         binance.sell(pair, amount, maxPrice, { stopPrice: stopLossPrice, type: "STOP_LOSS_LIMIT" })
-        .then((resp: any) => console.log(resp)).catch((err: any) => console.log(err.body))
+            .then((resp: any) => console.log(resp)).catch((err: any) => console.log(err.body))
     }
 
     public static async placeFuturesBuyOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
-        console.log(await binance.futuresBuy( pair, amount, limitPrice ))
+        console.log(await binance.futuresBuy(pair, amount, limitPrice))
     }
 
+    public static async getPrices(): Promise<any> {
+        return binance.prices();
+    }
 }
 

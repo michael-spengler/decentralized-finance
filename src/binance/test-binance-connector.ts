@@ -18,17 +18,18 @@ import { BinanceConnector } from "./binance-connector"
 //     await BinanceConnector.placeFuturesBuyOrder(pair, amount, limitPrice)
 // })
 
-setTimeout(async () => {
-    console.log(await BinanceConnector.getBTCBalance())
-})
+// setTimeout(async () => {
+//     console.log(await BinanceConnector.getBTCBalance())
+// })
 
 
 // example stop loss order
-// setTimeout(async () => {
-//     const pair = "ETHUSDT"
-//     const amount = 0.005
-//     const maxPrice = 2140
-//     const stopLossPrice = 2140
-//     await BinanceConnector.placeStopLossOrder(pair, amount, maxPrice, stopLossPrice)
-// }, 1000)
+setTimeout(async () => {
+    // const pair = "ETHUSDT"
+    // const amount = 0.005
+    // const maxPrice = 2140
+    // const stopLossPrice = 2140
+    // await BinanceConnector.placeStopLossOrder(pair, amount, maxPrice, stopLossPrice)
+    // await BinanceConnector.placeStopLossOrder("REEFBTC", 1929, "0.00000060", "0.00000060")
+}, 1000)
 
