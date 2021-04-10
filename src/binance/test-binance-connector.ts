@@ -9,13 +9,17 @@ import { BinanceConnector } from "./binance-connector"
 // })
 
 // example futures buy order
-setTimeout(async () => {
-    const pair = "ETHUSDT"
-    const amount = 0.005
-    // const limitPrice = 2155
-    const limitPrice = undefined
+// setTimeout(async () => {
+//     const pair = "ETHUSDT"
+//     const amount = 0.005
+//     // const limitPrice = 2155
+//     const limitPrice = undefined
 
-    await BinanceConnector.placeFuturesBuyOrder(pair, amount, limitPrice)
+//     await BinanceConnector.placeFuturesBuyOrder(pair, amount, limitPrice)
+// })
+
+setTimeout(async () => {
+    console.log(await BinanceConnector.getBTCBalance())
 })
 
 
