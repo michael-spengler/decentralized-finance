@@ -80,10 +80,14 @@ export class Observer {
                         Observer.intervalCounterPerInvestment = 0
                     }
                 } else {
-                    console.log(`It took too long. We want to get rich quick --> setting a tight stopp loss ${Observer.currentlyInvestedUnits} of ${Observer.currentInvestmentSymbol}`)
-                    await BinanceConnector.cancelAllOrders(Observer.currentInvestmentSymbol)
+                    console.log(`It took too long. We want to get rich quick.`)
+                    try {
+                        await BinanceConnector.cancelAllOrders(Observer.currentInvestmentSymbol)
+                    } catch(error) {
+                        console.log("Scheiß drauf. Malle ist nur einmal im Jahr.")
+                    }
                     
-                    console.log(`we want to sell ${Observer.amountToBeSold} ${Observer.currentInvestmentSymbol}.`)
+                    console.log(`we want to sell ${Observer.amountToBeSold} ${Observer.currentInvestmentSymbol} as we bought ${Observer.currentlyInvestedUnits} of it earlier.`)
                     try {
                         await BinanceConnector.placeSellOrder(Observer.currentInvestmentSymbol, Observer.amountToBeSold)
                     } catch(error){
