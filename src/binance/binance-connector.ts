@@ -13,6 +13,25 @@ const binance = new Binance().options({
 
 export class BinanceConnector {
 
+    public static async cancelAllOrders(pair: string) {
+        await binance.cancelAll(pair)
+    }
+    
+    public static async getCurrentPrices(): Promise<any[]> {
+        const pricesResult = await BinanceConnector.getPrices()
+        const currentPrices: any[] = []
+        let coinSymbols
+        coinSymbols = Object.keys((pricesResult))
+        for (const coinSymbol of coinSymbols) {
+            const entry = {
+                coinSymbol: coinSymbol,
+                price: pricesResult[coinSymbol]
+            }
+            currentPrices.push(entry)
+        }
+        return currentPrices
+    }
+
     public static async placeBuyOrder(pair: string, amount: number): Promise<void> {
         binance.marketBuy(pair, amount)
             .then((resp: any) => console.log(resp)).catch((err: any) => console.log(err.body))

@@ -1,109 +1,145 @@
 import { BinanceConnector } from "./binance-connector"
+import { exchangeData } from "./exchange-data"
 
 export class Observer {
 
-    public static observe() {
+    private static previousStopLossPrice = 0
+    private static currentInvestmentSymbol = ""
+    private static currentlyInvestedUnits = 0
+    private static availableBTCAmount = 0
+    private static currentPrices: any[] = []
+    private static previousPrices: any[] = []
 
-        let coinSymbols
-        let theMagicalEntries: any[] = []
-        let currentPrices: any[] = []
-        let previousPrices: any[] = []
-        let counter = 0
-        let showTheTopX = 10
+    public static observe(intervalLengthInSeconds: number) {
 
         setInterval(async () => {
-            counter++
 
-            const pricesResult = await BinanceConnector.getPrices()
-            coinSymbols = Object.keys((pricesResult))
+            Observer.availableBTCAmount = Number(await BinanceConnector.getBTCBalance())
+            Observer.currentPrices = await BinanceConnector.getCurrentPrices()
 
-            for (const coinSymbol of coinSymbols) {
-                const entry = {
-                    coinSymbol: coinSymbol,
-                    price: pricesResult[coinSymbol]
-                }
-                currentPrices.push(entry)
-            }
+            console.log(`I have ${Observer.availableBTCAmount} of BTC available.`)
 
+            if (Observer.previousPrices.length > 0) {
 
-            if (counter === 1) {
-                previousPrices = currentPrices
-            } else {
+                if (Observer.availableBTCAmount > 0.0005) {
 
-                for (const entry of previousPrices) {
+                    console.log("I'm not invested, I'll buy the best performer")
+                    await Observer.buyBestPerformer()
 
-                    const previousPrice = previousPrices.filter((e: any) => e.coinSymbol === entry.coinSymbol)[0].price
+                } else {
 
-                    const deltaInPercent = ((entry.price * 100) / previousPrice) - 100
+                    console.log("I'm already invested, I'll update the stop loss")
 
-                    const magicEntry = {
-                        coinSymbol: entry.coinSymbol,
-                        previousPrice: previousPrice,
-                        currentPrice: entry.price,
-                        deltaInPercent: deltaInPercent
+                    const currentPriceOfCurrentInvestment = Observer.currentPrices.filter((e: any) => e.coinSymbol === Observer.currentInvestmentSymbol)[0].price
+                    const stopLossPrice = Number((currentPriceOfCurrentInvestment * 0.95).toFixed(8))
+
+                    if (Observer.previousStopLossPrice < stopLossPrice) {
+                        console.log(`setting stop loss for ${Observer.currentlyInvestedUnits} units of ${Observer.currentInvestmentSymbol}`)
+                        // if (Observer.orderIDOfCurrentStopLoss !== "") {
+                        try {
+                            await BinanceConnector.cancelAllOrders(Observer.currentInvestmentSymbol)
+                        } catch (error) {
+                            console.log('nothing deleted')
+                        }
+                        await BinanceConnector.placeStopLossOrder(Observer.currentInvestmentSymbol, Observer.currentlyInvestedUnits - 2, stopLossPrice.toString(), stopLossPrice.toString())
+                        // await BinanceConnector.placeStopLossOrder("ONGBTC", Observer.currentlyInvestedUnits - 2, stopLossPrice.toString(), stopLossPrice.toString())
+                        Observer.previousStopLossPrice = stopLossPrice
                     }
 
-                    if (entry.coinSymbol.includes('BTC')) {
-                        theMagicalEntries.push(magicEntry)
-                    }
                 }
 
-                previousPrices = currentPrices
-            }
+            } 
 
-            theMagicalEntries.sort((a: any, b: any) => (a.deltaInPercent < b.deltaInPercent) ? 1 : -1)
-            let topXCounter = 0
-            for (const e of theMagicalEntries) {
-                if (topXCounter === 0) {
-                    console.log('geilo')
-                    Observer.buy(e)
-                }
-                if (topXCounter < showTheTopX) {
-                    console.log(`${e.coinSymbol} - ${e.currentPrice} - ${e.previousPrice} - ${e.deltaInPercent}`)
-                }
-                topXCounter++
-            }
-        }, 5 * 1000)
+            Observer.previousPrices = [...Observer.currentPrices]
+
+        }, intervalLengthInSeconds * 1000)
     }
 
-    public static async buy(entry: any): Promise<void> {
-        const availableBTCAmount = await BinanceConnector.getBTCBalance()
-        console.log(`I have ${availableBTCAmount} of BTC available`)
+    private static async buyBestPerformer() {
+        const bestPerformer = Observer.getBestPerformer()
+        if (bestPerformer !== undefined) {
+            console.log(`The best performer along the last 5 seconds was ${bestPerformer.coinSymbol} - ${bestPerformer.currentPrice} - ${bestPerformer.previousPrice} - ${bestPerformer.deltaInPercent}`)
+            await Observer.buyAndSetStopLoss(bestPerformer.coinSymbol, bestPerformer.currentPrice)
+            Observer.currentInvestmentSymbol = bestPerformer.coinSymbol
+
+        }
+
+    }
+
+    private static getBestPerformer() {
+        let theMagicalEntries: any[] = []
+        for (const entry of Observer.currentPrices) {
+            const previousPrice = Observer.previousPrices.filter((e: any) => e.coinSymbol === entry.coinSymbol)[0].price
+            console.log(`calculating delta in percent: current: ${entry.price} previous: ${previousPrice}`)
+            const deltaInPercent = (((entry.price * 100) / previousPrice) - 100).toFixed(4)
+
+            const magicEntry = {
+                coinSymbol: entry.coinSymbol,
+                previousPrice: previousPrice,
+                currentPrice: entry.price,
+                deltaInPercent: deltaInPercent
+            }
+
+            if (entry.coinSymbol.includes('BTC')) {
+                theMagicalEntries.push(magicEntry)
+            }
+        }
+
+        theMagicalEntries.sort((a: any, b: any) => (a.deltaInPercent < b.deltaInPercent) ? 1 : -1)
+
+        return theMagicalEntries[0]
+        // adjust investments
+
+        // let topXCounter = 0
+        // for (const e of theMagicalEntries) {
+        //     if (topXCounter === 0 && Observer.invested === false) {
+        //         await Observer.buyAndSetStopLoss(e)
+        //     }
+        //     if (topXCounter < showTheTopX) {
+        //         console.log(`${e.coinSymbol} - ${e.currentPrice} - ${e.previousPrice} - ${e.deltaInPercent}`)
+        //     }
+        //     topXCounter++
+        // }
+    }
 
 
+
+    public static async buyAndSetStopLoss(coinSymbol: string, currentPriceOfBestPerformer: number): Promise<void> {
         // let amount = Math.round(((availableBTCAmount) / entry.currentPrice) * 100) / 100
 
-        console.log(`Bene: ${availableBTCAmount}`)
-        console.log(`Dennis: ${entry.currentPrice}`)
-
-        let amount = Math.round((availableBTCAmount - 0.0002) / entry.currentPrice)
+        let amount = Math.round((Observer.availableBTCAmount - 0.0002) / currentPriceOfBestPerformer)
 
         console.log(amount)
 
-        if (amount > 0) {
-            if (amount > 1000000000000) {
-                amount = 1000000000000
-            }
 
+        console.log(`I buy ${amount} of ${coinSymbol}`)
+        await BinanceConnector.placeBuyOrder(coinSymbol, amount)
+        Observer.currentlyInvestedUnits = amount
 
-            const limitPrice = undefined
+        // const stopLossPrice = currentPriceOfBestPerformer * 0.95
+        // await BinanceConnector.placeStopLossOrder(coinSymbol, amount * 0.98, stopLossPrice.toString(), stopLossPrice.toString())
 
-            console.log(`I buy ${amount} of ${entry.coinSymbol}`)
-            await BinanceConnector.placeBuyOrder(entry.coinSymbol, amount)
+        // Observer.previousStopLossPrice = stopLossPrice
 
-            const stopLossPrice = entry.currentPrice * 0.95
-            await BinanceConnector.placeStopLossOrder(entry.coinSymbol, amount * 0.98, stopLossPrice.toString(), stopLossPrice.toString())
+        // const newStopLossPrice = Observer.previousStopLossPrice * 1.005
+        // console.log(`not buying as the money is performing already. I just update the stop loss to ${newStopLossPrice}`)
 
-        } else {
-            console.log("not buying as the money is performing already")
+        // await BinanceConnector.placeStopLossOrder(coinSymbol, amount * 0.98, newStopLossPrice.toString(), newStopLossPrice.toString())
+        // Observer.previousStopLossPrice = stopLossPrice
 
-            // nachziehen - zeit + stets 5 % unterhalb des höchsten Preises
-            // await BinanceConnector.placeStopLossOrder(entry.coinSymbol, amount * 0.98, stopLossPrice.toString(), stopLossPrice.toString())
-
-        }
+        // nachziehen - zeit + stets 5 % unterhalb des aktuelle Preises & > bisheriger stop loss
+        // await BinanceConnector.placeStopLossOrder(entry.coinSymbol, amount * 0.98, stopLossPrice.toString(), stopLossPrice.toString())
     }
 
+    // private static async increaseStopLoss() {
+    //     const newStopLossPrice = Observer.previousStopLossPrice * 1.005
+    //     console.log(`not buying as the money is performing already. I just update the stop loss to ${newStopLossPrice}`)
+
+    //     await BinanceConnector.placeStopLossOrder(entry.coinSymbol, amount * 0.98, newStopLossPrice.toString(), newStopLossPrice.toString())
+
+    // }
+
     private static getPrecisionForPair(pairName: string) {
-        // const precisions = 
+        return exchangeData // needs to be implemented properly
     }
 }

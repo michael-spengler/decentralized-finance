@@ -1,4 +1,4 @@
-{
+export const exchangeData = {
     "timezone": "UTC",
     "serverTime": 1618092936583,
     "rateLimits": [
