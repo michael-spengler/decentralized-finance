@@ -124,7 +124,6 @@ export class Observer {
         let theMagicalEntries: any[] = []
         for (const entry of Observer.currentPrices) {
             const previousPrice = Observer.previousPrices.filter((e: any) => e.coinSymbol === entry.coinSymbol)[0].price
-            console.log(`calculating delta in percent: current: ${entry.price} previous: ${previousPrice}`)
             const deltaInPercent = (((entry.price * 100) / previousPrice) - 100).toFixed(4)
 
             const magicEntry = {
