@@ -2,24 +2,24 @@
 
 // https://www.npmjs.com/package/node-binance-api
 
-require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
-
 const Binance = require('node-binance-api');
-
-const binance = new Binance().options({
-    APIKEY: process.env.BINANCE_API_KEY,
-    APISECRET: process.env.BINANCE_API_SECRET
-});
 
 export class BinanceConnector {
 
-    public static async cancelAllOrders(pair: string) {
-        await binance.cancelAll(pair)
+    private binance: any
+
+    public constructor(apiKey: string, apiSecret: string) {
+        this.binance = new Binance().options({
+            APIKEY: apiKey,
+            APISECRET: apiSecret
+        })
     }
-    
-    public static async getCurrentPrices(): Promise<any[]> {
-        const pricesResult = await BinanceConnector.getPrices()
+
+    public async getCurrentPrices(): Promise<any[]> {
+
+        const pricesResult = await this.binance.prices();
         const currentPrices: any[] = []
+
         let coinSymbols
         coinSymbols = Object.keys((pricesResult))
         for (const coinSymbol of coinSymbols) {
@@ -29,64 +29,65 @@ export class BinanceConnector {
             }
             currentPrices.push(entry)
         }
+        
         return currentPrices
     }
 
-    public static async placeBuyOrder(pair: string, amount: number): Promise<void> {
-        binance.marketBuy(pair, amount)
+    public async cancelAllOrders(pair: string) {
+        await this.binance.cancelAll(pair)
+    }
+
+    public async placeBuyOrder(pair: string, amount: number): Promise<void> {
+        this.binance.marketBuy(pair, amount)
             .then((resp: any) => console.log(resp)).catch((err: any) => console.log(err.body))
     }
 
-    public static async placeSellOrder(pair: string, amount: number): Promise<void> {
-        await binance.marketSell(pair, amount)
+    public async placeSellOrder(pair: string, amount: number): Promise<void> {
+        await this.binance.marketSell(pair, amount)
     }
 
-    public static async getFuturesAccountData(){
-        return binance.futuresAccount()
+    public async getFuturesAccountData() {
+        return this.binance.futuresAccount()
     }
 
-    public static async getFuturesBalanceData(){
-        return binance.futuresBalance()
+    public async getFuturesBalanceData() {
+        return this.binance.futuresBalance()
     }
 
-    public static async buyFuture(pair: string, amount: number){
-        return binance.futuresMarketBuy(pair, amount)
+    public async buyFuture(pair: string, amount: number) {
+        return this.binance.futuresMarketBuy(pair, amount)
     }
 
-    public static async sellFuture(pair: string, amount: number){
-        return binance.futuresMarketSell(pair, amount)
+    public async sellFuture(pair: string, amount: number) {
+        return this.binance.futuresMarketSell(pair, amount)
     }
 
-    public static async cancelPosition(pair: string){
+    public async cancelPosition(pair: string) {
         console.log("can")
-        return binance.futuresCancelAll("ETHUSDT")
+        return this.binance.futuresCancelAll("ETHUSDT")
     }
 
 
-    public static async getBTCBalance(): Promise<number> {
-        const balances = await binance.balance()
+    public async getBTCBalance(): Promise<number> {
+        const balances = await this.binance.balance()
         const btcBalance = balances.BTC.available
 
         return btcBalance
     }
 
-    public static async getUSDTBalance(): Promise<number> {
-        const balances = await binance.balance()
+    public async getUSDTBalance(): Promise<number> {
+        const balances = await this.binance.balance()
         const btcBalance = balances.USDT.available
 
         return btcBalance
     }
 
-    public static async placeStopLossOrder(pair: string, amount: any, maxPrice: any, stopLossPrice: any): Promise<void> {
-        await binance.sell(pair, amount, maxPrice, { stopPrice: stopLossPrice, type: "STOP_LOSS_LIMIT" })
+    public async placeStopLossOrder(pair: string, amount: any, maxPrice: any, stopLossPrice: any): Promise<void> {
+        await this.binance.sell(pair, amount, maxPrice, { stopPrice: stopLossPrice, type: "STOP_LOSS_LIMIT" })
     }
 
-    public static async placeFuturesBuyOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
-        console.log(await binance.futuresBuy(pair, amount, limitPrice))
-    }
-
-    public static async getPrices(): Promise<any> {
-        return binance.prices();
+    public async placeFuturesBuyOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
+        console.log(await this.binance.futuresBuy(pair, amount, limitPrice))
     }
 }
 

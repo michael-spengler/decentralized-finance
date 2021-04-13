@@ -1,1 +1,0 @@
-pm2 start src/binance/observer-test.ts -- 3 4 5 0 -n brave
