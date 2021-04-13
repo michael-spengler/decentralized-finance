@@ -13,14 +13,15 @@ export class Observer {
     private static currentPrices: any[] = []
     private static previousPrices: any[] = []
 
-    public static observe(intervalLengthInSeconds: number, maxNumberOfPatienceIntervals: number, currentInvestmentSymbol?: string, currentlyInvestedUnits?: number) {
+    public static observe(intervalLengthInSeconds: number, maxNumberOfPatienceIntervals: number, size: number, difference: number, currentInvestmentSymbol?: string, currentlyInvestedUnits?: number) {
         setInterval(async () => {
             Observer.currentPrices = await BinanceConnector.getCurrentPrices()
 
     
             // await Observer.applyPumpExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
-            await Observer.applyBTCLeadExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
-            await Observer.SAPHackathonStrategy1(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
+
+            await Observer.applyBTCLeadExploitStrategy(maxNumberOfPatienceIntervals, size, difference, currentInvestmentSymbol, currentlyInvestedUnits)
+            // await Observer.SAPHackathonStrategy1(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
             // await Observer.applyBenesBTCLeadExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
 
 
@@ -36,7 +37,7 @@ export class Observer {
         console.log("do it Bene")
     }
 
-    private static async applyBTCLeadExploitStrategy(maxNumberOfPatienceIntervals: number, currentInvestmentSymbol?: string, currentlyInvestedUnits?: number) {
+    private static async applyBTCLeadExploitStrategy(maxNumberOfPatienceIntervals: number, size: number, difference: number, currentInvestmentSymbol?: string, currentlyInvestedUnits?: number) {
 
         const accountData = await BinanceConnector.getFuturesAccountData()
 
@@ -46,22 +47,21 @@ export class Observer {
         const etherPosition = accountData.positions.filter((entry: any) => entry.symbol === "ETHUSDT")[0]
         console.log(etherPosition)
 
-
         if (Observer.previousPrices.length > 0) {
             const previousPrice = Math.round(Observer.previousPrices.filter((e: any) => e.coinSymbol === "BTCUSDT")[0].price)
             const currentPrice = Math.round(Observer.currentPrices.filter((e: any) => e.coinSymbol === "BTCUSDT")[0].price)
             console.log(`previous: ${previousPrice} vs. current: ${currentPrice}`)
-            const increasedEnoughForBuy = (previousPrice + 4 < currentPrice) ? true : false
-            const decreasedEnoughForSale = (previousPrice > currentPrice + 4) ? true : false
+            const increasedEnoughForBuy = (previousPrice + difference < currentPrice) ? true : false
+            const decreasedEnoughForSale = (previousPrice > currentPrice + difference) ? true : false
             console.log(`increasedEnoughForBuy: ${increasedEnoughForBuy}`)
             console.log(`decreasedEnoughForSale: ${decreasedEnoughForSale}`)
 
-            if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === '-4.000') ) {
+            if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === `-${size}.000`) ) {
                 console.log("buying")
-                await BinanceConnector.buyFuture("ETHUSDT", 4.0)
-            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === '4.000')) {
+                await BinanceConnector.buyFuture("ETHUSDT", size)
+            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === `${size}.000`)) {
                 console.log("selling")
-                await BinanceConnector.sellFuture("ETHUSDT", 4.0)
+                await BinanceConnector.sellFuture("ETHUSDT", size)
                 // await BinanceConnector.cancelPosition("ETHUSDT")
             } else {
                 console.log("sleep :)")
