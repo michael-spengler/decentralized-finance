@@ -35,6 +35,7 @@ export class Observer {
 
         const accountData = await BinanceConnector.getFuturesAccountData()
 
+
         // console.log(accountData.assets.filter((entry: any) => entry.asset === "USDT")[0])
         // console.log(accountData.positions.filter((entry: any) => entry.symbol === "BTCUSDT")[0])
         const etherPosition = accountData.positions.filter((entry: any) => entry.symbol === "ETHUSDT")[0]
@@ -50,12 +51,12 @@ export class Observer {
             console.log(`increasedEnoughForBuy: ${increasedEnoughForBuy}`)
             console.log(`decreasedEnoughForSale: ${decreasedEnoughForSale}`)
 
-            if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === '-4.000') ) {
+            if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === '-3.000') ) {
                 console.log("buying")
-                await BinanceConnector.buyFuture("ETHUSDT", 4.0)
-            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === '4.000')) {
+                await BinanceConnector.buyFuture("ETHUSDT", 3.0)
+            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === '3.000')) {
                 console.log("selling")
-                await BinanceConnector.sellFuture("ETHUSDT", 4.0)
+                await BinanceConnector.sellFuture("ETHUSDT", 3.0)
                 // await BinanceConnector.cancelPosition("ETHUSDT")
             } else {
                 console.log("sleep :)")
