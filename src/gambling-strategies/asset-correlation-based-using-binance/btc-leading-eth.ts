@@ -1,14 +1,13 @@
 import { BinanceConnector } from "../../binance/binance-connector"
 
-// preparation
 let currentPrices: any[] = []
 let previousPrices: any[] = []
 
 const intervalLengthInSeconds = Number(process.argv[2])
 const size = Number(process.argv[3])
 const threshold = Number(process.argv[4])
-const binanceApiKey = Number(process.argv[5])
-const binanceApiSecret = Number(process.argv[6])
+const binanceApiKey = process.argv[5]
+const binanceApiSecret = process.argv[6]
 
 console.log(`intervalLengthInSeconds: ${intervalLengthInSeconds}`)
 console.log(`size: ${size}`)
@@ -16,25 +15,20 @@ console.log(`threshold: ${threshold}`)
 console.log(`binanceApiKey: ${binanceApiKey}`)
 console.log(`binanceApiSecret: ${binanceApiSecret}`)
 
-// starting to gamble
 setInterval(async () => {
     currentPrices = await BinanceConnector.getCurrentPrices()
-
     const accountData = await BinanceConnector.getFuturesAccountData()
-
     const etherPosition = accountData.positions.filter((entry: any) => entry.symbol === "ETHUSDT")[0]
+    
     console.log(etherPosition)
 
     if (previousPrices.length > 0) {
-
         const previousPrice = Math.round(previousPrices.filter((e: any) => e.coinSymbol === "BTCUSDT")[0].price)
         const currentPrice = Math.round(currentPrices.filter((e: any) => e.coinSymbol === "BTCUSDT")[0].price)
-
-        console.log(`previous: ${previousPrice} vs. current: ${currentPrice}`)
-
         const increasedEnoughForBuy = (previousPrice + threshold < currentPrice) ? true : false
         const decreasedEnoughForSale = (previousPrice > currentPrice + threshold) ? true : false
-
+        
+        console.log(`previous: ${previousPrice} vs. current: ${currentPrice}`)
         console.log(`increasedEnoughForBuy: ${increasedEnoughForBuy}`)
         console.log(`decreasedEnoughForSale: ${decreasedEnoughForSale}`)
 
@@ -51,5 +45,5 @@ setInterval(async () => {
     }
 
     previousPrices = [...currentPrices]
-    
+
 }, intervalLengthInSeconds * 1000)
