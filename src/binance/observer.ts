@@ -21,6 +21,7 @@ export class Observer {
             // await Observer.applyPumpExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
 
             await Observer.applyBTCLeadExploitStrategy(maxNumberOfPatienceIntervals, size, difference, currentInvestmentSymbol, currentlyInvestedUnits)
+            // await Observer.TradingTeamStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
             // await Observer.SAPHackathonStrategy1(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
             // await Observer.applyBenesBTCLeadExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
 
@@ -59,7 +60,7 @@ export class Observer {
             if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === `-${size}.000`) ) {
                 console.log("buying")
                 await BinanceConnector.buyFuture("ETHUSDT", size)
-            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === `${size}.000`)) {
+            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === `${size}.000`)) {
                 console.log("selling")
                 await BinanceConnector.sellFuture("ETHUSDT", size)
                 // await BinanceConnector.cancelPosition("ETHUSDT")
