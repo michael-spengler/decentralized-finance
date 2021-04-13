@@ -20,10 +20,15 @@ export class Observer {
     
             // await Observer.applyPumpExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
             await Observer.applyBTCLeadExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
+            // await Observer.applyBenesBTCLeadExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
 
 
             Observer.previousPrices = [...Observer.currentPrices]
         }, intervalLengthInSeconds * 1000)
+    }
+
+    private static async applyBenesBTCLeadExploitStrategy(maxNumberOfPatienceIntervals: number, currentInvestmentSymbol?: string, currentlyInvestedUnits?: number) {
+        console.log("do it Bene")
     }
 
     private static async applyBTCLeadExploitStrategy(maxNumberOfPatienceIntervals: number, currentInvestmentSymbol?: string, currentlyInvestedUnits?: number) {
@@ -45,12 +50,12 @@ export class Observer {
             console.log(`increasedEnoughForBuy: ${increasedEnoughForBuy}`)
             console.log(`decreasedEnoughForSale: ${decreasedEnoughForSale}`)
 
-            if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === '-3.000') ) {
+            if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === '-4.000') ) {
                 console.log("buying")
-                await BinanceConnector.buyFuture("ETHUSDT", 3.0)
-            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === '3.000')) {
+                await BinanceConnector.buyFuture("ETHUSDT", 4.0)
+            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === '4.000')) {
                 console.log("selling")
-                await BinanceConnector.sellFuture("ETHUSDT", 3.0)
+                await BinanceConnector.sellFuture("ETHUSDT", 4.0)
                 // await BinanceConnector.cancelPosition("ETHUSDT")
             } else {
                 console.log("sleep :)")
