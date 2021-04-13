@@ -41,16 +41,16 @@ export class Observer {
             const currentPrice = Math.round(Observer.currentPrices.filter((e: any) => e.coinSymbol === "BTCUSDT")[0].price)
             console.log(`previous: ${previousPrice} vs. current: ${currentPrice}`)
             const increasedEnoughForBuy = (previousPrice + 4 < currentPrice) ? true : false
-            const decreasedEnoughForSale = (previousPrice > currentPrice + 2) ? true : false
+            const decreasedEnoughForSale = (previousPrice > currentPrice + 4) ? true : false
             console.log(`increasedEnoughForBuy: ${increasedEnoughForBuy}`)
             console.log(`decreasedEnoughForSale: ${decreasedEnoughForSale}`)
 
-            if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === '-0.700') ) {
+            if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === '-3.000') ) {
                 console.log("buying")
-                await BinanceConnector.buyFuture("ETHUSDT", 0.7)
-            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === '0.700')) {
+                await BinanceConnector.buyFuture("ETHUSDT", 3.0)
+            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === '3.000')) {
                 console.log("selling")
-                await BinanceConnector.sellFuture("ETHUSDT", 0.7)
+                await BinanceConnector.sellFuture("ETHUSDT", 3.0)
                 // await BinanceConnector.cancelPosition("ETHUSDT")
             } else {
                 console.log("sleep :)")
