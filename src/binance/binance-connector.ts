@@ -41,10 +41,38 @@ export class BinanceConnector {
         await binance.marketSell(pair, amount)
     }
 
+    public static async getFuturesAccountData(){
+        return binance.futuresAccount()
+    }
+
+    public static async getFuturesBalanceData(){
+        return binance.futuresBalance()
+    }
+
+    public static async buyFuture(pair: string, amount: number){
+        return binance.futuresMarketBuy(pair, amount)
+    }
+
+    public static async sellFuture(pair: string, amount: number){
+        return binance.futuresMarketSell(pair, amount)
+    }
+
+    public static async cancelPosition(pair: string){
+        console.log("can")
+        return binance.futuresCancelAll("ETHUSDT")
+    }
+
 
     public static async getBTCBalance(): Promise<number> {
         const balances = await binance.balance()
         const btcBalance = balances.BTC.available
+
+        return btcBalance
+    }
+
+    public static async getUSDTBalance(): Promise<number> {
+        const balances = await binance.balance()
+        const btcBalance = balances.USDT.available
 
         return btcBalance
     }

@@ -14,104 +14,142 @@ export class Observer {
     private static previousPrices: any[] = []
 
     public static observe(intervalLengthInSeconds: number, maxNumberOfPatienceIntervals: number, currentInvestmentSymbol?: string, currentlyInvestedUnits?: number) {
+        setInterval(async () => {
+            Observer.currentPrices = await BinanceConnector.getCurrentPrices()
 
+    
+            // await Observer.applyPumpExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
+            await Observer.applyBTCLeadExploitStrategy(maxNumberOfPatienceIntervals, currentInvestmentSymbol, currentlyInvestedUnits)
+
+
+            Observer.previousPrices = [...Observer.currentPrices]
+        }, intervalLengthInSeconds * 1000)
+    }
+
+    private static async applyBTCLeadExploitStrategy(maxNumberOfPatienceIntervals: number, currentInvestmentSymbol?: string, currentlyInvestedUnits?: number) {
+
+        const accountData = await BinanceConnector.getFuturesAccountData()
+
+        // console.log(accountData.assets.filter((entry: any) => entry.asset === "USDT")[0])
+        // console.log(accountData.positions.filter((entry: any) => entry.symbol === "BTCUSDT")[0])
+        const etherPosition = accountData.positions.filter((entry: any) => entry.symbol === "ETHUSDT")[0]
+        console.log(etherPosition)
+
+
+        if (Observer.previousPrices.length > 0) {
+            const previousPrice = Math.round(Observer.previousPrices.filter((e: any) => e.coinSymbol === "BTCUSDT")[0].price)
+            const currentPrice = Math.round(Observer.currentPrices.filter((e: any) => e.coinSymbol === "BTCUSDT")[0].price)
+            console.log(`previous: ${previousPrice} vs. current: ${currentPrice}`)
+            const increasedEnoughForBuy = (previousPrice + 4 < currentPrice) ? true : false
+            const decreasedEnoughForSale = (previousPrice > currentPrice + 2) ? true : false
+            console.log(`increasedEnoughForBuy: ${increasedEnoughForBuy}`)
+            console.log(`decreasedEnoughForSale: ${decreasedEnoughForSale}`)
+
+            if (increasedEnoughForBuy && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmt === '-0.700') ) {
+                console.log("buying")
+                await BinanceConnector.buyFuture("ETHUSDT", 0.7)
+            } else if (decreasedEnoughForSale && (etherPosition.positionAmt === '0.000' || etherPosition.positionAmount === '0.700')) {
+                console.log("selling")
+                await BinanceConnector.sellFuture("ETHUSDT", 0.7)
+                // await BinanceConnector.cancelPosition("ETHUSDT")
+            } else {
+                console.log("sleep :)")
+            }
+
+        }
+    }
+
+    private static async applyPumpExploitStrategy(maxNumberOfPatienceIntervals: number, currentInvestmentSymbol?: string, currentlyInvestedUnits?: number) {
         if (currentInvestmentSymbol !== undefined) {
             Observer.currentInvestmentSymbol = currentInvestmentSymbol
             Observer.currentlyInvestedUnits = currentlyInvestedUnits as number
         }
 
-        setInterval(async () => {
-            
-            Observer.intervalCounterPerInvestment = Observer.intervalCounterPerInvestment + 1
 
-            console.log(`intervalCounterPerInvestment: ${Observer.intervalCounterPerInvestment}`)
+        Observer.intervalCounterPerInvestment = Observer.intervalCounterPerInvestment + 1
 
-            Observer.availableBTCAmount = Number(await BinanceConnector.getBTCBalance())
-            Observer.currentPrices = await BinanceConnector.getCurrentPrices()
+        console.log(`intervalCounterPerInvestment: ${Observer.intervalCounterPerInvestment}`)
 
-            console.log(`I have ${Observer.availableBTCAmount} of BTC available.`)
+        Observer.availableBTCAmount = Number(await BinanceConnector.getBTCBalance())
+        console.log(`I have ${Observer.availableBTCAmount} of BTC available.`)
 
-            if (Observer.previousPrices.length > 0) {
+        if (Observer.previousPrices.length > 0) {
 
-                if (Observer.availableBTCAmount > 0.0005) {
+            if (Observer.availableBTCAmount > 0.0005) {
 
-                    console.log("I'm not invested, I'll buy the best performer")
-                    await Observer.buyBestPerformer()
+                console.log("I'm not invested, I'll buy the best performer")
+                await Observer.buyBestPerformer()
 
-                } else if (Observer.intervalCounterPerInvestment < maxNumberOfPatienceIntervals) {
-                    
-                    console.log("I'm already invested.")
-                    Observer.currentPriceOfCurrentInvestment = Observer.currentPrices.filter((e: any) => e.coinSymbol === Observer.currentInvestmentSymbol)[0].price
-                    
-                    console.log(`currentPriceOfCurrentInvestment: ${Observer.currentPriceOfCurrentInvestment}`)
+            } else if (Observer.intervalCounterPerInvestment < maxNumberOfPatienceIntervals) {
 
-                    // const stopLossPrice = Number((Observer.currentPriceOfCurrentInvestment * 0.95).toFixed(8))
-                    const stopLossPrice = Number((Observer.currentPriceOfCurrentInvestment * 0.95).toFixed(8))
-                    console.log(`stopLossPrice: ${stopLossPrice}`)
+                console.log("I'm already invested.")
+                Observer.currentPriceOfCurrentInvestment = Observer.currentPrices.filter((e: any) => e.coinSymbol === Observer.currentInvestmentSymbol)[0].price
 
-                    if (Observer.previousStopLossPrice < stopLossPrice) {
-                        try {
-                            await BinanceConnector.cancelAllOrders(Observer.currentInvestmentSymbol)
-                        } catch (error) {
-                            console.log('nothing deleted')
-                        }
-                        Observer.amountToBeSold = Observer.currentlyInvestedUnits * 0.98
-                        console.log(`setting stop loss for ${Observer.amountToBeSold} units of ${Observer.currentInvestmentSymbol}`)
-                        console.log("I'll update the stop loss")
-                        
-                        try {
-                            await BinanceConnector.placeStopLossOrder(Observer.currentInvestmentSymbol, Observer.amountToBeSold , stopLossPrice, stopLossPrice)
-                        } catch(error) {
-                            try {
-                                console.log('wir sind hier')
-                                await BinanceConnector.placeStopLossOrder(Observer.currentInvestmentSymbol, Math.round(Observer.amountToBeSold) , stopLossPrice, stopLossPrice)
-                            } catch(error) {
-                                console.log('wir sind da')
-                                try {
-                                    await BinanceConnector.placeStopLossOrder(Observer.currentInvestmentSymbol, (Math.round(Observer.amountToBeSold) - 1) , stopLossPrice, stopLossPrice)
-                                } catch(error){
-                                    console.log(error.message)
-                                }
-                            }
-                        }
-                        
-                        
-                        Observer.previousStopLossPrice = stopLossPrice
-                        Observer.intervalCounterPerInvestment = 0
-                    }
-                } else {
-                    console.log(`It took too long. We want to get rich quick.`)
+                console.log(`currentPriceOfCurrentInvestment: ${Observer.currentPriceOfCurrentInvestment}`)
+
+                // const stopLossPrice = Number((Observer.currentPriceOfCurrentInvestment * 0.95).toFixed(8))
+                const stopLossPrice = Number((Observer.currentPriceOfCurrentInvestment * 0.95).toFixed(8))
+                console.log(`stopLossPrice: ${stopLossPrice}`)
+
+                if (Observer.previousStopLossPrice < stopLossPrice) {
                     try {
                         await BinanceConnector.cancelAllOrders(Observer.currentInvestmentSymbol)
-                    } catch(error) {
-                        console.log("Scheiß drauf. Malle ist nur einmal im Jahr.")
+                    } catch (error) {
+                        console.log('nothing deleted')
                     }
-                    
-                    console.log(`we want to sell ${Observer.amountToBeSold} ${Observer.currentInvestmentSymbol} as we bought ${Observer.currentlyInvestedUnits} of it earlier.`)
+                    Observer.amountToBeSold = Observer.currentlyInvestedUnits * 0.98
+                    console.log(`setting stop loss for ${Observer.amountToBeSold} units of ${Observer.currentInvestmentSymbol}`)
+                    console.log("I'll update the stop loss")
+
                     try {
-                        await BinanceConnector.placeSellOrder(Observer.currentInvestmentSymbol, Observer.amountToBeSold)
-                    } catch(error){
-                        console.log("schief 1")
+                        await BinanceConnector.placeStopLossOrder(Observer.currentInvestmentSymbol, Observer.amountToBeSold, stopLossPrice, stopLossPrice)
+                    } catch (error) {
                         try {
-                            await BinanceConnector.placeSellOrder(Observer.currentInvestmentSymbol, Math.round(Observer.amountToBeSold))
-                        } catch(error) {
-                            console.log("schief 2")
-                            await BinanceConnector.placeSellOrder(Observer.currentInvestmentSymbol, (Math.round(Observer.amountToBeSold) - 1))
-
+                            console.log('wir sind hier')
+                            await BinanceConnector.placeStopLossOrder(Observer.currentInvestmentSymbol, Math.round(Observer.amountToBeSold), stopLossPrice, stopLossPrice)
+                        } catch (error) {
+                            console.log('wir sind da')
+                            try {
+                                await BinanceConnector.placeStopLossOrder(Observer.currentInvestmentSymbol, (Math.round(Observer.amountToBeSold) - 1), stopLossPrice, stopLossPrice)
+                            } catch (error) {
+                                console.log(error.message)
+                            }
                         }
-                        
                     }
-                    Observer.previousStopLossPrice = 0
 
+
+                    Observer.previousStopLossPrice = stopLossPrice
+                    Observer.intervalCounterPerInvestment = 0
+                }
+            } else {
+                console.log(`It took too long. We want to get rich quick.`)
+                try {
+                    await BinanceConnector.cancelAllOrders(Observer.currentInvestmentSymbol)
+                } catch (error) {
+                    console.log("Scheiß drauf. Malle ist nur einmal im Jahr.")
                 }
 
-            } 
+                console.log(`we want to sell ${Observer.amountToBeSold} ${Observer.currentInvestmentSymbol} as we bought ${Observer.currentlyInvestedUnits} of it earlier.`)
+                try {
+                    await BinanceConnector.placeSellOrder(Observer.currentInvestmentSymbol, Observer.amountToBeSold)
+                } catch (error) {
+                    console.log("schief 1")
+                    try {
+                        await BinanceConnector.placeSellOrder(Observer.currentInvestmentSymbol, Math.round(Observer.amountToBeSold))
+                    } catch (error) {
+                        console.log("schief 2")
+                        await BinanceConnector.placeSellOrder(Observer.currentInvestmentSymbol, (Math.round(Observer.amountToBeSold) - 1))
 
-            Observer.previousPrices = [...Observer.currentPrices]
+                    }
 
-        }, intervalLengthInSeconds * 1000)
+                }
+                Observer.previousStopLossPrice = 0
+
+            }
+
+        }
+
     }
-
     private static async buyBestPerformer() {
         const bestPerformer = Observer.getBestPerformer()
         if (bestPerformer !== undefined) {

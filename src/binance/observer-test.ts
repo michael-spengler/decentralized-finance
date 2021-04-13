@@ -1,7 +1,7 @@
 import { Observer } from "./observer"
 
 setTimeout(async () => {
-    const intervalLengthInSeconds = 60
+    const intervalLengthInSeconds = 5
     const maxNumberOfPatienceIntervals = 10
     // const minVolumeOverlap = 
 
