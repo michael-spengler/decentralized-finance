@@ -33,11 +33,11 @@ setInterval(async () => {
         await binanceConnector.buyFuture(pair, size)
     } else {
         console.log(unrealizedProfitAsNumber)
-        if (unrealizedProfitAsNumber > threshold) {
+        if (unrealizedProfitAsNumber >= threshold) {
             console.log(`selling ${size} ${pair}`)
-            await binanceConnector.sellFuture(pair, size)
+            await binanceConnector.sellFuture(pair, Math.round(size / 2))
             dipCounter = 0
-        } else if ((unrealizedProfitAsNumber < ((dipCounter + 1) * (threshold * -1))) && liquidityRatio > 0.75) {
+        } else if ((unrealizedProfitAsNumber < ((dipCounter + 1) * (threshold * -1))) && liquidityRatio > 0.8) {
             console.log(`buying the dip`)
             dipCounter++
             await binanceConnector.buyFuture(pair, size)
@@ -45,6 +45,7 @@ setInterval(async () => {
             console.log(`waiting until I made ${threshold} USD in profit`)
         }
     }
+
 }, intervalLengthInSeconds * 1000)
 
 
