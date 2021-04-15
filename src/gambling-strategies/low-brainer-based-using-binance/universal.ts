@@ -8,9 +8,13 @@ const binanceApiSecret = process.argv[6]
 const pair = process.argv[7]
 const limitRegardingBuyingTheDip = Number(process.argv[8])
 const dipIndicator = Number(process.argv[9])
+const buyTheDipFactor = Number(process.argv[10])
 
 let dipCounter = 0
 
+// best parameterization so far:
+// ts-node src/gambling-strategies/low-brainer-based-using-binance/universal.ts 5 1 2 <apiKey> <apiSecret> BNBUSDT 0.9 0.5 2
+// ts-node src/gambling-strategies/low-brainer-based-using-binance/universal.ts 5 0.01 2 <apiKey> <apiSecret> TCUSDT 0.9 0.3 2
 console.log(`intervalLengthInSeconds: ${intervalLengthInSeconds}`)
 console.log(`size: ${size}`)
 console.log(`threshold: ${threshold}`)
@@ -42,10 +46,10 @@ setInterval(async () => {
             await binanceConnector.sellFuture(pair, Number(xPosition.positionAmt))
             // play sound
             dipCounter = 0
-        } else if ((unrealizedProfitAsNumber < ((dipCounter + 1) * (((threshold / 2) * dipIndicator) * -1))) && liquidityRatio > limitRegardingBuyingTheDip) {
-            console.log(`buying the dip`)
+        } else if ((unrealizedProfitAsNumber < (threshold * dipIndicator) * -1) && liquidityRatio > limitRegardingBuyingTheDip) {
+            console.log(`buying the dip with dipCounter: ${dipCounter}`)
             dipCounter++
-            await binanceConnector.buyFuture(pair, (size * dipCounter))
+            await binanceConnector.buyFuture(pair, ((size * dipCounter * buyTheDipFactor)))
         } else {
             console.log(`waiting until I made ${threshold} USD in profit`)
         }
