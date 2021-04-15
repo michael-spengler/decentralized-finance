@@ -1,4 +1,7 @@
 
+// ts-node src/gambling-strategies/low-brainer-based-using-binance/universal-considering-predictions.ts <intervalLengthInSeconds> <size> <threshold> <binanceApiKey> <binanceApiSecret> <pairToBeTraded> <limitRegardingBuyingTheDip> <shortTermDipOrPumpIndicator>
+// pm2 start src/gambling-strategies/low-brainer-based-using-binance/universal-considering-predictions.ts -- <intervalLengthInSeconds> <size> <threshold> <binanceApiKey> <binanceApiSecret> <pairToBeTraded> <limitRegardingBuyingTheDip> <shortTermDipOrPumpIndicator>
+
 import { BinanceConnector } from "../../binance/binance-connector"
 import axios from "axios"
 
@@ -9,6 +12,7 @@ const binanceApiKey = process.argv[5]
 const binanceApiSecret = process.argv[6]
 const pair = process.argv[7] // e.g. BTCUSDT 
 const limitRegardingBuyingTheDip = Number(process.argv[8]) // e.g. 0.85
+const shortTermDipOrPumpIndicator = Number(process.argv[9]) // e.g. 1
 
 console.log(`intervalLengthInSeconds: ${intervalLengthInSeconds}`)
 console.log(`size: ${size}`)
@@ -16,6 +20,7 @@ console.log(`threshold: ${threshold}`)
 console.log(`binanceApiKey: ${binanceApiKey}`)
 console.log(`binanceApiSecret: ${binanceApiSecret}`)
 console.log(`pair: ${pair}`)
+console.log(`shortTermDipOrPumpIndicator: ${shortTermDipOrPumpIndicator}`)
 
 const binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
 
@@ -53,12 +58,12 @@ setInterval(async () => {
             console.log(`buying ${size} ${pair}`)
             await binanceConnector.buyFuture(pair, size)
         } else {
-            console.log(unrealizedProfitAsNumber)
+            console.log(`unrealizedProfitAsNumber: ${unrealizedProfitAsNumber}`)
             if (unrealizedProfitAsNumber >= threshold) {
                 console.log(`selling ${xPosition.positionAmt} ${pair}`)
                 await binanceConnector.sellFuture(pair, Number(xPosition.positionAmt))
                 // play sound - https://www.freesoundslibrary.com/cow-moo-sounds/ & https://www.npmjs.com/package/play-sound
-            } else if ((unrealizedProfitAsNumber < 0) && liquidityRatio > limitRegardingBuyingTheDip) {
+            } else if ((unrealizedProfitAsNumber < (shortTermDipOrPumpIndicator * -1)) && liquidityRatio > limitRegardingBuyingTheDip) {
                 let buyTheDipOrPumpFactor = Math.round(unrealizedProfitAsNumber)
                 if (buyTheDipOrPumpFactor >= 1) {
                     console.log(`buying the dip with factor ${buyTheDipOrPumpFactor}`)
@@ -81,7 +86,7 @@ setInterval(async () => {
                 console.log(`buying ${xPosition.positionAmt} ${pair}`)
                 await binanceConnector.buyFuture(pair, Number(xPosition.positionAmt))
                 // play sound - https://www.freesoundslibrary.com/cow-moo-sounds/ & https://www.npmjs.com/package/play-sound
-            } else if ((unrealizedProfitAsNumber < 0) && liquidityRatio > limitRegardingBuyingTheDip) {
+            } else if ((unrealizedProfitAsNumber < (shortTermDipOrPumpIndicator * -1)) && liquidityRatio > limitRegardingBuyingTheDip) {
                 let buyTheDipOrPumpFactor = Math.round(unrealizedProfitAsNumber)
                 if (buyTheDipOrPumpFactor >= 1) {
                     console.log(`selling the pump with factor ${buyTheDipOrPumpFactor}`)

@@ -8,7 +8,7 @@ const binanceApiKey = process.argv[5]
 const binanceApiSecret = process.argv[6]
 const pair = process.argv[7] // e.g. BTCUSDT 
 const limitRegardingBuyingTheDip = Number(process.argv[8]) // e.g. 0.85
-const dipIndicator = Number(process.argv[9]) // e.g. 1
+const shortTermDipOrPumpIndicator = Number(process.argv[9]) // e.g. 1
 
 console.log(`intervalLengthInSeconds: ${intervalLengthInSeconds}`) 
 console.log(`size: ${size}`) 
@@ -16,6 +16,7 @@ console.log(`threshold: ${threshold}`)
 console.log(`binanceApiKey: ${binanceApiKey}`)
 console.log(`binanceApiSecret: ${binanceApiSecret}`)
 console.log(`pair: ${pair}`) 
+console.log(`shortTermDipOrPumpIndicator: ${shortTermDipOrPumpIndicator}`)
 
 const binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
 
@@ -37,7 +38,7 @@ setInterval(async () => {
             console.log(`selling ${xPosition.positionAmt} ${pair}`)
             await binanceConnector.sellFuture(pair, Number(xPosition.positionAmt))
             // play sound - https://www.freesoundslibrary.com/cow-moo-sounds/ & https://www.npmjs.com/package/play-sound
-        } else if ((unrealizedProfitAsNumber < 0) && liquidityRatio > limitRegardingBuyingTheDip) {
+        } else if ((unrealizedProfitAsNumber < (shortTermDipOrPumpIndicator * -1)) && liquidityRatio > limitRegardingBuyingTheDip) {
             let buyTheDipFactor = Math.round(unrealizedProfitAsNumber)
             if (buyTheDipFactor >= 1) {
                 console.log(`buying the dip with factor ${buyTheDipFactor}`)
