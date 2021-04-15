@@ -30,7 +30,7 @@ setInterval(async () => {
     if (basicTendency === 's') {
         predictionLong = false
     } else if (basicTendency === 'p') {
-        await isPredictionLong() // due to this line I keep this in the interval 
+        predictionLong = await isPredictionLong() // due to this line I keep this in the interval 
     } else if (basicTendency === 'l') {
         predictionLong = true   
     } else {
