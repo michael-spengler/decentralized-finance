@@ -25,8 +25,8 @@ setInterval(async () => {
     const currentPrices = await binanceConnector.getCurrentPrices()
     const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === pair)[0].price
 
-    console.log(`predictedBTCPrice: ${predictedBTCPrice}`)
-    console.log(`currentPrice: ${currentPrice}`)
+    console.log(`predicted ${pair} price: ${predictedBTCPrice}`)
+    console.log(`current ${pair} price: ${currentPrice}`)
 
     const long = (predictedBTCPrice >= currentPrice)
 
