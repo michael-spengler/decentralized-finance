@@ -17,7 +17,7 @@ const limitRegardingBuyingTheDip = Number(process.argv[8]) // e.g. 0.85
 const shortTermDipOrPumpIndicator = Number(process.argv[9]) // e.g. 1
 const basicTendency = process.argv[10] // e.g. s (standing for short) or p (standing for considering predictions) l (standing for long)
 
-console.log(`intervalLengthInSeconds: ${intervalLengthInSeconds} \nsize: ${size}\nthreshold: ${threshold}\npair: ${pair}\nshortTermDipOrPumpIndicator: ${shortTermDipOrPumpIndicator}`)
+console.log(`intervalLengthInSeconds: ${intervalLengthInSeconds} \nsize: ${size}\nthreshold: ${threshold}\npair: ${pair}\nshortTermDipOrPumpIndicator: ${shortTermDipOrPumpIndicator}\nbasicTendency: ${basicTendency}`)
 
 const binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
 
@@ -27,22 +27,22 @@ setInterval(async () => {
 
     let predictionLong = true // initialization
 
-    if (basicTendency === 's') {
-        predictionLong = false
-    } else if (basicTendency === 'p') {
-        predictionLong = await isPredictionLong() // due to this line I keep this in the interval 
-    } else if (basicTendency === 'l') {
-        predictionLong = true   
-    } else {
-        throw new Error('check your parameters')
-    }
-
     const accountData = await binanceConnector.getFuturesAccountData()
     const xPosition = accountData.positions.filter((entry: any) => entry.symbol === pair)[0]
     const liquidityRatio = Number(accountData.maxWithdrawAmount) / Number(accountData.totalWalletBalance)
     const positionAmountAsNumber = Number(xPosition.positionAmt)
     const unrealizedProfitAsNumber = Number(xPosition.unrealizedProfit)
-    await correctTheInvestmentAccordingToPredictionIfNecessary(predictionLong, positionAmountAsNumber, xPosition, unrealizedProfitAsNumber)
+
+    if (basicTendency === 's') {
+        predictionLong = false
+    } else if (basicTendency === 'p') {
+        predictionLong = await isPredictionLong() // due to this line I keep this in the interval 
+        await correctTheInvestmentAccordingToPredictionIfNecessary(predictionLong, positionAmountAsNumber, xPosition, unrealizedProfitAsNumber)
+    } else if (basicTendency === 'l') {
+        predictionLong = true   
+    } else {
+        throw new Error('check your parameters')
+    }
 
     if (predictionLong) {
         await utilizeLongPrediction(positionAmountAsNumber, unrealizedProfitAsNumber, liquidityRatio, xPosition)
@@ -78,15 +78,9 @@ async function utilizeShortPrediction(positionAmountAsNumber: number, unrealized
             mostNegativeUnrealizedPNLInCurrentPosition = 0
             Player.playMP3(`${__dirname}/../../../sounds/game-new-level.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
         } else if (shallIUseTheDipOrPump(liquidityRatio, unrealizedProfitAsNumber)) {
-            let dipOrPumpExploitationFactor = Math.round(Number(unrealizedProfitAsNumber)) * -1
-            console.log(`dipOrPumpExploitationFactor: ${dipOrPumpExploitationFactor}`)
-            if (dipOrPumpExploitationFactor >= 1) {
-                console.log(`selling the pump with factor ${dipOrPumpExploitationFactor}`)
+                console.log(`selling the pump`)
                 Player.playMP3(`${__dirname}/../../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
-                await binanceConnector.sellFuture(pair, ((size * dipOrPumpExploitationFactor)))
-            } else {
-                console.log("waiting for the dip :)")
-            }
+                await binanceConnector.sellFuture(pair, (size))
         } else {
             console.log(`just waiting until I made ${threshold} USD in profit or until I use the dip or pump`)
         }
@@ -107,14 +101,9 @@ async function utilizeLongPrediction(positionAmountAsNumber: number, unrealizedP
             mostNegativeUnrealizedPNLInCurrentPosition = 0
             Player.playMP3(`${__dirname}/../../../sounds/game-new-level.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
         } else if (shallIUseTheDipOrPump(liquidityRatio, unrealizedProfitAsNumber)) {
-            let dipOrPumpExploitationFactor = Math.round(Number(unrealizedProfitAsNumber)) * -1
-            if (dipOrPumpExploitationFactor >= 1) {
-                console.log(`buying the dip with factor ${dipOrPumpExploitationFactor}`)
+                console.log(`buying the dip`)
                 Player.playMP3(`${__dirname}/../../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
-                await binanceConnector.buyFuture(pair, ((size * dipOrPumpExploitationFactor)))
-            } else {
-                console.log("waiting for the dip :)")
-            }
+                await binanceConnector.buyFuture(pair, (size))
         } else {
             console.log(`just waiting until I made ${threshold} USD in profit`)
         }
@@ -127,7 +116,7 @@ async function correctTheInvestmentAccordingToPredictionIfNecessary(predictionLo
         mostNegativeUnrealizedPNLInCurrentPosition = 0
     } else if (positionAmountAsNumber < 0 && predictionLong) {
         console.log(`buying ${xPosition.positionAmt} ${pair} due to changed direction in prediction - PNL: ${unrealizedProfitAsNumber}`)
-        await binanceConnector.buyFuture(pair, Number(xPosition.positionAmt))
+        await binanceConnector.buyFuture(pair, Number(xPosition.positionAmt) * -1)
         mostNegativeUnrealizedPNLInCurrentPosition = 0
     }
     
@@ -142,7 +131,7 @@ function shallIUseTheDipOrPump(liquidityRatio: number, unrealizedProfitAsNumber:
     if (unrealizedProfitAsNumber < Number((shortTermDipOrPumpIndicator * -1))) {
         console.log(`The unrealizedPNL (${unrealizedProfitAsNumber}) is below the shortTermDipOrPumpIndicator (${shortTermDipOrPumpIndicator})`)
         console.log(`unrealizedProfitAsNumber: (${unrealizedProfitAsNumber}) mostNegativeUnrealizedPNLInCurrentPosition: ${mostNegativeUnrealizedPNLInCurrentPosition}`)
-        if (unrealizedProfitAsNumber < mostNegativeUnrealizedPNLInCurrentPosition) {
+        if (unrealizedProfitAsNumber < mostNegativeUnrealizedPNLInCurrentPosition - shortTermDipOrPumpIndicator) {
             console.log(`This is the worst PNL we ever observed in the current position: ${mostNegativeUnrealizedPNLInCurrentPosition}. Therefore I use it.`)
             mostNegativeUnrealizedPNLInCurrentPosition = unrealizedProfitAsNumber
 
