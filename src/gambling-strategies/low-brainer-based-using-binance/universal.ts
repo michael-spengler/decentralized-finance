@@ -1,5 +1,5 @@
 
-// ts-node src/gambling-strategies/low-brainer-based-using-binance/universal-considering-predictions.ts <intervalLengthInSeconds> <size> <threshold> <binanceApiKey> <binanceApiSecret> <pairToBeTraded> <limitRegardingBuyingTheDip> <shortTermDipOrPumpIndicator> <basicTendency>
+// ts-node src/gambling-strategies/low-brainer-based-using-binance/universal-considering-predictions.ts <intervalLengthInSeconds> <size> <threshold> <binanceApiKey> <binanceApiSecret> <pairToBeTraded> <limitRegardingBuyingTheDip> <dPIndicator> <userGuessTOrP>
 // ts-node src/gambling-strategies/low-brainer-based-using-binance/universal-considering-predictions.ts 5 0.02 1 apiKey apiSecret 0.75 1 l
 // pm2 start -n "considering-predictions" src/gambling-strategies/low-brainer-based-using-binance/universal-considering-predictions.ts -- 60 0.02 5 apiKey apiSecret 0.85 5 l
 
@@ -14,18 +14,17 @@ const binanceApiKey = process.argv[5]
 const binanceApiSecret = process.argv[6]
 const pair = process.argv[7] // e.g. BTCUSDT 
 const limitRegardingBuyingTheDip = Number(process.argv[8]) // e.g. 0.85
-const shortTermDipOrPumpIndicator = Number(process.argv[9]) // e.g. 1
-const basicTendency = process.argv[10] // e.g. s (standing for short) or p (standing for considering predictions) l (standing for long)
+const dPIndicator = Number(process.argv[9]) // e.g. 1
+const userGuessTOrP = process.argv[10] // e.g. s (standing for short) or p (standing for considering predictions) l (standing for long)
 
-console.log(`intervalLengthInSeconds: ${intervalLengthInSeconds} \nsize: ${size}\nthreshold: ${threshold}\npair: ${pair}\nshortTermDipOrPumpIndicator: ${shortTermDipOrPumpIndicator}\nbasicTendency: ${basicTendency}`)
+console.log(`intervalLengthInSeconds: ${intervalLengthInSeconds} \nsize: ${size}\nthreshold: ${threshold}\npair: ${pair}\ndPIndicator: ${dPIndicator}\nuserGuessTOrP: ${userGuessTOrP}`)
 
 const binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
 
 let mostNegativeUnrealizedPNLInCurrentPosition = 0
 
-setInterval(async () => {
 
-    let predictionLong = true // initialization
+setInterval(async () => {
 
     const accountData = await binanceConnector.getFuturesAccountData()
     const xPosition = accountData.positions.filter((entry: any) => entry.symbol === pair)[0]
@@ -33,27 +32,35 @@ setInterval(async () => {
     const positionAmountAsNumber = Number(xPosition.positionAmt)
     const unrealizedProfitAsNumber = Number(xPosition.unrealizedProfit)
 
-    if (basicTendency === 's') {
-        predictionLong = false
-    } else if (basicTendency === 'p') {
-        predictionLong = await isPredictionLong() // due to this line I keep this in the interval 
-        await correctTheInvestmentAccordingToPredictionIfNecessary(predictionLong, positionAmountAsNumber, xPosition, unrealizedProfitAsNumber)
-    } else if (basicTendency === 'l') {
-        predictionLong = true   
-    } else {
-        throw new Error('check your parameters')
-    }
+    let isDirectionLong = await getPrediction(userGuessTOrP, positionAmountAsNumber, xPosition, unrealizedProfitAsNumber)
 
-    if (predictionLong) {
-        await utilizeLongPrediction(positionAmountAsNumber, unrealizedProfitAsNumber, liquidityRatio, xPosition)
+    if (isDirectionLong) {
+        await utilizeLongDirection(positionAmountAsNumber, unrealizedProfitAsNumber, liquidityRatio, xPosition)
     } else {
-        await utilizeShortPrediction(positionAmountAsNumber, unrealizedProfitAsNumber, liquidityRatio, xPosition)
+        await utilizeShortDirection(positionAmountAsNumber, unrealizedProfitAsNumber, liquidityRatio, xPosition)
     }
 
 }, intervalLengthInSeconds * 1000)
 
 
-async function isPredictionLong() {
+async function getPrediction(userGuessTOrP: string, positionAmountAsNumber: number, xPosition: any, unrealizedProfitAsNumber: number): Promise<boolean> {
+
+    let predictionLong
+    if (userGuessTOrP === 's') {
+        predictionLong = false
+    } else if (userGuessTOrP === 'p') {
+        predictionLong = await isDirectionLong() 
+        await correctTheInvestmentAccordingToPredictionIfNecessary(predictionLong, positionAmountAsNumber, xPosition, unrealizedProfitAsNumber)
+    } else if (userGuessTOrP === 'l') {
+        predictionLong = true   
+    } else {
+        throw new Error('check your parameters')
+    }
+
+    return predictionLong
+}
+
+async function isDirectionLong() {
 
     const predictedBTCPrice = Number((await axios.get('https://ml.aaronschweig.dev/technical/BTC-USD')).data[1][0].value)
     const currentPrices = await binanceConnector.getCurrentPrices()
@@ -65,7 +72,7 @@ async function isPredictionLong() {
     return (predictedBTCPrice >= currentPrice)
     
 }
-async function utilizeShortPrediction(positionAmountAsNumber: number, unrealizedProfitAsNumber: number, liquidityRatio: number, xPosition: any) {
+async function utilizeShortDirection(positionAmountAsNumber: number, unrealizedProfitAsNumber: number, liquidityRatio: number, xPosition: any) {
     console.log(`assuming overall declining ${pair} price`)
     if (positionAmountAsNumber === 0) {
         console.log(`selling ${size} ${pair}`)
@@ -88,7 +95,7 @@ async function utilizeShortPrediction(positionAmountAsNumber: number, unrealized
     
 }
 
-async function utilizeLongPrediction(positionAmountAsNumber: number, unrealizedProfitAsNumber: number, liquidityRatio: number, xPosition: any) {
+async function utilizeLongDirection(positionAmountAsNumber: number, unrealizedProfitAsNumber: number, liquidityRatio: number, xPosition: any) {
     console.log(`assuming overall rising ${pair} price`)
     if (positionAmountAsNumber === 0) {
         console.log(`buying ${size} ${pair}`)
@@ -128,10 +135,10 @@ function shallIUseTheDipOrPump(liquidityRatio: number, unrealizedProfitAsNumber:
         return false
     }
 
-    if (unrealizedProfitAsNumber < Number((shortTermDipOrPumpIndicator * -1))) {
-        console.log(`The unrealizedPNL (${unrealizedProfitAsNumber}) is below the shortTermDipOrPumpIndicator (${shortTermDipOrPumpIndicator})`)
+    if (unrealizedProfitAsNumber < Number((dPIndicator * -1))) {
+        console.log(`The unrealizedPNL (${unrealizedProfitAsNumber}) is below the dPIndicator (${dPIndicator})`)
         console.log(`unrealizedProfitAsNumber: (${unrealizedProfitAsNumber}) mostNegativeUnrealizedPNLInCurrentPosition: ${mostNegativeUnrealizedPNLInCurrentPosition}`)
-        if (unrealizedProfitAsNumber < mostNegativeUnrealizedPNLInCurrentPosition - shortTermDipOrPumpIndicator) {
+        if (unrealizedProfitAsNumber < mostNegativeUnrealizedPNLInCurrentPosition - dPIndicator) {
             console.log(`This is the worst PNL we ever observed in the current position: ${mostNegativeUnrealizedPNLInCurrentPosition}. Therefore I use it.`)
             mostNegativeUnrealizedPNLInCurrentPosition = unrealizedProfitAsNumber
 
