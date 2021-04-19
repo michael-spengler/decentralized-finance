@@ -33,8 +33,8 @@ setInterval(async () => {
     const currentPrices = await binanceConnector.getCurrentPrices()
     const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === pair)[0].price
     
-    const howMuchCouldIBuy = (available * leverageEffectWhichYouConfigured) / currentPrice
-    console.log(`howMuchCouldIBuy (${howMuchCouldIBuy}) = (${available} * ${leverageEffectWhichYouConfigured}) / ${currentPrice}`)
+    const howMuchCouldIBuy = ((available * 0.96) * leverageEffectWhichYouConfigured) / currentPrice // 0.96 as the maker fee for futures is about 0.04
+    console.log(`howMuchCouldIBuy (${howMuchCouldIBuy}) = ((${available} * 0.96) * ${leverageEffectWhichYouConfigured}) / ${currentPrice}`)
     
     if ((await AIConnector.isThereASeriousVetoFromATAPerspective(currentPrice, pair)))  {
 
