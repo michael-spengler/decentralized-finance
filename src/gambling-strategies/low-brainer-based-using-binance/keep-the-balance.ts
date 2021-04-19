@@ -4,12 +4,11 @@ import { BinanceConnector } from "../../binance/binance-connector"
 import { Player } from "../audio-success-indicators/player"
 
 const intervalLengthInSeconds = Number(process.argv[2]) // e.g. 5
-const initialSize = Number(process.argv[3]) // e.g. 0.02
-const pair = process.argv[4] // e.g. BTCUSDT 
-const ratioToBuy = Number(process.argv[5]) // e.g. 0.6
-const ratioToSell = Number(process.argv[6]) // e.g. 0.2
-const binanceApiKey = process.argv[7]
-const binanceApiSecret = process.argv[8]
+const pair = process.argv[3] // e.g. BTCUSDT 
+const ratioToBuy = Number(process.argv[4]) // e.g. 0.6
+const ratioToSell = Number(process.argv[5]) // e.g. 0.2
+const binanceApiKey = process.argv[6]
+const binanceApiSecret = process.argv[7]
 
 const binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
 
@@ -20,24 +19,33 @@ setInterval(async () => {
     const totalWalletBalance = Number(accountData.totalWalletBalance)
     const maxWithdrawAmount = Number(accountData.maxWithdrawAmount) 
     const liquidityRatio = maxWithdrawAmount / totalWalletBalance
-    
+
     console.log(`maxWithdrawAmount: ${maxWithdrawAmount} - totalWalletBalance: ${totalWalletBalance}`)
-    
     console.log(`liquidityRatio: ${liquidityRatio}`)
+    console.log(`totalPositionInitialMargin: ${accountData.totalPositionInitialMargin}`)
+    console.log(`totalUnrealizedProfit: ${accountData.totalUnrealizedProfit}`)
+    console.log(`positionAmount: ${positionAmount} ${pair}`)
     
-    console.log(`positionAmount: ${positionAmount}`)
-    
+    const currentPrices = await binanceConnector.getCurrentPrices()
+    const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === pair)[0].price
+
     if (liquidityRatio >= ratioToBuy) {
-        console.log(`buying ${initialSize} of ${pair} to get the party started.`)
-        await binanceConnector.buyFuture(pair, initialSize)
+
+        const howMuchCouldIBuy = currentPrice / (totalWalletBalance * 125)
+        console.log(`I could buy ${howMuchCouldIBuy} ${pair}`)
+        const howMuchShouldIBuy = Number((howMuchCouldIBuy / 10).toFixed(3))
+        console.log(`I should buy ${howMuchShouldIBuy} ${pair}`)
+    
+        console.log(`buying ${howMuchShouldIBuy} of ${pair} to get the party started.`)
+        await binanceConnector.buyFuture(pair, howMuchShouldIBuy)
         Player.playMP3(`${__dirname}/../../../sounds/game-new-level.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
     }
 
     if (liquidityRatio <= ratioToSell) {
-        const size = (positionAmount * 0.8).toFixed(2)
-        await binanceConnector.sellFuture(pair, initialSize)
+        const howMuchShouldISell = Number((positionAmount * 0.2).toFixed(3))
+        await binanceConnector.sellFuture(pair, howMuchShouldISell)
         Player.playMP3(`${__dirname}/../../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
-        console.log(`we are selling 80% of our ${pair} position as we want to stay in the game: -- selling ${size} ${pair}.`)
+        console.log(`we are selling 80% of our ${pair} position as we want to stay in the game: -- selling ${howMuchShouldISell} ${pair}.`)
     } 
     
     if (liquidityRatio > ratioToSell && liquidityRatio < ratioToBuy) {

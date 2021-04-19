@@ -6,8 +6,6 @@ export class Player {
 
     public static async playMP3(path: string) {
         if (Player.shallIPlaySounds()) {
-            console.log(path)
-
             player.play(path, function (err: any) {
                 if (err) {
                     console.log(err)
