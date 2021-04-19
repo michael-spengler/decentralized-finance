@@ -39,7 +39,7 @@ setInterval(async () => {
     if ((await AIConnector.isThereASeriousVetoFromATAPerspective(currentPrice, pair)))  {
 
         if (positionAmount > 0) {
-            console.log(`I'm selling the long position as our the automated technical analysis raised some concerns.`)
+            console.log(`I'm selling the long position as our automated technical analysis raised some concerns.`)
             await binanceConnector.sellFuture(pair,(positionAmount))
         } else {
             console.log(`waiting until the technical analysis indicates going long again.`)
@@ -48,7 +48,7 @@ setInterval(async () => {
     } else if (await AIConnector.isThereASeriousVetoFromASAPerspective()) {
 
         if (positionAmount > 0) {
-            console.log(`I'm selling the long position as our the automated sentiment analysis raised some concerns.`)
+            console.log(`I'm selling the long position as our automated sentiment analysis raised some concerns.`)
             await binanceConnector.sellFuture(pair, (positionAmount))
         } else {
             console.log(`waiting until the sentiment analysis indicates going long again.`)
@@ -56,7 +56,7 @@ setInterval(async () => {
 
     } else {
         
-        // console.log(`technical analysis, sentiment analysis and personal fundamentals analysis combined indicate being long on ${pair}.`)
+        // console.log(`technical analysis, sentiment analysis and personal fundamentals analysis combined indicate being long on ${pair} is a good idea.`)
 
         if (liquidityRatio >= ratioToBuy) {
 
