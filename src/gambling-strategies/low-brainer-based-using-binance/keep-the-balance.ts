@@ -17,12 +17,12 @@ setInterval(async () => {
     const xPosition = accountData.positions.filter((entry: any) => entry.symbol === pair)[0]
     const positionAmount = Number(xPosition.positionAmt)
     const totalWalletBalance = Number(accountData.totalWalletBalance)
-    const maxWithdrawAmount = Number(accountData.maxWithdrawAmount) 
-    const liquidityRatio = maxWithdrawAmount / totalWalletBalance
+    const availableBalance = Number(accountData.availableBalance) 
+    const liquidityRatio = availableBalance / totalWalletBalance
 
     // console.log(`positionAmount: ${positionAmount} ${pair}`)
     // console.log(`totalPositionInitialMargin: ${accountData.totalPositionInitialMargin}`)
-    console.log(`walletBalance: ${totalWalletBalance} - unrealizedPNL: ${accountData.totalUnrealizedProfit} - maxWithdrawAmount: ${maxWithdrawAmount}`)
+    console.log(`walletBalance: ${totalWalletBalance} - unrealizedPNL: ${accountData.totalUnrealizedProfit} - availableBalance: ${availableBalance}`)
     
     const currentPrices = await binanceConnector.getCurrentPrices()
     const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === pair)[0].price
