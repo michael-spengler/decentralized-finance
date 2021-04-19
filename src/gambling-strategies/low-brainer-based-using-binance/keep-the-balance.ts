@@ -20,11 +20,9 @@ setInterval(async () => {
     const maxWithdrawAmount = Number(accountData.maxWithdrawAmount) 
     const liquidityRatio = maxWithdrawAmount / totalWalletBalance
 
-    console.log(`maxWithdrawAmount: ${maxWithdrawAmount} - totalWalletBalance: ${totalWalletBalance}`)
-    console.log(`liquidityRatio: ${liquidityRatio}`)
-    console.log(`totalPositionInitialMargin: ${accountData.totalPositionInitialMargin}`)
-    console.log(`totalUnrealizedProfit: ${accountData.totalUnrealizedProfit}`)
     console.log(`positionAmount: ${positionAmount} ${pair}`)
+    console.log(`totalPositionInitialMargin: ${accountData.totalPositionInitialMargin}`)
+    console.log(`walletBalance: ${totalWalletBalance} - unrealizedPNL: ${accountData.totalUnrealizedProfit} - ${maxWithdrawAmount} - `)
     
     const currentPrices = await binanceConnector.getCurrentPrices()
     const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === pair)[0].price
