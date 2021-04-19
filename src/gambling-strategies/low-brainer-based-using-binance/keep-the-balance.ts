@@ -3,12 +3,12 @@
 import { BinanceConnector } from "../../binance/binance-connector"
 import { Player } from "../audio-success-indicators/player"
 
-const intervalLengthInSeconds = Number(process.argv[2]) // e.g. 5
-const pair = process.argv[3] // e.g. BTCUSDT 
-const ratioToBuy = Number(process.argv[4]) // e.g. 0.6
-const ratioToSell = Number(process.argv[5]) // e.g. 0.2
-const binanceApiKey = process.argv[6]
-const binanceApiSecret = process.argv[7]
+const intervalLengthInSeconds = Number(process.argv[2]) // e.g. 11
+const pair = process.argv[3] // e.g. ETHUSDT 
+const ratioToBuy = Number(process.argv[4]) // e.g. 0.5
+const ratioToSell = Number(process.argv[5]) // e.g. 0.04
+const binanceApiKey = process.argv[6] // check your profile on binance.com --> API Management
+const binanceApiSecret = process.argv[7] // check your profile on binance.com --> API Management
 
 const binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
 
