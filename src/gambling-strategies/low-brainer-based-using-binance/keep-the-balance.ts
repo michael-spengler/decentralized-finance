@@ -33,7 +33,8 @@ setInterval(async () => {
     const currentPrices = await binanceConnector.getCurrentPrices()
     const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === pair)[0].price
     
-    const howMuchCouldIBuy = currentPrice / (available * leverageEffectWhichYouConfigured)
+    const howMuchCouldIBuy = (available * leverageEffectWhichYouConfigured) / currentPrice
+    console.log(`howMuchCouldIBuy (${howMuchCouldIBuy}) = (${available} * ${leverageEffectWhichYouConfigured}) / ${currentPrice}`)
     
     if ((await AIConnector.isThereASeriousVetoFromATAPerspective(currentPrice, pair)))  {
 
@@ -55,7 +56,7 @@ setInterval(async () => {
 
     } else {
         
-        console.log(`technical analysis, sentiment analysis and personal fundamentals analysis combined indicate being long on ${pair}.`)
+        // console.log(`technical analysis, sentiment analysis and personal fundamentals analysis combined indicate being long on ${pair}.`)
 
         if (liquidityRatio >= ratioToBuy) {
 

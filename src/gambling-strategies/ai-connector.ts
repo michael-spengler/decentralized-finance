@@ -51,7 +51,7 @@ export class AIConnector {
         const averageSMA = sumSMA / sentiment.length
         const averageValue = sumValue / sentiment.length
 
-        console.log(`averageSMA: ${averageSMA} - averageValue: ${averageValue}`)
+        // console.log(`averageSMA: ${averageSMA} - averageValue: ${averageValue}`)
 
         let magicFactorSMA
         let magicFactorValue
