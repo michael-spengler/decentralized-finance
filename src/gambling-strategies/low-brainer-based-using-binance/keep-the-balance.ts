@@ -30,11 +30,9 @@ setInterval(async () => {
     if (liquidityRatio >= ratioToBuy) {
 
         const howMuchCouldIBuy = currentPrice / (totalWalletBalance * 125)
-        console.log(`I could buy ${howMuchCouldIBuy} ${pair}`)
         const howMuchShouldIBuy = Number((howMuchCouldIBuy / 10).toFixed(3))
-        console.log(`I should buy ${howMuchShouldIBuy} ${pair}`)
+        console.log(`I could buy ${howMuchCouldIBuy} ${pair} - I buy ${howMuchShouldIBuy} ${pair}`)
     
-        console.log(`buying ${howMuchShouldIBuy} of ${pair} to get the party started.`)
         await binanceConnector.buyFuture(pair, howMuchShouldIBuy)
         Player.playMP3(`${__dirname}/../../../sounds/game-new-level.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
     }
@@ -42,8 +40,8 @@ setInterval(async () => {
     if (liquidityRatio <= ratioToSell) {
         const howMuchShouldISell = Number((positionAmount * 0.2).toFixed(3))
         await binanceConnector.sellFuture(pair, howMuchShouldISell)
+        console.log(`selling ${howMuchShouldISell} ${pair}.`)
         Player.playMP3(`${__dirname}/../../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
-        console.log(`we are selling 80% of our ${pair} position as we want to stay in the game: -- selling ${howMuchShouldISell} ${pair}.`)
     } 
     
     if (liquidityRatio > ratioToSell && liquidityRatio < ratioToBuy) {
