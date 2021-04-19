@@ -27,10 +27,11 @@ setInterval(async () => {
     const currentPrices = await binanceConnector.getCurrentPrices()
     const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === pair)[0].price
 
-    if (liquidityRatio >= ratioToBuy) {
+    const howMuchCouldIBuy = currentPrice / (totalWalletBalance * 125)
+    const howMuchShouldIBuy = Number((howMuchCouldIBuy / 10).toFixed(3))
 
-        const howMuchCouldIBuy = currentPrice / (totalWalletBalance * 125)
-        const howMuchShouldIBuy = Number((howMuchCouldIBuy / 10).toFixed(3))
+    if (liquidityRatio >= ratioToBuy && howMuchShouldIBuy > 0.5) { 
+
         console.log(`I could buy ${howMuchCouldIBuy} ${pair} - I buy ${howMuchShouldIBuy} ${pair}`)
     
         await binanceConnector.buyFuture(pair, howMuchShouldIBuy)
