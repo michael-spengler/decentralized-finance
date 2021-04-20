@@ -60,7 +60,7 @@ setInterval(async () => {
 
         if (liquidityRatio >= ratioToBuy) {
 
-            console.log(`I could buy ${howMuchCouldIBuy} ${pair}`)
+            console.log(`I could buy ${howMuchCouldIBuy} ${pair} - as lr (${liquidityRatio}) > ratioToBuy (${ratioToBuy})`)
 
             const howMuchShouldIBuy = Number((howMuchCouldIBuy * couldBuyWouldBuyFactor).toFixed(3))
 

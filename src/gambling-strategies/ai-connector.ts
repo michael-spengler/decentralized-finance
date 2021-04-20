@@ -14,9 +14,9 @@ export class AIConnector {
                 const predictedETHPriceBasedOnTA = taForecastEntry.value
                 const percentage = ((predictedETHPriceBasedOnTA - currentEtherPrice) / currentEtherPrice) * 100
                 if (percentage > 0) {
-                    console.log(`The technical analysis indicates that the ${pair} price will rise by about ${percentage} percent`)
+                    // console.log(`The technical analysis indicates that the ${pair} price will rise by about ${percentage} percent`)
                 } else if (percentage < -2) {
-                    console.log(`The technical analysis indicates that the ${pair} price will decline by about ${percentage} percent. Even considering a buffer I suggest to sell the long position.`)
+                    // console.log(`The technical analysis indicates that the ${pair} price will decline by about ${percentage} percent. Even considering a buffer I suggest to sell the long position.`)
                     return true
                 }
 
@@ -25,7 +25,7 @@ export class AIConnector {
 
         } catch (error) {
 
-            console.log(`shit happened: ${error.message}`)
+            console.log(`shit happened retrieving technical analysis results: ${error.message}`)
 
         }
 
@@ -33,41 +33,48 @@ export class AIConnector {
     }
 
     public static async isThereASeriousVetoFromASAPerspective(): Promise<boolean> {
+        // sentiment analysis has some errors regarding quota leverage optimization
+        // let sentiment
+        // try {
+        //     sentiment = (await axios.get('https://ml.aaronschweig.dev/sentiment/twitter')).data
 
-        const sentiment = (await axios.get('https://ml.aaronschweig.dev/sentiment/twitter')).data
+        //     const referenceDate24HoursAgo = new Date(new Date().getTime() - 24 * 3600 * 1000)
 
-        const referenceDate24HoursAgo = new Date(new Date().getTime() - 24 * 3600 * 1000)
+        //     let counter = 0
+        //     let sumSMA = 0
+        //     let sumValue = 0
 
-        let counter = 0
-        let sumSMA = 0
-        let sumValue = 0
+        //     while (counter < sentiment.length) {
+        //         sumSMA = sumSMA + sentiment[counter].sma
+        //         sumValue = sumValue + sentiment[counter].value
+        //         counter++
+        //     }
 
-        while (counter < sentiment.length) {
-            sumSMA = sumSMA + sentiment[counter].sma
-            sumValue = sumValue + sentiment[counter].value
-            counter++
-        }
+        //     const averageSMA = sumSMA / sentiment.length
+        //     const averageValue = sumValue / sentiment.length
 
-        const averageSMA = sumSMA / sentiment.length
-        const averageValue = sumValue / sentiment.length
+        //     // console.log(`averageSMA: ${averageSMA} - averageValue: ${averageValue}`)
 
-        // console.log(`averageSMA: ${averageSMA} - averageValue: ${averageValue}`)
+        //     let magicFactorSMA
+        //     let magicFactorValue
+        //     if (sentiment[0].date < referenceDate24HoursAgo) {
+        //         console.log(`${sentiment[0].date} is before ${referenceDate24HoursAgo} - which means not so many quality accounts post about it`)
+        //         magicFactorSMA = averageSMA - 0, 1
+        //         magicFactorValue = averageValue - 0, 1
+        //     } else {
+        //         magicFactorSMA = averageSMA + 0, 1
+        //         magicFactorValue = averageValue + 0, 1
+        //     }
 
-        let magicFactorSMA
-        let magicFactorValue
-        if (sentiment[0].date < referenceDate24HoursAgo) {
-            console.log(`${sentiment[0].date} is before ${referenceDate24HoursAgo} - which means not so many quality accounts post about it`)
-            magicFactorSMA = averageSMA - 0, 1
-            magicFactorValue = averageValue - 0, 1
-        } else {
-            magicFactorSMA = averageSMA + 0, 1
-            magicFactorValue = averageValue + 0, 1
-        }
+        //     if (magicFactorValue < 0.5 || magicFactorSMA < 0.5) {
+        //         console.log(`The sentiment analysis indicates that being long is a bad idea atm based on magicFactorSMA: ${magicFactorSMA} and magicFactorValue: ${magicFactorValue}`)
+        //         return true
+        //     }
 
-        if (magicFactorValue < 0.5 || magicFactorSMA < 0.5) {
-            console.log(`The sentiment analysis indicates that being long is a bad idea atm based on magicFactorSMA: ${magicFactorSMA} and magicFactorValue: ${magicFactorValue}`)
-        }
-
+        // } catch (error) {
+        //     console.log(`shit happened retrieving sentiment analysis results: ${error.message}`)
+        // }
+        
         return false
     }
 }
