@@ -15,7 +15,7 @@ export class AIConnector {
                 const percentage = ((predictedETHPriceBasedOnTA - currentEtherPrice) / currentEtherPrice) * 100
                 if (percentage > 0) {
                     // console.log(`The technical analysis indicates that the ${pair} price will rise by about ${percentage} percent`)
-                } else if (percentage < -2) {
+                } else if (percentage < -4) {
                     // console.log(`The technical analysis indicates that the ${pair} price will decline by about ${percentage} percent. Even considering a buffer I suggest to sell the long position.`)
                     return true
                 }
