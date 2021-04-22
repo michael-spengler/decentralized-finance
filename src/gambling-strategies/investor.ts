@@ -124,16 +124,16 @@ export class Investor {
             this.totalUnrealizedProfits.shift() // removing the oldest entry
             this.totalUnrealizedProfits.push(Number(accountData.totalUnrealizedProfit))
             
-            console.log(this.totalUnrealizedProfits)
-
             let total = 0
             for (const e of this.totalUnrealizedProfits) {
                 total = total + e
             }
             this.pnlAverage = total / this.totalUnrealizedProfits.length
 
-            if (this.pnlAverage > accountData.totalUnrealizedProfit) {
+            if (this.pnlAverage > Number(accountData.totalUnrealizedProfit)) {
                 this.pnlAverageCalcAllowsBuying = true
+            } else {
+                this.pnlAverageCalcAllowsBuying = false
             }
         } else {
             console.log(`not enough history to check average pnl`)
