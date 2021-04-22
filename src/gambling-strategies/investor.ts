@@ -25,7 +25,7 @@ export class Investor {
 
         this.checkNoise(accountData)
 
-        if (accountData.totalUnrealizedProfit > accountData.totalWalletBalance) {
+        if (accountData.totalUnrealizedProfit > (accountData.totalWalletBalance / 10)) {
             console.log(`availableBalance: ${accountData.availableBalance}`)
             console.log(`${this.pnlAverage} vs. ${accountData.totalUnrealizedProfit}`)
 
@@ -46,30 +46,6 @@ export class Investor {
         }
 
         // console.log(JSON.stringify(accountData).substr(0, 300))
-    }
-
-    private checkNoise(accountData: any): void {
-        if (this.totalUnrealizedProfits.length === 100) {
-            
-            this.totalUnrealizedProfits.shift() // removing the oldest entry
-            this.totalUnrealizedProfits.push(Number(accountData.totalUnrealizedProfit))
-            
-            console.log(this.totalUnrealizedProfits)
-
-            let total = 0
-            for (const e of this.totalUnrealizedProfits) {
-                total = total + e
-            }
-            this.pnlAverage = total / this.totalUnrealizedProfits.length
-
-            if (this.pnlAverage > accountData.totalUnrealizedProfit) {
-                this.pnlAverageCalcAllowsBuying = true
-            }
-        } else {
-            console.log(`not enough history to check average pnl`)
-
-            this.totalUnrealizedProfits.push(Number(accountData.totalUnrealizedProfit))
-        }
     }
 
     private async buy(currentPrices: any[], accountData: any) {
@@ -142,6 +118,29 @@ export class Investor {
 
     }
 
+    private checkNoise(accountData: any): void {
+        if (this.totalUnrealizedProfits.length === 100) {
+            
+            this.totalUnrealizedProfits.shift() // removing the oldest entry
+            this.totalUnrealizedProfits.push(Number(accountData.totalUnrealizedProfit))
+            
+            console.log(this.totalUnrealizedProfits)
+
+            let total = 0
+            for (const e of this.totalUnrealizedProfits) {
+                total = total + e
+            }
+            this.pnlAverage = total / this.totalUnrealizedProfits.length
+
+            if (this.pnlAverage > accountData.totalUnrealizedProfit) {
+                this.pnlAverageCalcAllowsBuying = true
+            }
+        } else {
+            console.log(`not enough history to check average pnl`)
+
+            this.totalUnrealizedProfits.push(Number(accountData.totalUnrealizedProfit))
+        }
+    }
 }
 
 const binanceApiKey = process.argv[2] // check your profile on binance.com --> API Management
