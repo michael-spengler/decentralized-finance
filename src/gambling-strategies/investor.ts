@@ -1,5 +1,5 @@
 import { BinanceConnector } from "../binance/binance-connector"
-import { Player } from "./audio-success-indicators/player"
+import { Player } from "./player"
 
 export interface IList {
     pairName: string
@@ -42,7 +42,7 @@ export class Investor {
         } else if (liquidityRatio <= this.lrToSell) {
             await this.sell()
         } else {
-            console.log(`It seems we are reasonably invested with an lr of ${liquidityRatio}.`)
+            console.log(`reasonably invested with a liquidity ratio of ${liquidityRatio}.`)
         }
 
         // console.log(JSON.stringify(accountData).substr(0, 300))

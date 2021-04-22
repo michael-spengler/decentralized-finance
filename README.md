@@ -116,13 +116,20 @@ await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPriv
 The following example would trigger buy orders if the liquidity ratio is >= 0.45. It would trigger sell orders if the liquidity ratio is <= 0.01.  
 
 Start the automated investor locally
-```sh
-ts-node src/gambling-strategies/investor.ts 0.45 0.01 <yourBinanceAPIKey> <yourBinanceAPISecret>
-```
 
-Start the automated investor in background
-```sh
-pm2 start src/gambling-strategies/investor.ts -- 0.45 0.01 <yourBinanceAPIKey> <yourBinanceAPISecret>
+```ts
+
+require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
+
+const { Gambler } = require("decentralized-finance-defi")
+
+const liquidityRatioToBuy = 0.45 // just as an example
+const liquidityRatioToSell = 0.01 // just as an example
+const binanceApiKey = process.env.BINANCE_API_KEY // check your profile on binance.com --> API Management
+const binanceApiSecret = process.env.BINANCE_API_SECRET // check your profile on binance.com --> API Management
+
+Gambler.gamble(liquidityRatioToBuy, liquidityRatioToSell, binanceApiKey, binanceApiSecret)
+
 ```
 
 
