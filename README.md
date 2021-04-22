@@ -111,6 +111,19 @@ await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPriv
 ```
 
 ### [Leverage Investing](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
+
+#### Binance based Leverage Investment
+Start the automated investor locally
+```sh
+ts-node src/gambling-strategies/investor.ts 0.45 0.01 <yourBinanceAPIKey> <yourBinanceAPISecret>
+```
+
+Start the automated investor in background
+```sh
+pm2 start src/gambling-strategies/investor.ts -- 0.45 0.01 <yourBinanceAPIKey> <yourBinanceAPISecret>
+```
+
+
 #### Get account info from DyDx.exchange
 You can also test this feature via the [dydx.exchange](https://dydx.exchange/) user interface.
 ```ts

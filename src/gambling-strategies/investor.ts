@@ -1,4 +1,5 @@
 import { BinanceConnector } from "../binance/binance-connector"
+import { Player } from "./audio-success-indicators/player"
 
 export interface IList {
     pairName: string
@@ -10,11 +11,13 @@ export class Investor {
 
     private theList: IList[] = []
     private binanceConnector: BinanceConnector
-    private totalUnrealizedProfits: number[] = []
-    private pnlAverage: number = 0
-    private pnlAverageCalcAllowsBuying = false
+    private lrToBuy: number
+    private lrToSell: number
 
-    public constructor(binanceApiKey: string, binanceApiSecret: string) {
+
+    public constructor(lrToBuy: number, lrToSell: number, binanceApiKey: string, binanceApiSecret: string) {
+        this.lrToBuy = lrToBuy
+        this.lrToSell = lrToSell
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
         this.prepareTheList()
     }
@@ -22,48 +25,44 @@ export class Investor {
     public async invest() {
         const currentPrices = await this.binanceConnector.getCurrentPrices()
         const accountData = await this.binanceConnector.getFuturesAccountData()
+        const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
 
-        this.checkNoise(accountData)
 
-        if (accountData.totalUnrealizedProfit > (accountData.totalWalletBalance / 10)) {
-            console.log(`availableBalance: ${accountData.availableBalance}`)
-            console.log(`${this.pnlAverage} vs. ${accountData.totalUnrealizedProfit}`)
+        console.log(`liquidityRatio: ${liquidityRatio}`)
 
-            if (this.pnlAverageCalcAllowsBuying) {
-                if (accountData.availableBalance > (accountData.totalWalletBalance / 10)) {
-                    await this.buy(currentPrices, accountData)
-                } else {
-                    console.log(`The available balance seems to low to trigger a buy orgy.`)
-                }
-            } else if (this.totalUnrealizedProfits.length < 100) {
-                console.log(`waiting until ready for pnl average calculation (${this.totalUnrealizedProfits.length} from 100)`)
+        if (liquidityRatio >= this.lrToBuy) {
+            console.log(`lr indicates buying: ${accountData.availableBalance}`)
+
+            if (accountData.availableBalance > (accountData.totalWalletBalance / 10)) {
+                await this.buy(currentPrices, accountData)
             } else {
-                console.log(`waiting for a little drop`)
+                console.log(`The available balance seems to low to trigger a buy orgy.`)
             }
 
-        } else if (accountData.totalUnrealizedProfit < ((accountData.totalWalletBalance / 10) * -1)) {
+        } else if (liquidityRatio <= this.lrToSell) {
             await this.sell()
+        } else {
+            console.log(`It seems we are reasonably invested with an lr of ${liquidityRatio}.`)
         }
 
         // console.log(JSON.stringify(accountData).substr(0, 300))
     }
 
     private async buy(currentPrices: any[], accountData: any) {
-
         for (const listEntry of this.theList) {
             const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === listEntry.pairName)[0].price
             const xPosition = accountData.positions.filter((entry: any) => entry.symbol === listEntry.pairName)[0]
-            const howMuchToBuy = await this.getHowMuchToBuy(listEntry.percentage, currentPrice, accountData.availableBalance, xPosition.leverage)
+            const canBuy = ((accountData.availableBalance * xPosition.leverage) / currentPrice) * (listEntry.percentage / 100)
+            const couldBuyWouldBuyFactor = 0.7
+            const howMuchToBuy = Number((canBuy * couldBuyWouldBuyFactor))
             console.log(`I'll buy ${howMuchToBuy} ${listEntry.pairName} as it has a portfolio percentage of ${listEntry.percentage}`)
             await this.binanceConnector.buyFuture(listEntry.pairName, Number(howMuchToBuy.toFixed(this.getDecimalPlaces(listEntry.pairName))))
         }
-
+        Player.playMP3(`${__dirname}/../../sounds/game-new-level.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
     }
 
     private async sell(positionSellFactor: number = 0.3) {
-
         const accountData = await this.binanceConnector.getFuturesAccountData()
-
         for (const position of accountData.positions) {
             if (position.positionAmt > 0) {
                 const howMuchToSell = Number((position.positionAmt * positionSellFactor).toFixed(this.getDecimalPlaces(position.symbol)))
@@ -71,7 +70,7 @@ export class Investor {
                 await this.binanceConnector.sellFuture(position.symbol, howMuchToSell)
             }
         }
-
+        Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
     }
 
 
@@ -83,13 +82,6 @@ export class Investor {
         } else {
             return e.decimalPlaces
         }
-    }
-
-    private async getHowMuchToBuy(percentage: number, currentPrice: number, availableBalance: number, leverage: number, couldBuyWouldBuyFactor: number = 0.2): Promise<number> {
-
-        const canBuy = ((availableBalance * leverage) / currentPrice) * (percentage / 100)
-
-        return Number((canBuy * couldBuyWouldBuyFactor))
     }
 
     private prepareTheList() {
@@ -118,35 +110,14 @@ export class Investor {
 
     }
 
-    private checkNoise(accountData: any): void {
-        if (this.totalUnrealizedProfits.length === 100) {
-            
-            this.totalUnrealizedProfits.shift() // removing the oldest entry
-            this.totalUnrealizedProfits.push(Number(accountData.totalUnrealizedProfit))
-            
-            let total = 0
-            for (const e of this.totalUnrealizedProfits) {
-                total = total + e
-            }
-            this.pnlAverage = total / this.totalUnrealizedProfits.length
-
-            if (this.pnlAverage > Number(accountData.totalUnrealizedProfit)) {
-                this.pnlAverageCalcAllowsBuying = true
-            } else {
-                this.pnlAverageCalcAllowsBuying = false
-            }
-        } else {
-            console.log(`not enough history to check average pnl`)
-
-            this.totalUnrealizedProfits.push(Number(accountData.totalUnrealizedProfit))
-        }
-    }
 }
 
-const binanceApiKey = process.argv[2] // check your profile on binance.com --> API Management
-const binanceApiSecret = process.argv[3] // check your profile on binance.com --> API Management
+const lrToBuy = Number(process.argv[2]) // e.g. 0.45
+const lrToSell = Number(process.argv[3]) // e.g. 0.01
+const binanceApiKey = process.argv[4] // check your profile on binance.com --> API Management
+const binanceApiSecret = process.argv[5] // check your profile on binance.com --> API Management
 
-const i = new Investor(binanceApiKey, binanceApiSecret)
+const i = new Investor(lrToBuy, lrToSell, binanceApiKey, binanceApiSecret)
 
 setInterval(async () => {
 
