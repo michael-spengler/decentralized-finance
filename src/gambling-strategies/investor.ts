@@ -35,9 +35,10 @@ export class Investor {
                 } else {
                     console.log(`The available balance seems to low to trigger a buy orgy.`)
                 }
-                
+            } else if (this.totalUnrealizedProfits.length < 100) {
+                console.log(`waiting until ready for pnl average calculation (${this.totalUnrealizedProfits.length} from 100)`)
             } else {
-                console.log(`waiting for a little drop or until ready for pnl average calculation`)
+                console.log(`waiting for a little drop`)
             }
 
         } else if (accountData.totalUnrealizedProfit < ((accountData.totalWalletBalance / 10) * -1)) {
