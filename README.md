@@ -115,8 +115,6 @@ await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPriv
 #### Binance based Leverage Investment
 The following example would trigger buy orders if the liquidity ratio is >= 0.45. It would trigger sell orders if the liquidity ratio is <= 0.01.  
 
-Start the automated investor locally
-
 ```ts
 
 require('dotenv').config() // this ensures process.env. ... contains your .env file configuration values
