@@ -52,7 +52,7 @@ export class Gambler {
         if (liquidityRatio >= this.liquidityRatioToBuy) {
             console.log(`liquidity ratio indicates buying: ${accountData.availableBalance}`)
 
-            if ((accountData.availableBalance > (accountData.totalWalletBalance / 10)) && (below100Average)) {
+            if (((accountData.availableBalance > (accountData.totalWalletBalance / 10)) && (below100Average)) || (accountData.availableBalance > accountData.totalWalletBalance)) {
                 await this.buy(currentPrices, accountData)
             } else {
                 if (below100Average) {
