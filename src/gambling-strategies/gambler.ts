@@ -35,13 +35,18 @@ export class Gambler {
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
         const lowestPrice = this.portfolioProvider.getLowestPriceOfRecent100Intervals()
+        const highestPrice = this.portfolioProvider.getHighestPriceOfRecent100Intervals()
        
-        console.log(`CPP: ${cPP}; lowestPrice: ${lowestPrice}; totalUnrealizedProfit: ${accountData.totalUnrealizedProfit} `)
+        console.log(`LR: ${liquidityRatio}; CPP: ${cPP}; lowestPrice: ${lowestPrice}; highestPrice: ${highestPrice} nyrPNL: ${accountData.totalUnrealizedProfit}; `)
 
+        
         if (liquidityRatio <= this.liquidityRatioToSell) {
             await this.sell()
         } else if (liquidityRatio >= this.liquidityRatioToBuy &&  cPP === lowestPrice) {
             await this.buy(currentPrices, accountData)
+        } else if ((((this.liquidityRatioToBuy +  this.liquidityRatioToSell) / 2) > liquidityRatio) && cPP === highestPrice){
+            console.log(`gently reducing the risk by selling a 10%`)
+            await this.sell(0.1)
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }

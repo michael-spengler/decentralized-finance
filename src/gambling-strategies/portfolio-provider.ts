@@ -72,7 +72,7 @@ export class PortfolioProvider {
         }
     }
 
-    public getLowestPriceOfRecent100Intervals() {
+    public getLowestPriceOfRecent100Intervals(): number {
         let lowestPrice = 1000000000000
         for (const e of this.averagePortFolioPriceHistory100) {
             if (e < lowestPrice) {
@@ -81,6 +81,17 @@ export class PortfolioProvider {
         }
         
         return lowestPrice
+    }
+
+    public getHighestPriceOfRecent100Intervals(): number {
+        let highestPrice = 0
+        for (const e of this.averagePortFolioPriceHistory100) {
+            if (e > highestPrice) {
+                highestPrice = e
+            }
+        }
+        
+        return highestPrice
     }
 
     public isBelow100Average(cPP: number) {
