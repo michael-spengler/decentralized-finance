@@ -40,7 +40,7 @@ export class Gambler {
 
         if (liquidityRatio <= this.liquidityRatioToSell) {
             await this.sell()
-        } else if (liquidityRatio >= this.liquidityRatioToBuy &&  cPP < lowestPrice) {
+        } else if (liquidityRatio >= this.liquidityRatioToBuy &&  cPP === lowestPrice) {
             await this.buy(currentPrices, accountData)
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
