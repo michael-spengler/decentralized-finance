@@ -34,19 +34,23 @@ export class Gambler {
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
-        const lowestPrice = this.portfolioProvider.getLowestPriceOfRecent100Intervals()
-        const highestPrice = this.portfolioProvider.getHighestPriceOfRecent100Intervals()
+        const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100)
+        const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
        
-        console.log(`LR: ${liquidityRatio}; CPP: ${cPP}; lowestPrice: ${lowestPrice}; highestPrice: ${highestPrice} nyrPNL: ${accountData.totalUnrealizedProfit}; `)
+        console.log(`LR: ${liquidityRatio}; CPP: ${cPP}; lP80_100: ${lowestPrice80_100}; hP3_8: ${highestPrice3_8} nyrPNL: ${accountData.totalUnrealizedProfit}; `)
 
         
         if (liquidityRatio <= this.liquidityRatioToSell) {
             await this.sell()
-        } else if (liquidityRatio >= this.liquidityRatioToBuy &&  cPP === lowestPrice) {
+        } else if (liquidityRatio >= this.liquidityRatioToBuy &&  cPP === lowestPrice80_100) {
             await this.buy(currentPrices, accountData)
-        } else if ((((this.liquidityRatioToBuy +  this.liquidityRatioToSell) / 2) > liquidityRatio) && cPP === highestPrice){
-            console.log(`gently reducing the risk by selling a 10%`)
-            await this.sell(0.1)
+        } else if ((((this.liquidityRatioToBuy +  this.liquidityRatioToSell) / 2) > liquidityRatio)){
+            if (cPP < highestPrice3_8) {
+                console.log(`I'm seeking to reduce my risk as soon as soon as I hit the highest relative price.`)
+            } else {
+                console.log(`gently reducing the risk by selling 10%`)
+                await this.sell(0.1)
+            }
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
@@ -63,7 +67,7 @@ export class Gambler {
             console.log(`I'll buy ${howMuchToBuy} ${listEntry.pairName} as it has a portfolio percentage of ${listEntry.percentage}`)
             await this.binanceConnector.buyFuture(listEntry.pairName, Number(howMuchToBuy.toFixed(this.portfolioProvider.getDecimalPlaces(listEntry.pairName))))
         }
-        // Player.playMP3(`${__dirname}/../../sounds/game-new-level.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
+        Player.playMP3(`${__dirname}/../../sounds/game-new-level.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
     }
 
     private async sell(positionSellFactor: number = 0.3) {
@@ -75,7 +79,8 @@ export class Gambler {
                 await this.binanceConnector.sellFuture(position.symbol, howMuchToSell)
             }
         }
-        // Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
+
+        Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
     }
 
 }

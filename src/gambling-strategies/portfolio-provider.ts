@@ -8,8 +8,8 @@ export interface IPortfolio {
 export class PortfolioProvider {
 
     private portfolio: IPortfolio[] = []
-    private averagePortFolioPriceHistory100: number[] = []
-    private averagePortFolioPriceHistory1000: number[] = []
+    private portFolioPriceHistory: number[] = []
+
 
     public constructor() {
         this.preparePortfolioList()
@@ -41,18 +41,11 @@ export class PortfolioProvider {
         if (total > 0) {
             const aPP = (total / prices.length)
 
-            if (this.averagePortFolioPriceHistory100.length < 100) {
-                this.averagePortFolioPriceHistory100.push(aPP)
+            if (this.portFolioPriceHistory.length < 100) {
+                this.portFolioPriceHistory.push(aPP)
             } else {
-                this.averagePortFolioPriceHistory100.shift()
-                this.averagePortFolioPriceHistory100.push(aPP)
-            }
-
-            if (this.averagePortFolioPriceHistory1000.length < 1000) {
-                this.averagePortFolioPriceHistory1000.push(aPP)
-            } else {
-                this.averagePortFolioPriceHistory1000.shift()
-                this.averagePortFolioPriceHistory1000.push(aPP)
+                this.portFolioPriceHistory.shift()
+                this.portFolioPriceHistory.push(aPP)
             }
 
             return aPP
@@ -60,59 +53,62 @@ export class PortfolioProvider {
         return 0
     }
 
-    public getHistoricAverageOfaveragePortfolioPrice100() {
+    public getHistoricAverageOfportfolioPriceX() {
+        const offset = Math.random()
         let total = 0
-        for (const e of this.averagePortFolioPriceHistory100) {
+        for (const e of this.portFolioPriceHistory) {
             total = total + e
         }
-        if (this.averagePortFolioPriceHistory100.length > 0) {
-            return total / this.averagePortFolioPriceHistory100.length
+        if (this.portFolioPriceHistory.length > 0) {
+            return total / this.portFolioPriceHistory.length
         } else {
             return 0
         }
     }
 
-    public getLowestPriceOfRecent100Intervals(): number {
+    public getLowestPriceOfRecentXIntervals(numberOfIntervalsToBeRegarded: number, randomizerMax?: number): number {
         let lowestPrice = 1000000000000
-        for (const e of this.averagePortFolioPriceHistory100) {
-            if (e < lowestPrice) {
-                lowestPrice = e
+        let counter = 0
+        const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random()*(randomizerMax-numberOfIntervalsToBeRegarded+1)+numberOfIntervalsToBeRegarded);
+        console.log(`Lowest Price Interval Limit: ${limit}`)
+
+        for (const e of this.portFolioPriceHistory) {
+            counter++
+            if (counter <= limit) {
+                if (e < lowestPrice) {
+                    lowestPrice = e
+                }
             }
         }
-        
+
         return lowestPrice
     }
 
-    public getHighestPriceOfRecent100Intervals(): number {
+    public getHighestPriceOfRecentXIntervals(numberOfIntervalsToBeRegarded: number, randomizerMax?: number): number {
+
         let highestPrice = 0
-        for (const e of this.averagePortFolioPriceHistory100) {
-            if (e > highestPrice) {
-                highestPrice = e
+        let counter = 0
+        const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random()*(randomizerMax-numberOfIntervalsToBeRegarded+1)+numberOfIntervalsToBeRegarded);
+        console.log(`Highest Price Interval Limit: ${limit}`)
+        
+        for (const e of this.portFolioPriceHistory) {
+            counter++
+            if (counter <= limit) {
+                if (e > highestPrice) {
+                    highestPrice = e
+                }
             }
         }
-        
+
         return highestPrice
     }
 
     public isBelow100Average(cPP: number) {
-        if (cPP < this.getHistoricAverageOfaveragePortfolioPrice100()) {
+        if (cPP < this.getHistoricAverageOfportfolioPriceX()) {
             return true
         } else {
             return false
         }
-    }
-
-    public getHistoricAverageOfaveragePortfolioPrice1000() {
-        let total = 0
-        for (const e of this.averagePortFolioPriceHistory1000) {
-            total = total + e
-        }
-        if (this.averagePortFolioPriceHistory1000.length > 0) {
-            return total / this.averagePortFolioPriceHistory1000.length
-        } else {
-            return 0
-        }
-        // return 1000000
     }
 
     private preparePortfolioList() {
@@ -137,8 +133,4 @@ export class PortfolioProvider {
         this.portfolio.push({ pairName: "SNXUSDT", percentage: 5, decimalPlaces: 1 })
         this.portfolio.push({ pairName: "AVAXUSDT", percentage: 5, decimalPlaces: 0 })
     }
-
-
-
-
 }
