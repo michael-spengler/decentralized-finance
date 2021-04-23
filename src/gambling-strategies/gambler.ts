@@ -41,7 +41,13 @@ export class Gambler {
 
         
         if (liquidityRatio <= this.liquidityRatioToSell) {
-            await this.sell()
+            if (liquidityRatio <= (this.liquidityRatioToSell * 0.9)){
+                await this.sell(0.8)
+                console.log(`selling 95% of assets as it looks like a very strong dip`)
+            } else {
+                console.log(`selling 50% of assets as it looks like a strong dip`)
+                await this.sell(0.5)
+            }
         } else if (liquidityRatio >= this.liquidityRatioToBuy &&  cPP === lowestPrice80_100) {
             await this.buy(currentPrices, accountData)
         } else if (liquidityRatio >= (this.liquidityRatioToBuy * 1.2)) {
