@@ -74,7 +74,7 @@ export class Gambler {
             const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === listEntry.pairName)[0].price
             const xPosition = accountData.positions.filter((entry: any) => entry.symbol === listEntry.pairName)[0]
             const canBuy = ((accountData.availableBalance * xPosition.leverage) / currentPrice) * (listEntry.percentage / 100)
-            const couldBuyWouldBuyFactor = 0.2
+            const couldBuyWouldBuyFactor = 0.1
             const howMuchToBuy = Number((canBuy * couldBuyWouldBuyFactor))
             console.log(`I'll buy ${howMuchToBuy} ${listEntry.pairName} as it has a portfolio percentage of ${listEntry.percentage}`)
             await this.binanceConnector.buyFuture(listEntry.pairName, Number(howMuchToBuy.toFixed(this.portfolioProvider.getDecimalPlaces(listEntry.pairName))))
