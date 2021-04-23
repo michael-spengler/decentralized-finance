@@ -41,7 +41,7 @@ export class PortfolioProvider {
         if (total > 0) {
             const aPP = (total / prices.length)
 
-            if (this.portFolioPriceHistory.length < 100) {
+            if (this.portFolioPriceHistory.length < 10000) {
                 this.portFolioPriceHistory.push(aPP)
             } else {
                 this.portFolioPriceHistory.shift()
@@ -70,11 +70,14 @@ export class PortfolioProvider {
         let lowestPrice = 1000000000000
         let counter = 0
         const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random()*(randomizerMax-numberOfIntervalsToBeRegarded+1)+numberOfIntervalsToBeRegarded);
+
+        const startPosition = this.portFolioPriceHistory.length - limit
+
         console.log(`Lowest Price Interval Limit: ${limit}`)
 
         for (const e of this.portFolioPriceHistory) {
             counter++
-            if (counter <= limit) {
+            if (counter >= startPosition) {
                 if (e < lowestPrice) {
                     lowestPrice = e
                 }
@@ -89,11 +92,14 @@ export class PortfolioProvider {
         let highestPrice = 0
         let counter = 0
         const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random()*(randomizerMax-numberOfIntervalsToBeRegarded+1)+numberOfIntervalsToBeRegarded);
+
+        const startPosition = this.portFolioPriceHistory.length - limit
+
         console.log(`Highest Price Interval Limit: ${limit}`)
-        
+
         for (const e of this.portFolioPriceHistory) {
             counter++
-            if (counter <= limit) {
+            if (counter >= startPosition) {
                 if (e > highestPrice) {
                     highestPrice = e
                 }
@@ -103,13 +109,13 @@ export class PortfolioProvider {
         return highestPrice
     }
 
-    public isBelow100Average(cPP: number) {
-        if (cPP < this.getHistoricAverageOfportfolioPriceX()) {
-            return true
-        } else {
-            return false
-        }
-    }
+    // public isBelow100Average(cPP: number) {
+    //     if (cPP < this.getHistoricAverageOfportfolioPriceX()) {
+    //         return true
+    //     } else {
+    //         return false
+    //     }
+    // }
 
     private preparePortfolioList() {
         this.portfolio.push({ pairName: "BTCUSDT", percentage: 5, decimalPlaces: 3 })
