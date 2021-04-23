@@ -44,6 +44,9 @@ export class Gambler {
             await this.sell()
         } else if (liquidityRatio >= this.liquidityRatioToBuy &&  cPP === lowestPrice80_100) {
             await this.buy(currentPrices, accountData)
+        } else if (liquidityRatio >= (this.liquidityRatioToBuy * 1.2)) {
+            await this.buy(currentPrices, accountData)
+            console.log(`A surprisingly consistent uprise seems to take place - not waiting for the relative dip any longer - buying right now :)`)
         } else if ((((this.liquidityRatioToBuy +  this.liquidityRatioToSell) / 2) > liquidityRatio)){
             if (cPP < highestPrice3_8) {
                 console.log(`I'm seeking to reduce my risk as soon as soon as I hit the highest relative price.`)
