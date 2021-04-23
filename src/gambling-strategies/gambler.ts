@@ -20,53 +20,32 @@ export class Gambler {
 
     public static gamble(lrToBuy: number, lrToSell: number, binanceApiKey: string, binanceApiSecret: string) {
         const i = new Gambler(lrToBuy, lrToSell, binanceApiKey, binanceApiSecret)
+        if (lrToBuy < 0.6 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
+            throw new Error(`Strange Parameters`)
+        }
         setInterval(async () => {
             await i.investWisely()
         }, 11 * 1000)
     }
 
     private async investWisely() {
+
         const currentPrices = await this.binanceConnector.getCurrentPrices()
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
-
-        let below100Average
-
-        if (cPP < this.portfolioProvider.getHistoricAverageOfaveragePortfolioPrice100()) {
-            below100Average = true
-        } else {
-            below100Average = false
-        }
-
-        // if (cPP < this.portfolioProvider.getHistoricAverageOfaveragePortfolioPrice1000()) {
-        //     below1000Average = true
-        // } else {
-        //     below1000Average = false
-        // }
-
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
+        const lowestPrice = this.portfolioProvider.getLowestPriceOfRecent100Intervals()
+       
+        console.log(`CPP: ${cPP}; lowestPrice: ${lowestPrice}; totalUnrealizedProfit: ${accountData.totalUnrealizedProfit} `)
 
-        console.log(`liquidityRatio: ${liquidityRatio}`)
-        console.log(`belowAverage: ${below100Average}`)
-
-        if (liquidityRatio >= this.liquidityRatioToBuy) {
-            console.log(`liquidity ratio indicates buying: ${accountData.availableBalance}`)
-
-            if (((accountData.availableBalance > (accountData.totalWalletBalance / 10)) && (below100Average)) || (accountData.availableBalance > accountData.totalWalletBalance)) {
-                await this.buy(currentPrices, accountData)
-            } else {
-                if (below100Average) {
-                    console.log(`The available balance seems to low to trigger a buy orgy.`)
-                } else {
-                    console.log(`The timing seems not to bee great to buy - I relax waiting for a temporary dip :) (cPP: ${cPP} vs. ${this.portfolioProvider.getHistoricAverageOfaveragePortfolioPrice100()})`)
-                }
-            }
-
-        } else if (liquidityRatio <= this.liquidityRatioToSell) {
+        if (liquidityRatio <= this.liquidityRatioToSell) {
             await this.sell()
+        } else if (liquidityRatio >= this.liquidityRatioToBuy &&  cPP < lowestPrice) {
+            await this.buy(currentPrices, accountData)
         } else {
-            console.log(`reasonably invested with a liquidity ratio of ${liquidityRatio}.`)
+            console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
+         
     }
 
     private async buy(currentPrices: any[], accountData: any) {

@@ -121,8 +121,8 @@ require('dotenv').config() // this ensures process.env. ... contains your .env f
 
 const { Gambler } = require("decentralized-finance-defi")
 
-const liquidityRatioToBuy = 0.45 // just as an example
-const liquidityRatioToSell = 0.01 // just as an example
+const liquidityRatioToBuy = 0.95 // just as an example
+const liquidityRatioToSell = 0.45 // just as an example
 const binanceApiKey = process.env.BINANCE_API_KEY // check your profile on binance.com --> API Management
 const binanceApiSecret = process.env.BINANCE_API_SECRET // check your profile on binance.com --> API Management
 

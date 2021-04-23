@@ -72,6 +72,25 @@ export class PortfolioProvider {
         }
     }
 
+    public getLowestPriceOfRecent100Intervals() {
+        let lowestPrice = 1000000000000
+        for (const e of this.averagePortFolioPriceHistory100) {
+            if (e < lowestPrice) {
+                lowestPrice = e
+            }
+        }
+        
+        return lowestPrice
+    }
+
+    public isBelow100Average(cPP: number) {
+        if (cPP < this.getHistoricAverageOfaveragePortfolioPrice100()) {
+            return true
+        } else {
+            return false
+        }
+    }
+
     public getHistoricAverageOfaveragePortfolioPrice1000() {
         let total = 0
         for (const e of this.averagePortFolioPriceHistory1000) {
