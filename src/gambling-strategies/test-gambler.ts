@@ -1,8 +1,10 @@
 import { Gambler } from "./gambler"
 
-const lrToBuy = Number(process.argv[2]) // e.g. 0.95
+const lrToBuy = Number(process.argv[2]) // e.g. 0.9
 const lrToSell = Number(process.argv[3]) // e.g. 0.4
-const binanceApiKey = process.argv[4] // check your profile on binance.com --> API Management
-const binanceApiSecret = process.argv[5] // check your profile on binance.com --> API Management
+const investmentAmount = Number(process.argv[4]) // e.g. 20
+const reinvestAt = Number(process.argv[5]) // 10
+const binanceApiKey = process.argv[6] // check your profile on binance.com --> API Management
+const binanceApiSecret = process.argv[7] // check your profile on binance.com --> API Management
 
-Gambler.gamble(lrToBuy, lrToSell, binanceApiKey, binanceApiSecret)
+Gambler.gamble(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret)

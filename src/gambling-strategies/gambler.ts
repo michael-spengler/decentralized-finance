@@ -9,23 +9,29 @@ export class Gambler {
     private portfolioProvider: PortfolioProvider
     private liquidityRatioToBuy: number
     private liquidityRatioToSell: number
+    private reinvestAt: number
+    private investmentAmount: number
 
-    public constructor(lrToBuy: number, lrToSell: number, binanceApiKey: string, binanceApiSecret: string) {
+    public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
         this.liquidityRatioToBuy = lrToBuy
         this.liquidityRatioToSell = lrToSell
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
         this.portfolioProvider = new PortfolioProvider()
         this.portfolio = this.portfolioProvider.getPortfolio()
+        this.reinvestAt = reinvestAt
+        this.investmentAmount = investmentAmount
     }
 
-    public static gamble(lrToBuy: number, lrToSell: number, binanceApiKey: string, binanceApiSecret: string) {
-        const i = new Gambler(lrToBuy, lrToSell, binanceApiKey, binanceApiSecret)
+    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
+
+        const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret)
         if (lrToBuy < 0.6 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
         }
         setInterval(async () => {
             await i.investWisely()
         }, 11 * 1000)
+
     }
 
     private async investWisely() {
@@ -71,7 +77,7 @@ export class Gambler {
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             await this.sell(0.1)
             await this.saveSomething(accountData)
-        } else if (accountData.totalWalletBalance < 15) {
+        } else if (Number(accountData.totalWalletBalance) <= this.reinvestAt) {
             console.log(`I reinvest after a serious drop`)
             await this.reinvestAfterASeriousDrop()
         } else {
@@ -94,7 +100,7 @@ export class Gambler {
     
     private async reinvestAfterASeriousDrop() {
         try {
-            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(2)
+            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(this.investmentAmount)
         } catch(error){
             console.log(`I could not reinvest as I got the error: ${error.message}`)
         }        
