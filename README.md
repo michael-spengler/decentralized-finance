@@ -113,7 +113,6 @@ await DeFiService.swapDAIToETH(amountOfDAIToBeSwapped, walletAddress, walletPriv
 ### [Leverage Investing](https://github.com/michael-spengler/decentralized-finance/wiki#feature-areas)
 
 #### Binance based Leverage Investment
-The following example would trigger buy orders if the liquidity ratio is >= 0.45. It would trigger sell orders if the liquidity ratio is <= 0.01.  
 
 ```ts
 

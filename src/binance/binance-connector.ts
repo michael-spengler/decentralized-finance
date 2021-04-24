@@ -29,7 +29,7 @@ export class BinanceConnector {
             }
             currentPrices.push(entry)
         }
-        
+
         return currentPrices
     }
 
@@ -88,6 +88,14 @@ export class BinanceConnector {
 
     public async placeFuturesBuyOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
         console.log(await this.binance.futuresBuy(pair, amount, limitPrice))
+    }
+
+    public transferFromUSDTFuturesToSpotAccount(amount: number): Promise<any> {
+        return this.binance.futuresTransferAsset('USDT', amount, "2")
+    }
+
+    public transferFromSpotAccountToUSDTFutures(amount: number): Promise<any> {
+        return this.binance.futuresTransferAsset('USDT', amount, "1")
     }
 }
 

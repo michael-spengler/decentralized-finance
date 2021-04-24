@@ -51,12 +51,14 @@ export class Gambler {
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
             if (cPP === lowestPrice80_100){
                 await this.buy(currentPrices, accountData)
+                await this.saveSomething(accountData)
             } else {
-                console.log(`I'm seeking to invest some more as soon as I hit the lowest relative price.`)
+                console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
             }
         } else if (liquidityRatio >= (this.liquidityRatioToBuy * 1.2)) {
             await this.buy(currentPrices, accountData)
             console.log(`A surprisingly consistent uprise seems to take place - not waiting for the relative dip any longer - buying right now :)`)
+            await this.saveSomething(accountData)
         } else if ((((this.liquidityRatioToBuy +  this.liquidityRatioToSell) / 2) > liquidityRatio)){
             if (cPP < highestPrice3_8) {
                 console.log(`I'm seeking to reduce my risk as soon as soon as I hit the highest relative price.`)
@@ -68,6 +70,14 @@ export class Gambler {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
          
+    }
+
+    private async saveSomething(accountData: any){
+        const savingsAmount = Number((accountData.availableBalance * 0.05).toFixed(0))
+        if (savingsAmount >= 1)  {
+            console.log(`I'll transfer ${savingsAmount} USDT to my fiat and spot account to prepare for a reinvestment after a serious drop.`)
+            await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(savingsAmount)
+        }
     }
 
     private async buy(currentPrices: any[], accountData: any) {
