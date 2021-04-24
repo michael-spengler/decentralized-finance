@@ -66,6 +66,10 @@ export class Gambler {
                 console.log(`gently reducing the risk by selling 10%`)
                 await this.sell(0.1)
             }
+        } else if(accountData.totalUnrealizedProfit > accountData.totalWalletBalance) {
+            console.log(`Selling and saving something as I made some significant gains.`)
+            await this.sell(0.1)
+            await this.saveSomething(accountData)
         } else if (accountData.totalWalletBalance < 15) {
             console.log(`I reinvest after a serious drop`)
             await this.reinvestAfterASeriousDrop()
