@@ -66,6 +66,9 @@ export class Gambler {
                 console.log(`gently reducing the risk by selling 10%`)
                 await this.sell(0.1)
             }
+        } else if (accountData.totalWalletBalance < 15) {
+            console.log(`I reinvest after a serious drop`)
+            await this.reinvestAfterASeriousDrop()
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
@@ -76,8 +79,20 @@ export class Gambler {
         const savingsAmount = Number((accountData.availableBalance * 0.05).toFixed(0))
         if (savingsAmount >= 1)  {
             console.log(`I'll transfer ${savingsAmount} USDT to my fiat and spot account to prepare for a reinvestment after a serious drop.`)
-            await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(savingsAmount)
+            try {
+                await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(savingsAmount)
+            } catch(error){
+                console.log(`I could not save something as I got the error: ${error.message}`)
+            }
         }
+    }
+    
+    private async reinvestAfterASeriousDrop() {
+        try {
+            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(2)
+        } catch(error){
+            console.log(`I could not reinvest as I got the error: ${error.message}`)
+        }        
     }
 
     private async buy(currentPrices: any[], accountData: any) {
