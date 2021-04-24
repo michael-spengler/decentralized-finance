@@ -48,8 +48,12 @@ export class Gambler {
                 console.log(`selling 50% of assets as it looks like a strong dip`)
                 await this.sell(0.5)
             }
-        } else if (liquidityRatio >= this.liquidityRatioToBuy &&  cPP === lowestPrice80_100) {
-            await this.buy(currentPrices, accountData)
+        } else if (liquidityRatio >= this.liquidityRatioToBuy) {
+            if (cPP === lowestPrice80_100){
+                await this.buy(currentPrices, accountData)
+            } else {
+                console.log(`I'm seeking to invest some more as soon as I hit the lowest relative price.`)
+            }
         } else if (liquidityRatio >= (this.liquidityRatioToBuy * 1.2)) {
             await this.buy(currentPrices, accountData)
             console.log(`A surprisingly consistent uprise seems to take place - not waiting for the relative dip any longer - buying right now :)`)
