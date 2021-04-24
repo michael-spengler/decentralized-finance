@@ -68,6 +68,7 @@ export class Gambler {
             }
         } else if(accountData.totalUnrealizedProfit > accountData.totalWalletBalance) {
             console.log(`Selling and saving something as I made some significant gains.`)
+            console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             await this.sell(0.1)
             await this.saveSomething(accountData)
         } else if (accountData.totalWalletBalance < 15) {
