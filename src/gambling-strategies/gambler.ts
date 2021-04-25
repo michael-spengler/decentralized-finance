@@ -48,7 +48,12 @@ export class Gambler {
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt) {
             console.log(`I reinvest e.g. after a serious drop`)
             await this.reinvestAfterASeriousDrop()
-        } else if (liquidityRatio <= this.liquidityRatioToSell) {
+        } if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
+            console.log(`Selling and saving something as I made some significant gains.`)
+            console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
+            await this.sell(0.1)
+            await this.saveSomething(accountData)
+         } else if (liquidityRatio <= this.liquidityRatioToSell) {
             if (liquidityRatio <= (this.liquidityRatioToSell * 0.9)) {
                 await this.sell(0.8)
                 console.log(`selling 95% of assets as it looks like a very strong dip`)
@@ -76,11 +81,6 @@ export class Gambler {
                 console.log(`gently reducing the risk by selling 10%`)
                 await this.sell(0.1)
             }
-        } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
-            console.log(`Selling and saving something as I made some significant gains.`)
-            console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
-            await this.sell(0.1)
-            await this.saveSomething(accountData)
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
