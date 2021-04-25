@@ -75,6 +75,9 @@ export class Gambler {
                 console.log(`gently reducing the risk by selling 10%`)
                 await this.sell(0.1)
             }
+        } else if((Number(accountData.totalUnrealizedProfit)) < ((Number(accountData.totalWalletBalance) * -1) / 2 )) {
+            console.log(`unfortunately it seems time to realize some losses. I'm selling 10 Percent of my assets.`)
+            await this.sell(0.1)
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
