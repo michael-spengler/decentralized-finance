@@ -49,9 +49,9 @@ export class Gambler {
             console.log(`I reinvest e.g. after a serious drop`)
             await this.reinvestAfterASeriousDrop()
         } if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
-            console.log(`Selling and saving something as I made some significant gains.`)
+            console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
-            await this.sell(0.2)
+            await this.sell(0.3)
             await this.saveSomething(accountData)
         } else if (liquidityRatio <= this.liquidityRatioToSell) {
             if (liquidityRatio <= (this.liquidityRatioToSell * 0.9)) {
