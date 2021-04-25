@@ -57,16 +57,18 @@ export class Gambler {
                 await this.sell(0.5)
             }
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
-            if (cPP === lowestPrice80_100) {
+            if (liquidityRatio >= (this.liquidityRatioToBuy * 1.2)) {
                 await this.buy(currentPrices, accountData)
+                console.log(`A surprisingly consistent uprise seems to take place - not waiting for the relative dip any longer - buying right now :)`)
                 await this.saveSomething(accountData)
             } else {
-                console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
+                if (cPP === lowestPrice80_100) {
+                    await this.buy(currentPrices, accountData)
+                    await this.saveSomething(accountData)
+                } else {
+                    console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
+                }
             }
-        } else if (liquidityRatio >= (this.liquidityRatioToBuy * 1.2)) {
-            await this.buy(currentPrices, accountData)
-            console.log(`A surprisingly consistent uprise seems to take place - not waiting for the relative dip any longer - buying right now :)`)
-            await this.saveSomething(accountData)
         } else if ((((this.liquidityRatioToBuy + this.liquidityRatioToSell) / 2) > liquidityRatio)) {
             if (cPP < highestPrice3_8) {
                 console.log(`I'm seeking to reduce my risk as soon as soon as I hit the highest relative price.`)
@@ -82,7 +84,6 @@ export class Gambler {
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
-
     }
 
     private async saveSomething(accountData: any) {

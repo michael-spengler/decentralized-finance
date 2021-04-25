@@ -122,10 +122,12 @@ const { Gambler } = require("decentralized-finance-defi")
 
 const liquidityRatioToBuy = 0.95 // just as an example
 const liquidityRatioToSell = 0.45 // just as an example
+const reinvestAt = 10 // just as an example
+const investmentAmount = 20 // just as an example
 const binanceApiKey = process.env.BINANCE_API_KEY // check your profile on binance.com --> API Management
 const binanceApiSecret = process.env.BINANCE_API_SECRET // check your profile on binance.com --> API Management
 
-Gambler.gamble(liquidityRatioToBuy, liquidityRatioToSell, binanceApiKey, binanceApiSecret)
+Gambler.gamble(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret)
 
 ```
 
