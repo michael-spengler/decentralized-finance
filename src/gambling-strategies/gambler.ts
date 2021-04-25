@@ -53,7 +53,7 @@ export class Gambler {
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             await this.sell(0.1)
             await this.saveSomething(accountData)
-         } else if (liquidityRatio <= this.liquidityRatioToSell) {
+        } else if (liquidityRatio <= this.liquidityRatioToSell) {
             if (liquidityRatio <= (this.liquidityRatioToSell * 0.9)) {
                 await this.sell(0.8)
                 console.log(`selling 95% of assets as it looks like a very strong dip`)
@@ -62,17 +62,11 @@ export class Gambler {
                 await this.sell(0.5)
             }
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
-            if (liquidityRatio >= (this.liquidityRatioToBuy * 1.2)) {
+            if (cPP === lowestPrice80_100) {
                 await this.buy(currentPrices, accountData)
-                console.log(`A surprisingly consistent uprise seems to take place - not waiting for the relative dip any longer - buying right now :)`)
                 await this.saveSomething(accountData)
             } else {
-                if (cPP === lowestPrice80_100) {
-                    await this.buy(currentPrices, accountData)
-                    await this.saveSomething(accountData)
-                } else {
-                    console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
-                }
+                console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
             }
         } else if ((((this.liquidityRatioToBuy + this.liquidityRatioToSell) / 2) > liquidityRatio)) {
             if (cPP < highestPrice3_8) {
