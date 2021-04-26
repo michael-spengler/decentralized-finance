@@ -73,8 +73,6 @@ export class PortfolioProvider {
 
         const startPosition = this.portFolioPriceHistory.length - limit
 
-        console.log(`Lowest Price Interval Limit: ${limit}`)
-
         for (const e of this.portFolioPriceHistory) {
             counter++
             if (counter >= startPosition) {
@@ -94,8 +92,6 @@ export class PortfolioProvider {
         const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random()*(randomizerMax-numberOfIntervalsToBeRegarded+1)+numberOfIntervalsToBeRegarded);
 
         const startPosition = this.portFolioPriceHistory.length - limit
-
-        console.log(`Highest Price Interval Limit: ${limit}`)
 
         for (const e of this.portFolioPriceHistory) {
             counter++
