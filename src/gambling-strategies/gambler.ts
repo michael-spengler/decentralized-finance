@@ -11,6 +11,7 @@ export class Gambler {
     private liquidityRatioToSell: number
     private reinvestAt: number
     private investmentAmount: number
+    private intervalCounter: number
 
     public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
         this.liquidityRatioToBuy = lrToBuy
@@ -20,6 +21,7 @@ export class Gambler {
         this.portfolio = this.portfolioProvider.getPortfolio()
         this.reinvestAt = reinvestAt
         this.investmentAmount = investmentAmount
+        this.intervalCounter = 0
     }
 
     public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
@@ -29,6 +31,7 @@ export class Gambler {
             throw new Error(`Strange Parameters`)
         }
         setInterval(async () => {
+            i.intervalCounter++
             await i.investWisely()
         }, 11 * 1000)
 
@@ -41,14 +44,22 @@ export class Gambler {
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
         const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100)
+        const lowestPrice7000_20000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(7000, 20000)
+        const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000)
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
 
         console.log(`LR: ${liquidityRatio}; CPP: ${cPP}; lP80_100: ${lowestPrice80_100}; hP3_8: ${highestPrice3_8} nyrPNL: ${accountData.totalUnrealizedProfit}; `)
 
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt) {
-            console.log(`I reinvest e.g. after a serious drop`)
-            await this.reinvestAfterASeriousDrop()
-        } if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
+            console.log(`I reinvest e.g. after a serious drop which resulted in a low wallet ballance.`)
+            await this.reinvest(this.investmentAmount)
+        } else if (cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
+            console.log(`I reinvest due to reaching a long term low.`)
+            await this.reinvest(this.investmentAmount)
+        } else if (cPP === lowestPrice7000_20000 && this.intervalCounter > 20000) {
+            console.log(`I reinvest due to reaching a mid term low.`)
+            await this.reinvest(this.investmentAmount * 0.5)
+        } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
             console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             await this.sell(0.3)
@@ -62,7 +73,7 @@ export class Gambler {
                 await this.sell(0.5)
             }
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
-            if (cPP === lowestPrice80_100) {
+            if (cPP === lowestPrice80_100 && this.intervalCounter > 100) {
                 await this.buy(currentPrices, accountData)
                 await this.saveSomething(accountData)
             } else {
@@ -75,7 +86,7 @@ export class Gambler {
                 console.log(`gently reducing the risk by selling 10%`)
                 await this.sell(0.1)
             }
-        } else if((Number(accountData.totalUnrealizedProfit)) < ((Number(accountData.totalWalletBalance) * -1) / 2 )) {
+        } else if ((Number(accountData.totalUnrealizedProfit)) < ((Number(accountData.totalWalletBalance) * -1) / 2)) {
             console.log(`unfortunately it seems time to realize some losses. I'm selling 10 Percent of my assets.`)
             await this.sell(0.1)
         } else {
@@ -95,9 +106,9 @@ export class Gambler {
         }
     }
 
-    private async reinvestAfterASeriousDrop() {
+    private async reinvest(investmentAmount: number) {
         try {
-            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(this.investmentAmount)
+            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(investmentAmount)
         } catch (error) {
             console.log(`I could not reinvest as I got the error: ${error.message}`)
         }
