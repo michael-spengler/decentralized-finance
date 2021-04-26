@@ -32,7 +32,11 @@ export class Gambler {
         }
         setInterval(async () => {
             i.intervalCounter++
-            await i.investWisely()
+            try {
+                await i.investWisely()
+            } catch(error) {
+                console.log(`you can improve something: ${error.message}`)
+            }
         }, 11 * 1000)
 
     }
@@ -101,43 +105,60 @@ export class Gambler {
             try {
                 await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(savingsAmount)
             } catch (error) {
-                console.log(`I could not save something as I got the error: ${error.message}`)
+                console.log(`error from transferFromUSDTFuturesToSpotAccount: ${error.message}`)
+            }
+
+            try {
+                await this.binanceConnector.placeBuyOrder("ETHUSDT", Number((savingsAmount / 2).toFixed(3)))
+            } catch (error) {
+                console.log(`error from placeBuyOrder: ${error.message}`)
             }
         }
     }
 
     private async reinvest(investmentAmount: number) {
+
         try {
-            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(investmentAmount)
+            const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
+            const transferAmount = (availableUSDTBalanceInSpotAccount < investmentAmount) ? availableUSDTBalanceInSpotAccount : investmentAmount
+
+            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(transferAmount)
         } catch (error) {
             console.log(`I could not reinvest as I got the error: ${error.message}`)
         }
     }
 
     private async buy(currentPrices: any[], accountData: any) {
-        for (const listEntry of this.portfolio) {
-            const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === listEntry.pairName)[0].price
-            const xPosition = accountData.positions.filter((entry: any) => entry.symbol === listEntry.pairName)[0]
-            const canBuy = ((accountData.availableBalance * xPosition.leverage) / currentPrice) * (listEntry.percentage / 100)
-            const couldBuyWouldBuyFactor = 0.1
-            const howMuchToBuy = Number((canBuy * couldBuyWouldBuyFactor))
-            console.log(`I'll buy ${howMuchToBuy} ${listEntry.pairName} as it has a portfolio percentage of ${listEntry.percentage}`)
-            await this.binanceConnector.buyFuture(listEntry.pairName, Number(howMuchToBuy.toFixed(this.portfolioProvider.getDecimalPlaces(listEntry.pairName))))
+        try {
+            for (const listEntry of this.portfolio) {
+                const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === listEntry.pairName)[0].price
+                const xPosition = accountData.positions.filter((entry: any) => entry.symbol === listEntry.pairName)[0]
+                const canBuy = ((accountData.availableBalance * xPosition.leverage) / currentPrice) * (listEntry.percentage / 100)
+                const couldBuyWouldBuyFactor = 0.1
+                const howMuchToBuy = Number((canBuy * couldBuyWouldBuyFactor))
+                console.log(`I'll buy ${howMuchToBuy} ${listEntry.pairName} as it has a portfolio percentage of ${listEntry.percentage}`)
+                await this.binanceConnector.buyFuture(listEntry.pairName, Number(howMuchToBuy.toFixed(this.portfolioProvider.getDecimalPlaces(listEntry.pairName))))
+            }
+            Player.playMP3(`${__dirname}/../../sounds/game-new-level.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
+        } catch (error) {
+            console.log(`shit happened: ${error.message}`)
         }
-        Player.playMP3(`${__dirname}/../../sounds/game-new-level.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
     }
 
     private async sell(positionSellFactor: number = 0.3) {
-        const accountData = await this.binanceConnector.getFuturesAccountData()
-        for (const position of accountData.positions) {
-            if (position.positionAmt > 0) {
-                const howMuchToSell = Number((position.positionAmt * positionSellFactor).toFixed(this.portfolioProvider.getDecimalPlaces(position.symbol)))
-                console.log(`I'll sell ${howMuchToSell} ${position.symbol}`)
-                await this.binanceConnector.sellFuture(position.symbol, howMuchToSell)
+        try {
+            const accountData = await this.binanceConnector.getFuturesAccountData()
+            for (const position of accountData.positions) {
+                if (position.positionAmt > 0) {
+                    const howMuchToSell = Number((position.positionAmt * positionSellFactor).toFixed(this.portfolioProvider.getDecimalPlaces(position.symbol)))
+                    console.log(`I'll sell ${howMuchToSell} ${position.symbol}`)
+                    await this.binanceConnector.sellFuture(position.symbol, howMuchToSell)
+                }
             }
+
+            Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
+        } catch (error) {
+            console.log(`shit happened: ${error.message}`)
         }
-
-        Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
     }
-
 }
