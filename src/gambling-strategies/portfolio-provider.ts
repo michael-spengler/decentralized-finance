@@ -41,7 +41,7 @@ export class PortfolioProvider {
         if (total > 0) {
             const aPP = (total / prices.length)
 
-            if (this.portFolioPriceHistory.length < 10000) {
+            if (this.portFolioPriceHistory.length < 400004) {
                 this.portFolioPriceHistory.push(aPP)
             } else {
                 this.portFolioPriceHistory.shift()

@@ -47,14 +47,14 @@ export class Gambler {
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
-        const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100)
-        const lowestPrice300_500 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300, 500)
-        const lowestPrice900_1200 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(900, 1200)
-        const lowestPrice7000_20000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(7000, 20000)
-        const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000)
+        const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100) // about 20 mins
+        const lowestPrice300_500 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300, 500) // about 1.5 hours
+        const lowestPrice900_1200 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(900, 1200) // about 3.5 hours
+        const lowestPrice7000_20000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(7000, 20000) // about 35 hours
+        const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
 
-        console.log(`LR: ${liquidityRatio}; CPP: ${cPP}; lP80_100: ${lowestPrice80_100}; hP3_8: ${highestPrice3_8} nyrPNL: ${accountData.totalUnrealizedProfit}; `)
+        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP80_100: ${lowestPrice80_100.toFixed(2)}; hP3_8: ${highestPrice3_8.toFixed(2)} nyrPNL: ${accountData.totalUnrealizedProfit.toFixed(2)}`)
 
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt) {
             console.log(`I transfer USDT from Spot Account to Futures Account e.g. after a serious drop which resulted in a low wallet ballance.`)
