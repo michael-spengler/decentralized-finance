@@ -52,7 +52,7 @@ export class PortfolioProvider {
             }
 
             if (prepareTrainingData) {
-                fse.writeJsonSync(this.path, this.portFolioPriceHistory)
+                fse.writeJsonSync(this.path, JSON.stringify(this.portFolioPriceHistory))
             }
             
             return aPP
