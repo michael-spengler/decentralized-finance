@@ -12,8 +12,9 @@ export class Gambler {
     private reinvestAt: number
     private investmentAmount: number
     private intervalCounter: number
+    private prepareTrainingData: boolean
 
-    public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
+    public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, prepareTrainingData: boolean) {
         this.liquidityRatioToBuy = lrToBuy
         this.liquidityRatioToSell = lrToSell
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
@@ -22,11 +23,12 @@ export class Gambler {
         this.reinvestAt = reinvestAt
         this.investmentAmount = investmentAmount
         this.intervalCounter = 0
+        this.prepareTrainingData = prepareTrainingData
     }
 
-    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string): void {
+    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, prepareTrainingData: boolean = false): void {
 
-        const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret)
+        const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret, prepareTrainingData)
         if (lrToBuy < 0.6 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
         }
@@ -44,7 +46,7 @@ export class Gambler {
     private async investWisely() {
 
         const currentPrices = await this.binanceConnector.getCurrentPrices()
-        const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
+        const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices, this.prepareTrainingData)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
         const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100) // about 20 mins

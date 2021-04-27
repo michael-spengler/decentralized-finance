@@ -32,7 +32,7 @@ export class PortfolioProvider {
         }
     }
 
-    public getCurrentPortfolioAveragePrice(currentPrices: any) {
+    public getCurrentPortfolioAveragePrice(currentPrices: any, prepareTrainingData: boolean) {
         const prices = []
         let total = 0
         for (const pe of this.portfolio) {
@@ -51,7 +51,9 @@ export class PortfolioProvider {
                 this.portFolioPriceHistory.push(aPP)
             }
 
-            fse.writeJsonSync(this.path, this.portFolioPriceHistory)
+            if (prepareTrainingData) {
+                fse.writeJsonSync(this.path, this.portFolioPriceHistory)
+            }
             
             return aPP
         }
