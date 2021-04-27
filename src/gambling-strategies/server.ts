@@ -22,7 +22,6 @@ app.get('/', async (req: any, res: any) => {
 app.get('/getpp', async (req: any, res: any) => {
 
     const path = `${__dirname}/historic-portfolio-prices.json`
-    await fse.writeJsonSync(path, [1,2,3])
     const a = fse.readJsonSync(path)
 
     res.send(JSON.stringify(a));
