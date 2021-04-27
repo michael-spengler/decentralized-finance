@@ -49,6 +49,7 @@ export class Gambler {
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
         const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100)
         const lowestPrice7000_20000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(7000, 20000)
+        const lowestPrice900_1200 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(900, 1200)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000)
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
 
@@ -57,12 +58,6 @@ export class Gambler {
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt) {
             console.log(`I reinvest e.g. after a serious drop which resulted in a low wallet ballance.`)
             await this.reinvest(this.investmentAmount)
-        } else if (cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
-            console.log(`I reinvest due to reaching a long term low.`)
-            await this.reinvest(this.investmentAmount)
-        } else if (cPP === lowestPrice7000_20000 && this.intervalCounter > 20000) {
-            console.log(`I reinvest due to reaching a mid term low.`)
-            await this.reinvest(this.investmentAmount * 0.5)
         } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
             console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
@@ -93,6 +88,15 @@ export class Gambler {
         } else if ((Number(accountData.totalUnrealizedProfit)) < ((Number(accountData.totalWalletBalance) * -1) / 2)) {
             console.log(`unfortunately it seems time to realize some losses. I'm selling 10 Percent of my assets.`)
             await this.sell(0.1)
+        } else if (cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
+            console.log(`I reinvest due to reaching a long term low.`)
+            await this.reinvest(this.investmentAmount)
+        } else if (cPP === lowestPrice7000_20000 && this.intervalCounter > 20000) {
+            console.log(`I reinvest due to reaching a mid term low.`)
+            await this.reinvest(this.investmentAmount * 0.5)
+        } else if (cPP === lowestPrice900_1200 && this.intervalCounter > 1200) {
+            console.log(`I reinvest due to reaching a short term low without being in reduce risk mode.`)
+            await this.reinvest(this.investmentAmount * 0.1)
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
