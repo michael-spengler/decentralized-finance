@@ -48,16 +48,17 @@ export class Gambler {
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
         const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100)
-        const lowestPrice7000_20000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(7000, 20000)
+        const lowestPrice300_500 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300, 500)
         const lowestPrice900_1200 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(900, 1200)
+        const lowestPrice7000_20000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(7000, 20000)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000)
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
 
         console.log(`LR: ${liquidityRatio}; CPP: ${cPP}; lP80_100: ${lowestPrice80_100}; hP3_8: ${highestPrice3_8} nyrPNL: ${accountData.totalUnrealizedProfit}; `)
 
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt) {
-            console.log(`I reinvest e.g. after a serious drop which resulted in a low wallet ballance.`)
-            await this.reinvest(this.investmentAmount)
+            console.log(`I transfer USDT from Spot Account to Futures Account e.g. after a serious drop which resulted in a low wallet ballance.`)
+            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
         } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
             console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
@@ -89,14 +90,17 @@ export class Gambler {
             console.log(`unfortunately it seems time to realize some losses. I'm selling 10 Percent of my assets.`)
             await this.sell(0.1)
         } else if (cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
-            console.log(`I reinvest due to reaching a long term low.`)
-            await this.reinvest(this.investmentAmount)
+            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a long term low.`)
+            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
         } else if (cPP === lowestPrice7000_20000 && this.intervalCounter > 20000) {
-            console.log(`I reinvest due to reaching a mid term low.`)
-            await this.reinvest(this.investmentAmount * 0.5)
+            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a mid term low.`)
+            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.8)
         } else if (cPP === lowestPrice900_1200 && this.intervalCounter > 1200) {
-            console.log(`I reinvest due to reaching a short term low without being in reduce risk mode.`)
-            await this.reinvest(this.investmentAmount * 0.1)
+            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a short term low without being in reduce risk mode.`)
+            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
+        } else if (cPP === lowestPrice300_500 && this.intervalCounter > 500) {
+            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a very short term low without being in reduce risk mode.`)
+            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.2)
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
@@ -120,7 +124,7 @@ export class Gambler {
         }
     }
 
-    private async reinvest(investmentAmount: number) {
+    private async transferUSDTFromSpotAccountToFuturesAccount(investmentAmount: number) {
 
         try {
             const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
@@ -128,7 +132,7 @@ export class Gambler {
 
             await this.binanceConnector.transferFromSpotAccountToUSDTFutures(transferAmount)
         } catch (error) {
-            console.log(`I could not reinvest as I got the error: ${error.message}`)
+            console.log(`you might take a look into this: ${error.message}`)
         }
     }
 
