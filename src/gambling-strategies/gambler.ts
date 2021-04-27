@@ -54,7 +54,7 @@ export class Gambler {
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
 
-        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP80_100: ${lowestPrice80_100.toFixed(2)}; hP3_8: ${highestPrice3_8.toFixed(2)} nyrPNL: ${accountData.totalUnrealizedProfit.toFixed(2)}`)
+        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP80_100: ${lowestPrice80_100.toFixed(2)}; hP3_8: ${highestPrice3_8.toFixed(2)} nyrPNL: ${accountData.totalUnrealizedProfit}`)
 
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt) {
             console.log(`I transfer USDT from Spot Account to Futures Account e.g. after a serious drop which resulted in a low wallet ballance.`)
