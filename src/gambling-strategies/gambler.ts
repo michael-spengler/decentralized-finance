@@ -24,7 +24,7 @@ export class Gambler {
         this.intervalCounter = 0
     }
 
-    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
+    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string): void {
 
         const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret)
         if (lrToBuy < 0.6 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
@@ -115,9 +115,11 @@ export class Gambler {
             } catch (error) {
                 console.log(`error from transferFromUSDTFuturesToSpotAccount: ${error.message}`)
             }
-
+            
+            const amountOfEthToBeBought = Number((savingsAmount / 2).toFixed(2))
+            console.log(`I'll buy ${amountOfEthToBeBought} ETH paying with USDT to stay liquid and reasonably invested in my spot account as well.`)
             try {
-                await this.binanceConnector.placeBuyOrder("ETHUSDT", Number((savingsAmount / 2).toFixed(3)))
+                await this.binanceConnector.placeBuyOrder("ETHUSDT", amountOfEthToBeBought)
             } catch (error) {
                 console.log(`error from placeBuyOrder: ${error.message}`)
             }

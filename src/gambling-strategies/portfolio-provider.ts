@@ -1,4 +1,6 @@
 
+
+const fse = require('fs-extra')
 export interface IPortfolio {
     pairName: string
     percentage: number
@@ -9,6 +11,7 @@ export class PortfolioProvider {
 
     private portfolio: IPortfolio[] = []
     private portFolioPriceHistory: number[] = []
+    private path = `${__dirname}/historic-portfolio-prices.json`
 
 
     public constructor() {
@@ -48,6 +51,8 @@ export class PortfolioProvider {
                 this.portFolioPriceHistory.push(aPP)
             }
 
+            fse.writeJsonSync(this.path, this.portFolioPriceHistory)
+            
             return aPP
         }
         return 0
