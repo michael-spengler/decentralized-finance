@@ -37,10 +37,12 @@ export class BuyLowSellHighGambler {
         this.historicData.push(price)
 
 
-        if (this.historicData.length > 0) {
+        const lowInterval = 5
+        const highInterval = 30
+        if (this.historicData.length > lowInterval) {
 
-            const lowestPrice = getLowestPriceOfRecentXIntervals(this.historicData, 3)
-            const highestPrice = getHighestPriceOfRecentXIntervals(this.historicData, 3)
+            const lowestPrice = getLowestPriceOfRecentXIntervals(this.historicData, lowInterval)
+            const highestPrice = getHighestPriceOfRecentXIntervals(this.historicData, highInterval)
 
             console.log(lowestPrice)
 
@@ -55,11 +57,11 @@ export class BuyLowSellHighGambler {
                 console.log(`kaufen zum preis von ${price} - investiere ${amountToBeInvested} USDT`)
                 await this.binanceConnector.buyFuture('ETHUSDT', amountToBeInvested)
 
-            } else if (price === highestPrice) {
+            } else if (price === highestPrice && this.historicData.length > highInterval) {
 
                 const xPosition = accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
                 console.log(JSON.stringify(xPosition))
-                // await this.binanceConnector.sellFuture('ETHUSDT', 20)
+                await this.binanceConnector.sellFuture('ETHUSDT', Number(xPosition.positionAmt))
                 console.log(`verkaufen zum preis von ${price} - nehme ${amountToBeInvested} USDT zurück`)
 
             } else {
