@@ -27,14 +27,14 @@ export class BuyLowSellHighGambler {
         this.intervalIndexCounter++
 
         const currentPrices = await this.binanceConnector.getCurrentPrices()
-        const btcPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price)
+        const price = Number(currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price)
 
-        console.log(`current BTC Price: ${btcPrice}`)
+        console.log(`Current Price: ${price}`)
 
         if (this.historicData.length === 500000) {
             this.historicData.shift()
         }
-        this.historicData.push(btcPrice)
+        this.historicData.push(price)
 
 
         if (this.historicData.length > 0) {
@@ -47,25 +47,25 @@ export class BuyLowSellHighGambler {
             const accountData = await this.binanceConnector.getFuturesAccountData()
             console.log(`available amount: ${accountData.availableBalance}`)
 
-            const amountToBeInvested = (Number(accountData.availableBalance) / 4) / btcPrice
+            const amountToBeInvested = Number(((Number(accountData.availableBalance) / 4) / price).toFixed(3))
 
 
-            if (btcPrice === lowestPrice) {
+            if (price === lowestPrice) {
 
-                console.log(`kaufen zum preis von ${btcPrice} - investiere ${amountToBeInvested} USDT`)
-                await this.binanceConnector.buyFuture('BTCUSDT', amountToBeInvested)
+                console.log(`kaufen zum preis von ${price} - investiere ${amountToBeInvested} USDT`)
+                await this.binanceConnector.buyFuture('ETHUSDT', amountToBeInvested)
 
-            } else if (btcPrice === highestPrice) {
+            } else if (price === highestPrice) {
 
-                const xPosition = accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
+                const xPosition = accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
                 console.log(JSON.stringify(xPosition))
-                // await this.binanceConnector.sellFuture('BTCUSDT', 20)
-                console.log(`verkaufen zum preis von ${btcPrice} - nehme ${amountToBeInvested} USDT zurück`)
+                // await this.binanceConnector.sellFuture('ETHUSDT', 20)
+                console.log(`verkaufen zum preis von ${price} - nehme ${amountToBeInvested} USDT zurück`)
 
             } else {
 
                 console.log('relax')
-                
+
             }
         }
 
