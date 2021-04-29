@@ -36,7 +36,7 @@ export class Gambler {
             i.intervalCounter++
             try {
                 await i.investWisely()
-            } catch(error) {
+            } catch (error) {
                 console.log(`you can improve something: ${error.message}`)
             }
         }, 11 * 1000)
@@ -55,10 +55,12 @@ export class Gambler {
         const lowestPrice7000_20000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(7000, 20000) // about 35 hours
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
+        const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
+        console.log(`usdtBalanceOnSpot: ${usdtBalanceOnSpot}`)
 
         console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP80_100: ${lowestPrice80_100.toFixed(2)}; hP3_8: ${highestPrice3_8.toFixed(2)} nyrPNL: ${accountData.totalUnrealizedProfit}`)
 
-        if (Number(accountData.totalWalletBalance) <= this.reinvestAt) {
+        if (Number(accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
             console.log(`I transfer USDT from Spot Account to Futures Account e.g. after a serious drop which resulted in a low wallet ballance.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
         } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
@@ -117,7 +119,7 @@ export class Gambler {
             } catch (error) {
                 console.log(`error from transferFromUSDTFuturesToSpotAccount: ${error.message}`)
             }
-            
+
             const amountOfEthToBeBought = Number((savingsAmount / 2).toFixed(2))
             console.log(`I'll buy ${amountOfEthToBeBought} ETH paying with USDT to stay liquid and reasonably invested in my spot account as well.`)
             try {
