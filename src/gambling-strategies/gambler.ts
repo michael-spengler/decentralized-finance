@@ -57,6 +57,7 @@ export class Gambler {
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
         console.log(`usdtBalanceOnSpot: ${usdtBalanceOnSpot}`)
+        console.log(`this.intervalCounter: ${this.intervalCounter}`)
 
         console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP80_100: ${lowestPrice80_100.toFixed(2)}; hP3_8: ${highestPrice3_8.toFixed(2)} nyrPNL: ${accountData.totalUnrealizedProfit}`)
 
