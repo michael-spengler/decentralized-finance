@@ -1,6 +1,8 @@
 
-const binanceApiKey = process.argv[2] // check your profile on binance.com --> API Management
-const binanceApiSecret = process.argv[3] // check your profile on binance.com --> API Management
+const lowInterval = Number(process.argv[2]) // check your profile on binance.com --> API Management
+const highInterval = Number(process.argv[3]) // check your profile on binance.com --> API Management
+const binanceApiKey = process.argv[4] // check your profile on binance.com --> API Management
+const binanceApiSecret = process.argv[5] // check your profile on binance.com --> API Management
 
 import { BinanceConnector } from "../binance/binance-connector"
 import { Player } from "./player"
@@ -11,14 +13,12 @@ import { getHighestPriceOfRecentXIntervals, getLowestPriceOfRecentXIntervals } f
 export class BuyLowSellHighGambler {
 
     private binanceConnector: BinanceConnector
-    private portfolioProvider: PortfolioProvider
 
     private historicData: any[] = []
     private intervalIndexCounter: number = 0
 
     public constructor(apiKey: string, apiSecret: string) {
         this.binanceConnector = new BinanceConnector(apiKey, apiSecret)
-        this.portfolioProvider = new PortfolioProvider()
     }
 
 
@@ -37,9 +37,7 @@ export class BuyLowSellHighGambler {
         this.historicData.push(price)
 
 
-        const lowInterval = 5
-        const highInterval = 30
-        if (this.historicData.length > lowInterval) {
+        if (this.intervalIndexCounter > lowInterval) {
 
             const lowestPrice = getLowestPriceOfRecentXIntervals(this.historicData, lowInterval)
             const highestPrice = getHighestPriceOfRecentXIntervals(this.historicData, highInterval)
@@ -57,11 +55,11 @@ export class BuyLowSellHighGambler {
                 console.log(`kaufen zum preis von ${price} - investiere ${amountToBeInvested} USDT`)
                 await this.binanceConnector.buyFuture('ETHUSDT', amountToBeInvested)
 
-            } else if (price === highestPrice && this.historicData.length > highInterval) {
+            } else if (price === highestPrice && this.intervalIndexCounter > highInterval) {
 
                 const xPosition = accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
                 console.log(JSON.stringify(xPosition))
-                await this.binanceConnector.sellFuture('ETHUSDT', Number(xPosition.positionAmt))
+                await this.binanceConnector.sellFuture('ETHUSDT', Number((Number(xPosition.positionAmt) / 2).toFixed(3)))
                 console.log(`verkaufen zum preis von ${price} - nehme ${amountToBeInvested} USDT zurück`)
 
             } else {
