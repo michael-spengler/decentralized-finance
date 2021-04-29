@@ -77,11 +77,22 @@ export class Gambler {
                 await this.sell(0.5)
             }
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
-            if (cPP === lowestPrice80_100 && this.intervalCounter > 100) {
-                await this.buy(currentPrices, accountData)
-                await this.saveSomething(accountData)
+            if (this.intervalCounter > 1200) {
+                if (cPP === lowestPrice900_1200) {
+                    await this.buy(currentPrices, accountData, 0.1)
+                    await this.saveSomething(accountData)
+                    console.log(`I bought with factor 0.1`)
+                } else if (cPP === lowestPrice300_500) {
+                    await this.buy(currentPrices, accountData, 0.07)
+                    console.log(`I bought with factor 0.07`)
+                } else if (cPP === lowestPrice80_100) {
+                    await this.buy(currentPrices, accountData, 0.05)
+                    console.log(`I bought with factor 0.05`)
+                } else {
+                    console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
+                }
             } else {
-                console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
+                console.log(`intervalCounter: ${this.intervalCounter}`)
             }
         } else if ((((this.liquidityRatioToBuy + this.liquidityRatioToSell) / 2) > liquidityRatio)) {
             if (cPP < highestPrice3_8) {
@@ -142,13 +153,12 @@ export class Gambler {
         }
     }
 
-    private async buy(currentPrices: any[], accountData: any) {
+    private async buy(currentPrices: any[], accountData: any, couldBuyWouldBuyFactor: number) {
         try {
             for (const listEntry of this.portfolio) {
                 const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === listEntry.pairName)[0].price
                 const xPosition = accountData.positions.filter((entry: any) => entry.symbol === listEntry.pairName)[0]
                 const canBuy = ((accountData.availableBalance * xPosition.leverage) / currentPrice) * (listEntry.percentage / 100)
-                const couldBuyWouldBuyFactor = 0.1
                 const howMuchToBuy = Number((canBuy * couldBuyWouldBuyFactor))
                 console.log(`I'll buy ${howMuchToBuy} ${listEntry.pairName} as it has a portfolio percentage of ${listEntry.percentage}`)
                 await this.binanceConnector.buyFuture(listEntry.pairName, Number(howMuchToBuy.toFixed(this.portfolioProvider.getDecimalPlaces(listEntry.pairName))))
