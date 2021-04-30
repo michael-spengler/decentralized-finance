@@ -67,7 +67,7 @@ export class Gambler {
             console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             await this.sell(0.3)
-            await this.saveSomething(accountData)
+            await this.saveSomething(currentPrices, accountData)
         } else if (liquidityRatio <= this.liquidityRatioToSell) {
             if (liquidityRatio <= (this.liquidityRatioToSell * 0.9)) {
                 await this.sell(0.8)
@@ -77,10 +77,11 @@ export class Gambler {
                 await this.sell(0.5)
             }
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
-            if (this.intervalCounter > 1200) {
+            // if (this.intervalCounter > 1200) {
+            if (this.intervalCounter > 12) {
                 if (cPP === lowestPrice900_1200) {
                     await this.buy(currentPrices, accountData, 0.1)
-                    await this.saveSomething(accountData)
+                    await this.saveSomething(currentPrices, accountData)
                     console.log(`I bought with factor 0.1`)
                 } else if (cPP === lowestPrice300_500) {
                     await this.buy(currentPrices, accountData, 0.07)
@@ -121,8 +122,9 @@ export class Gambler {
         }
     }
 
-    private async saveSomething(accountData: any) {
+    private async saveSomething(currentPrices: any[], accountData: any) {
         const savingsAmount = Number((accountData.availableBalance * 0.05).toFixed(0))
+        console.log(`saveSomething - savingsAmount: ${savingsAmount}`)
         if (savingsAmount >= 1) {
             console.log(`I'll transfer ${savingsAmount} USDT to my fiat and spot account to prepare for a reinvestment after a serious drop.`)
             try {
@@ -131,7 +133,8 @@ export class Gambler {
                 console.log(`error from transferFromUSDTFuturesToSpotAccount: ${error.message}`)
             }
 
-            const amountOfEthToBeBought = Number((savingsAmount / 2).toFixed(2))
+            const currentEtherPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price)
+            const amountOfEthToBeBought = Number(((Number((savingsAmount / 2).toFixed(2))) / currentEtherPrice).toFixed(3))
             console.log(`I'll buy ${amountOfEthToBeBought} ETH paying with USDT to stay liquid and reasonably invested in my spot account as well.`)
             try {
                 await this.binanceConnector.placeBuyOrder("ETHUSDT", amountOfEthToBeBought)
