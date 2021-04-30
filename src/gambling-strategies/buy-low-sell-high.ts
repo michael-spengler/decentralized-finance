@@ -30,29 +30,29 @@ export class BuyLowSellHighGambler {
         const price = Number(currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price)
 
         console.log(`Current Price: ${price}`)
-
+        
         if (this.historicData.length === 500000) {
             this.historicData.shift()
         }
         this.historicData.push(price)
-
+        
+        
+        const accountData = await this.binanceConnector.getFuturesAccountData()
+        const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
+        
+        console.log(`liquidityRatio: ${liquidityRatio}`)
 
         if (this.intervalIndexCounter > lowInterval) {
-
             const lowestPrice = getLowestPriceOfRecentXIntervals(this.historicData, lowInterval)
             const highestPrice = getHighestPriceOfRecentXIntervals(this.historicData, highInterval)
-
             console.log(lowestPrice)
-
             const accountData = await this.binanceConnector.getFuturesAccountData()
             console.log(`available amount: ${accountData.availableBalance}`)
-
             const amountToBeInvested = Number(((Number(accountData.availableBalance) / 4) / price).toFixed(3))
 
+            if (price === lowestPrice && liquidityRatio > 0.6) {
 
-            if (price === lowestPrice) {
-
-                console.log(`kaufen zum preis von ${price} - investiere ${amountToBeInvested} USDT`)
+                console.log(`kaufen zum preis von ${price}`)
                 await this.binanceConnector.buyFuture('ETHUSDT', amountToBeInvested)
 
             } else if (price === highestPrice && this.intervalIndexCounter > highInterval) {
@@ -60,7 +60,7 @@ export class BuyLowSellHighGambler {
                 const xPosition = accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
                 console.log(JSON.stringify(xPosition))
                 await this.binanceConnector.sellFuture('ETHUSDT', Number((Number(xPosition.positionAmt) / 2).toFixed(3)))
-                console.log(`verkaufen zum preis von ${price} - nehme ${amountToBeInvested} USDT zurück`)
+                console.log(`verkaufen zum preis von ${price}`)
 
             } else {
 

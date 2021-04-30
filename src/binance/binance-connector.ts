@@ -33,6 +33,15 @@ export class BinanceConnector {
         return currentPrices
     }
 
+    public async getAccount() {
+        return this.binance.accountStatus()
+    }
+
+    // public async getOverallBalance() {
+    //     const bal = await this.binance.balance()
+    //     console.log(JSON.stringify(bal))
+    // }
+
     public async cancelAllOrders(pair: string) {
         await this.binance.cancelAll(pair)
     }

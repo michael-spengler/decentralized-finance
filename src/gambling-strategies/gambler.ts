@@ -1,6 +1,6 @@
 import { BinanceConnector } from "../binance/binance-connector"
 import { Player } from "./player"
-import { IPortfolio, PortfolioProvider } from "./portfolio-provider"
+import { IBalPort, IPortfolio, PortfolioProvider } from "./portfolio-provider"
 
 export class Gambler {
 
@@ -13,6 +13,7 @@ export class Gambler {
     private investmentAmount: number
     private intervalCounter: number
     private prepareTrainingData: boolean
+    private statistics: IBalPort[] = []
 
     public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, prepareTrainingData: boolean) {
         this.liquidityRatioToBuy = lrToBuy
@@ -34,6 +35,9 @@ export class Gambler {
         }
         setInterval(async () => {
             i.intervalCounter++
+
+            // const all = await i.binanceConnector.getAccount()
+
             try {
                 await i.investWisely()
             } catch (error) {
@@ -56,7 +60,14 @@ export class Gambler {
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
-        console.log(`usdtBalanceOnSpot: ${usdtBalanceOnSpot}`)
+
+        if (this.statistics.length > 500000) {
+            this.statistics.shift()
+        }
+
+        this.statistics.push({balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance), portfolioPriceInUSDT: cPP})
+
+        await this.portfolioProvider.saveStatistics(this.statistics)
 
         console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP80_100: ${lowestPrice80_100.toFixed(2)}; hP3_8: ${highestPrice3_8.toFixed(2)} nyrPNL: ${accountData.totalUnrealizedProfit}`)
 
@@ -77,8 +88,8 @@ export class Gambler {
                 await this.sell(0.5)
             }
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
-            // if (this.intervalCounter > 1200) {
-            if (this.intervalCounter > 12) {
+            if (this.intervalCounter > 1200) {
+            // if (this.intervalCounter > 12) {
                 if (cPP === lowestPrice900_1200) {
                     await this.buy(currentPrices, accountData, 0.1)
                     await this.saveSomething(currentPrices, accountData)

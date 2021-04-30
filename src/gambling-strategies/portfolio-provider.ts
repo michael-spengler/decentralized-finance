@@ -1,10 +1,18 @@
 
 
 const fse = require('fs-extra')
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+
+
 export interface IPortfolio {
     pairName: string
     percentage: number
     decimalPlaces: number
+}
+
+export interface IBalPort {
+    balanceInUSDT: number
+    portfolioPriceInUSDT: number
 }
 
 export class PortfolioProvider {
@@ -12,6 +20,7 @@ export class PortfolioProvider {
     private portfolio: IPortfolio[] = []
     private portFolioPriceHistory: number[] = []
     private path = `${__dirname}/historic-portfolio-prices.json`
+    private pathToStatistics = `${__dirname}/statistics.csv`
 
 
     public constructor() {
@@ -54,7 +63,7 @@ export class PortfolioProvider {
             if (prepareTrainingData) {
                 fse.writeJsonSync(this.path, JSON.stringify(this.portFolioPriceHistory))
             }
-            
+
             return aPP
         }
         return 0
@@ -73,10 +82,30 @@ export class PortfolioProvider {
         }
     }
 
+    public async saveStatistics(statistics: IBalPort[]): Promise<void> {
+        // await fse.write(this.pathToStatistics, statistics)
+
+        const csvWriter = createCsvWriter({
+            path: this.pathToStatistics,
+            header: [
+                { id: 'balanceInUSDT', title: 'balanceInUSDT' },
+                { id: 'portfolioPriceInUSDT', title: 'portfolioPriceInUSDT' }
+            ]
+        });
+
+        const records: any[] = []
+
+        for (const entry of statistics) {
+            records.push({ balanceInUSDT: entry.balanceInUSDT, portfolioPriceInUSDT: entry.portfolioPriceInUSDT })
+        }
+
+        await csvWriter.writeRecords(records)
+    }
+
     public getLowestPriceOfRecentXIntervals(numberOfIntervalsToBeRegarded: number, randomizerMax?: number): number {
         let lowestPrice = 1000000000000
         let counter = 0
-        const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random()*(randomizerMax-numberOfIntervalsToBeRegarded+1)+numberOfIntervalsToBeRegarded);
+        const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random() * (randomizerMax - numberOfIntervalsToBeRegarded + 1) + numberOfIntervalsToBeRegarded);
 
         const startPosition = this.portFolioPriceHistory.length - limit
 
@@ -96,7 +125,7 @@ export class PortfolioProvider {
 
         let highestPrice = 0
         let counter = 0
-        const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random()*(randomizerMax-numberOfIntervalsToBeRegarded+1)+numberOfIntervalsToBeRegarded);
+        const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random() * (randomizerMax - numberOfIntervalsToBeRegarded + 1) + numberOfIntervalsToBeRegarded);
 
         const startPosition = this.portFolioPriceHistory.length - limit
 
