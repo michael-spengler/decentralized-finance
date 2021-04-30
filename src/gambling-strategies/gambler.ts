@@ -12,10 +12,10 @@ export class Gambler {
     private reinvestAt: number
     private investmentAmount: number
     private intervalCounter: number
-    private prepareTrainingData: boolean
+    private writeStats: boolean
     private statistics: IBalPort[] = []
 
-    public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, prepareTrainingData: boolean) {
+    public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, writeStats: boolean) {
         this.liquidityRatioToBuy = lrToBuy
         this.liquidityRatioToSell = lrToSell
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
@@ -24,12 +24,12 @@ export class Gambler {
         this.reinvestAt = reinvestAt
         this.investmentAmount = investmentAmount
         this.intervalCounter = 0
-        this.prepareTrainingData = prepareTrainingData
+        this.writeStats = writeStats
     }
 
-    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, prepareTrainingData: boolean = false): void {
+    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, writeStats: boolean = false): void {
 
-        const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret, prepareTrainingData)
+        const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret, writeStats)
         if (lrToBuy < 0.6 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
         }
@@ -50,7 +50,7 @@ export class Gambler {
     private async investWisely() {
 
         const currentPrices = await this.binanceConnector.getCurrentPrices()
-        const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices, this.prepareTrainingData)
+        const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
         const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100) // about 20 mins
@@ -61,13 +61,16 @@ export class Gambler {
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
-        if (this.statistics.length > 500000) {
-            this.statistics.shift()
+        
+        if (this.writeStats) {
+
+            if (this.statistics.length > 500000) {
+                this.statistics.shift()
+            }
+    
+            this.statistics.push({balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit), portfolioPriceInUSDT: cPP})
+            await this.portfolioProvider.saveStatistics(this.statistics)
         }
-
-        this.statistics.push({balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit), portfolioPriceInUSDT: cPP})
-
-        await this.portfolioProvider.saveStatistics(this.statistics)
 
         console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP80_100: ${lowestPrice80_100.toFixed(2)}; hP3_8: ${highestPrice3_8.toFixed(2)} nyrPNL: ${accountData.totalUnrealizedProfit}`)
 
