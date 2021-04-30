@@ -65,7 +65,7 @@ export class Gambler {
             this.statistics.shift()
         }
 
-        this.statistics.push({balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance), portfolioPriceInUSDT: cPP})
+        this.statistics.push({balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit), portfolioPriceInUSDT: cPP})
 
         await this.portfolioProvider.saveStatistics(this.statistics)
 
