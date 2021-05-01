@@ -45,9 +45,10 @@ export class BuyLowSellHighGambler {
             const amountToBeInvested = Number((((Number(accountData.availableBalance)) / price) * theBuyFactor).toFixed(3))
             console.log(`amountToBeInvested: ${amountToBeInvested}`)
             await this.binanceConnector.buyFuture('ETHUSDT', amountToBeInvested)
-        } else if (highestSinceX >= 5) {
+        } else if (highestSinceX >= 5 && Number(accountData.totalUnrealizedProfit) > 2) {
             const xPosition = accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
-            const amountToBeSold = Number(((Number(xPosition.positionAmt)) * theSellFactor).toFixed(3))
+            let amountToBeSold = Number(((Number(xPosition.positionAmt)) * theSellFactor).toFixed(3))
+            amountToBeSold = (amountToBeSold <= Number(xPosition.positionAmt)) ? amountToBeSold : Number(xPosition.positionAmt)
             console.log(`amountToBeSold: ${amountToBeSold}`)
             await this.binanceConnector.sellFuture('ETHUSDT', amountToBeSold)
         } else {
