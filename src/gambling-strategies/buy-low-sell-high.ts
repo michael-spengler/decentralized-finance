@@ -5,8 +5,6 @@ const binanceApiKey = process.argv[4] // check your profile on binance.com --> A
 const binanceApiSecret = process.argv[5] // check your profile on binance.com --> API Management
 
 import { BinanceConnector } from "../binance/binance-connector"
-import { Player } from "./player"
-import { IPortfolio, PortfolioProvider } from "./portfolio-provider"
 import { getHighestPriceOfRecentXIntervals, getLowestPriceOfRecentXIntervals } from "./utils"
 
 
