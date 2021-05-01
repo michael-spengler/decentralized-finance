@@ -41,7 +41,7 @@ export class BuyLowSellHighGambler {
         let theBuyFactor = lowestSinceX / 1000
         const theSellFactor = highestSinceX / 1000
 
-        theBuyFactor = (theBuyFactor > 0.5) ? 0.5 : theBuyFactor
+        theBuyFactor = (theBuyFactor > 0.1) ? 0.1 : theBuyFactor
 
         if (lowestSinceX >= 5) {
             const amountToBeInvested = Number((((Number(accountData.availableBalance)) / price) * theBuyFactor).toFixed(3))
