@@ -47,7 +47,8 @@ export class BuyLowSellHighGambler {
             const amountToBeInvested = Number((((Number(accountData.availableBalance)) / price) * theBuyFactor).toFixed(3))
             if (amountToBeInvested >= 0.001) {
                 console.log(`amountToBeInvested: ${amountToBeInvested}`)
-                await this.binanceConnector.buyFuture('ETHUSDT', amountToBeInvested)
+                const r = await this.binanceConnector.buyFuture('ETHUSDT', amountToBeInvested)
+                console.log(r)
             } else {
                 console.log(`below minimum buy amount of 0.001 with theBuyFactor: ${theBuyFactor}`)
             }
@@ -57,7 +58,8 @@ export class BuyLowSellHighGambler {
             amountToBeSold = (amountToBeSold <= Number(xPosition.positionAmt)) ? amountToBeSold : Number(xPosition.positionAmt)
             if (amountToBeSold >= 0.001) {
                 console.log(`amountToBeSold: ${amountToBeSold}`)
-                await this.binanceConnector.sellFuture('ETHUSDT', amountToBeSold)
+                const r = await this.binanceConnector.sellFuture('ETHUSDT', amountToBeSold)
+                console.log(r)
             } else {
                 console.log(`below minimum buy amount of 0.001 with theSellFactor: ${theSellFactor}`)
             }
