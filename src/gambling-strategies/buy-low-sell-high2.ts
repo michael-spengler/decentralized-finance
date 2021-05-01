@@ -34,23 +34,33 @@ export class BuyLowSellHighGambler {
 
         if (Number(accountData.totalWalletBalance) > 240) {
             await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(2)
-        } else if(Number(accountData.totalWalletBalance) === 0) {
+        } else if (Number(accountData.totalWalletBalance) === 0) {
             await this.binanceConnector.transferFromSpotAccountToUSDTFutures(50)
         }
 
-        const theBuyFactor = lowestSinceX / 100
-        const theSellFactor = highestSinceX / 100
+        let theBuyFactor = lowestSinceX / 1000
+        const theSellFactor = highestSinceX / 1000
+
+        theBuyFactor = (theBuyFactor > 0.5) ? 0.5 : theBuyFactor
 
         if (lowestSinceX >= 5) {
             const amountToBeInvested = Number((((Number(accountData.availableBalance)) / price) * theBuyFactor).toFixed(3))
-            console.log(`amountToBeInvested: ${amountToBeInvested}`)
-            await this.binanceConnector.buyFuture('ETHUSDT', amountToBeInvested)
+            if (amountToBeInvested >= 0.001) {
+                console.log(`amountToBeInvested: ${amountToBeInvested}`)
+                await this.binanceConnector.buyFuture('ETHUSDT', amountToBeInvested)
+            } else {
+                console.log(`below minimum buy amount of 0.001 with theBuyFactor: ${theBuyFactor}`)
+            }
         } else if (highestSinceX >= 5 && Number(accountData.totalUnrealizedProfit) > 2) {
             const xPosition = accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
             let amountToBeSold = Number(((Number(xPosition.positionAmt)) * theSellFactor).toFixed(3))
             amountToBeSold = (amountToBeSold <= Number(xPosition.positionAmt)) ? amountToBeSold : Number(xPosition.positionAmt)
-            console.log(`amountToBeSold: ${amountToBeSold}`)
-            await this.binanceConnector.sellFuture('ETHUSDT', amountToBeSold)
+            if (amountToBeSold >= 0.001) {
+                console.log(`amountToBeSold: ${amountToBeSold}`)
+                await this.binanceConnector.sellFuture('ETHUSDT', amountToBeSold)
+            } else {
+                console.log(`below minimum buy amount of 0.001 with theSellFactor: ${theSellFactor}`)
+            }
         } else {
             console.log("relax")
         }
