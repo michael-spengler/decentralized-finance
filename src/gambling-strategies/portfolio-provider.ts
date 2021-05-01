@@ -45,12 +45,10 @@ export class PortfolioProvider {
 
 
         let portfolioValue = 0
-        console.log(positions.length)
         for (const p of positions) {
             if (p.positionAmt > 0) {
 
                 try {
-                    console.log(p.symbol)
                     const currentPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === p.symbol)[0].price)
                     const positionValue = Number(p.positionAmt) * currentPrice
                     portfolioValue = portfolioValue + positionValue
