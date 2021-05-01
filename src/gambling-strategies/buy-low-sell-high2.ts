@@ -31,6 +31,13 @@ export class BuyLowSellHighGambler {
         console.log(`This is the highest Price since: ${highestSinceX} intervals`)
 
         const accountData = await this.binanceConnector.getFuturesAccountData()
+
+        if (Number(accountData.totalWalletBalance) > 240) {
+            await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(2)
+        } else if(Number(accountData.totalWalletBalance) === 0) {
+            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(50)
+        }
+
         const theBuyFactor = lowestSinceX / 100
         const theSellFactor = highestSinceX / 100
 
