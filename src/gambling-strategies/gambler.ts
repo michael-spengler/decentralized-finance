@@ -57,7 +57,6 @@ export class Gambler {
         const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100) // about 20 mins
         const lowestPrice300_500 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300, 500) // about 1.5 hours
         const lowestPrice900_1200 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(900, 1200) // about 3.5 hours
-        const lowestPrice7000_20000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(7000, 20000) // about 35 hours
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
@@ -122,16 +121,7 @@ export class Gambler {
             await this.sell(0.1)
         } else if (cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a long term low.`)
-            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
-        } else if (cPP === lowestPrice7000_20000 && this.intervalCounter > 20000) {
-            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a mid term low.`)
-            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.8)
-        } else if (cPP === lowestPrice900_1200 && this.intervalCounter > 1200) {
-            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a short term low without being in reduce risk mode.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
-        } else if (cPP === lowestPrice300_500 && this.intervalCounter > 500) {
-            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a very short term low without being in reduce risk mode.`)
-            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.2)
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
