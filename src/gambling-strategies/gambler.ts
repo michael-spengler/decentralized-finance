@@ -52,6 +52,7 @@ export class Gambler {
         const currentPrices = await this.binanceConnector.getCurrentPrices()
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
+        const cPV = this.portfolioProvider.getCurrentPortfolioValue(accountData.positions, currentPrices)
         const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
         const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100) // about 20 mins
         const lowestPrice300_500 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300, 500) // about 1.5 hours
@@ -68,7 +69,7 @@ export class Gambler {
                 this.statistics.shift()
             }
     
-            this.statistics.push({balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit), portfolioPriceInUSDT: cPP})
+            this.statistics.push({balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit), portfolioPriceInUSDT: cPV})
             await this.portfolioProvider.saveStatistics(this.statistics)
         }
 

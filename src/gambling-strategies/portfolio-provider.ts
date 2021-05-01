@@ -41,6 +41,30 @@ export class PortfolioProvider {
         }
     }
 
+    public getCurrentPortfolioValue(positions: any[], currentPrices: any) {
+
+
+        let portfolioValue = 0
+        console.log(positions.length)
+        for (const p of positions) {
+            if (p.positionAmt > 0) {
+
+                try {
+                    console.log(p.symbol)
+                    const currentPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === p.symbol)[0].price)
+                    const positionValue = Number(p.positionAmt) * currentPrice
+                    portfolioValue = portfolioValue + positionValue
+                } catch (error) {
+                    console.log(`error while processing ${p.symbol} error.message: ${error.message}`)
+                }
+            }
+        }
+
+        return portfolioValue
+
+    }
+
+
     public getCurrentPortfolioAveragePrice(currentPrices: any) {
         const prices = []
         let total = 0
@@ -66,7 +90,6 @@ export class PortfolioProvider {
     }
 
     public getHistoricAverageOfportfolioPriceX() {
-        const offset = Math.random()
         let total = 0
         for (const e of this.portFolioPriceHistory) {
             total = total + e

@@ -1,7 +1,7 @@
-import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.pyplot as plt
 
-dataframe = pd.read_csv("./statistics.csv", names=["balance_in_usdt", "portfolio_in_usdt"])
+dataframe = pd.read_csv("./src/gambling-strategies/statistics.csv", names=["balance_in_usdt", "portfolio_in_usdt"])
 
 balance_in_usdt = dataframe['balance_in_usdt'].to_numpy()
 portfolio_in_usdt = dataframe['portfolio_in_usdt'].to_numpy()
