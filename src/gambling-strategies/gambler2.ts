@@ -91,8 +91,8 @@ export class Gambler {
                 await this.sell(0.5)
             }
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
-            if (this.intervalCounter > 1200) {
-            // if (this.intervalCounter > 12) {
+            if (this.intervalCounter > 100) { // for devtests
+            // if (this.intervalCounter > 1200) {
                 if (cBTCP === lowestPrice900_1200) {
                     await this.buy(currentPrices, accountData, 0.1)
                     console.log(`I bought with factor 0.1`)
