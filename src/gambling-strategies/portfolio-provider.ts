@@ -19,6 +19,7 @@ export class PortfolioProvider {
 
     private portfolio: IPortfolio[] = []
     private portFolioPriceHistory: number[] = []
+    private btcPriceHistory: number[] = []
     private path = `${__dirname}/historic-portfolio-prices.json`
     private pathToStatistics = `${__dirname}/statistics.csv`
 
@@ -62,6 +63,18 @@ export class PortfolioProvider {
 
     }
 
+    public getCurrentXPrice(currentPrices: any, pair: string) {
+
+        const currentXPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === pair)[0].price)
+
+        if (this.btcPriceHistory.length >= 400004) {
+            this.btcPriceHistory.shift()
+        }
+
+        this.btcPriceHistory.push(currentXPrice)
+
+        return currentXPrice
+    }
 
     public getCurrentPortfolioAveragePrice(currentPrices: any) {
         const prices = []
@@ -119,40 +132,70 @@ export class PortfolioProvider {
         await csvWriter.writeRecords(records)
     }
 
-    public getLowestPriceOfRecentXIntervals(numberOfIntervalsToBeRegarded: number, randomizerMax?: number): number {
+    public getLowestPriceOfRecentXIntervals(numberOfIntervalsToBeRegarded: number, randomizerMax?: number, pair?: string): number {
         let lowestPrice = 1000000000000
         let counter = 0
         const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random() * (randomizerMax - numberOfIntervalsToBeRegarded + 1) + numberOfIntervalsToBeRegarded);
 
-        const startPosition = this.portFolioPriceHistory.length - limit
+        if (pair === undefined) {
 
-        for (const e of this.portFolioPriceHistory) {
-            counter++
-            if (counter >= startPosition) {
-                if (e < lowestPrice) {
-                    lowestPrice = e
+            const startPosition = this.portFolioPriceHistory.length - limit
+
+            for (const e of this.portFolioPriceHistory) {
+                counter++
+                if (counter >= startPosition) {
+                    if (e < lowestPrice) {
+                        lowestPrice = e
+                    }
                 }
             }
+        } else {
+            const startPosition = this.btcPriceHistory.length - limit
+
+            for (const e of this.btcPriceHistory) {
+                counter++
+                if (counter >= startPosition) {
+                    if (e < lowestPrice) {
+                        lowestPrice = e
+                    }
+                }
+            }
+
         }
 
         return lowestPrice
     }
 
-    public getHighestPriceOfRecentXIntervals(numberOfIntervalsToBeRegarded: number, randomizerMax?: number): number {
+    public getHighestPriceOfRecentXIntervals(numberOfIntervalsToBeRegarded: number, randomizerMax?: number, pair?: string): number {
 
         let highestPrice = 0
         let counter = 0
         const limit = (randomizerMax === undefined) ? numberOfIntervalsToBeRegarded : Math.floor(Math.random() * (randomizerMax - numberOfIntervalsToBeRegarded + 1) + numberOfIntervalsToBeRegarded);
 
-        const startPosition = this.portFolioPriceHistory.length - limit
+        if (pair === undefined) {
+            const startPosition = this.portFolioPriceHistory.length - limit
 
-        for (const e of this.portFolioPriceHistory) {
-            counter++
-            if (counter >= startPosition) {
-                if (e > highestPrice) {
-                    highestPrice = e
+            for (const e of this.portFolioPriceHistory) {
+                counter++
+                if (counter >= startPosition) {
+                    if (e > highestPrice) {
+                        highestPrice = e
+                    }
                 }
             }
+        } else if (pair === 'BTCUSDT') {
+            const startPosition = this.btcPriceHistory.length - limit
+
+            for (const e of this.btcPriceHistory) {
+                counter++
+                if (counter >= startPosition) {
+                    if (e > highestPrice) {
+                        highestPrice = e
+                    }
+                }
+            }
+        } else {
+            throw new Error('to be implemented if another assetclass emerges as being the leader')
         }
 
         return highestPrice
