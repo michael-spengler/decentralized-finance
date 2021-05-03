@@ -32,7 +32,7 @@ export class BuyLowSellHighGambler {
 
         const accountData = await this.binanceConnector.getFuturesAccountData()
 
-        if (Number(accountData.totalWalletBalance) > 240) {
+        if (Number(accountData.totalWalletBalance) > 850) {
             await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(2)
         } else if (Number(accountData.totalWalletBalance) === 0) {
             await this.binanceConnector.transferFromSpotAccountToUSDTFutures(50)

@@ -1,6 +1,6 @@
 {
   "name": "decentralized-finance-defi",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "This package provides distributed ledger based banking features like payments, deposits, loans and automated investment patterns.",
   "main": "./dist/index.js",
   "scripts": {
