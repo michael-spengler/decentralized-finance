@@ -124,6 +124,9 @@ export class Gambler {
         } else if (cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a long term low.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
+        } else if (cPP === lowestPrice900_1200 && this.intervalCounter > 1200) {
+            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a significant low.`)
+            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.2)
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }

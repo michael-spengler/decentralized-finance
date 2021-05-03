@@ -61,14 +61,14 @@ export class Gambler {
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8, 'BTCUSDT')
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
-        
+
         if (this.writeStats) {
 
             if (this.statistics.length > 500000) {
                 this.statistics.shift()
             }
-    
-            this.statistics.push({balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit), portfolioPriceInUSDT: cPV})
+
+            this.statistics.push({ balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit), portfolioPriceInUSDT: cPV })
             await this.portfolioProvider.saveStatistics(this.statistics)
         }
 
@@ -92,7 +92,7 @@ export class Gambler {
             }
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
             if (this.intervalCounter > 100) { // for devtests
-            // if (this.intervalCounter > 1200) {
+                // if (this.intervalCounter > 1200) {
                 if (cBTCP === lowestPrice900_1200) {
                     await this.buy(currentPrices, accountData, 0.1)
                     console.log(`I bought with factor 0.1`)
@@ -124,6 +124,9 @@ export class Gambler {
         } else if (cBTCP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a long term low.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
+        } else if (cBTCP === lowestPrice900_1200 && this.intervalCounter > 1200) {
+            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a significant low.`)
+            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.2)
         } else {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
         }
