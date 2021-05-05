@@ -37,15 +37,14 @@ export class PlayBothSides {
             const posAmtLong = Number(xPositionLong.positionAmt)
             const posAmtShort = Number(xPositionShort.positionAmt)
 
-            console.log(`posAmtLong: ${posAmtLong}`)
-            console.log(`posAmtShort: ${posAmtShort}`)
+            console.log(`************************************************************************************`)
+            console.log(`posAmtLong: ${posAmtLong} - posAmtShort: ${posAmtShort}`)
             
             
             const pnlLong = Number(accountDataLong.totalUnrealizedProfit)
             const pnlShort = Number(accountDataShort.totalUnrealizedProfit)
             
-            console.log(`pnlLong: ${pnlLong}`)
-            console.log(`pnlShort: ${pnlShort}`)
+            console.log(`pnlLong: ${pnlLong} - pnlShort: ${pnlShort}`)
             
             if (posAmtLong === 0 && posAmtShort === 0) {
 
@@ -62,16 +61,10 @@ export class PlayBothSides {
                 } else if (pnlShort < unexpectedLossLimit){
                     console.log(`this time the game went wrong - emergency closing the short position`)
                     this.totalRealizedLosses = this.totalRealizedLosses + pnlShort
-                    await this.binanceConnectorShort.buyFuture(pair, investmentAmount)
+                    await this.binanceConnectorShort.buyFuture(pair, posAmtShort * -1)
                     this.failureCounter++
                 } else {
                     console.log(`waiting until pnlShort gets 0 - currently it is ${pnlShort}`)
-                    if (posAmtShort === investmentAmount) {
-                        console.log('speed things up')
-                        await this.binanceConnectorShort.sellFuture(pair, investmentAmount)
-                    } else {
-                        console.log('relaxing')
-                    }
                 }
                 
             } else if (posAmtShort === 0){ 
@@ -83,17 +76,11 @@ export class PlayBothSides {
                 } else if (pnlLong < unexpectedLossLimit){
                     console.log(`this time the game went wrong - emergency closing the long position`)
                     this.totalRealizedLosses = this.totalRealizedLosses + pnlLong
-                    const r = await this.binanceConnectorLong.sellFuture(pair, investmentAmount)
+                    const r = await this.binanceConnectorLong.sellFuture(pair, posAmtLong)
                     console.log(r)
                     this.failureCounter++
                 } else {
                     console.log(`waiting until pnlLong gets 0 - currently it is ${pnlLong}`)
-                    if (posAmtLong === investmentAmount) {
-                        console.log('speed things up')
-                        await this.binanceConnectorLong.buyFuture(pair, investmentAmount)
-                    } else {
-                        console.log('relaxing')
-                    }
                 }
 
             } else if (pnlLong > takeProfitLimit) {
