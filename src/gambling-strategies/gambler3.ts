@@ -51,7 +51,8 @@ export class Gambler {
         if (accountData.totalUnrealizedProfit === 0) {
             await this.buy(currentPrices, accountData, 1)
         } else if (this.liquidityRatioToTransfer < liquidityRatio) {
-            console.log(`Saving something as I made some significant gains.`)
+            console.log(`Selling and Saving something as I made some significant gains.`)
+            await this.sell(0.1)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             await this.saveSomething(accountData)
         } else if (this.liquidityRatioToSell > liquidityRatio) {
