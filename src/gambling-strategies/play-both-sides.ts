@@ -86,11 +86,11 @@ export class PlayBothSides {
         } else if (pnlLong > takeProfitLimit) {
             console.log('taking profits by closing the long position')
             this.totalRealizedProfits = this.totalRealizedProfits + pnlLong
-            await this.binanceConnectorLong.sellFuture(pair, investmentAmount)
+            await this.binanceConnectorLong.sellFuture(pair, Number((posAmtLong).toFixed(3)))
         } else if (pnlShort > takeProfitLimit) {
             console.log('taking profits by closing the short position')
             this.totalRealizedProfits = this.totalRealizedProfits + pnlShort
-            await this.binanceConnectorShort.buyFuture(pair, investmentAmount)
+            await this.binanceConnectorShort.buyFuture(pair, Number((posAmtShort * -1).toFixed(3)))
         }
 
         console.log(`successCounter: ${this.successCounter} vs. failureCounter: ${this.failureCounter} `)
