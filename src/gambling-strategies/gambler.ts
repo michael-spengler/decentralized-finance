@@ -128,7 +128,9 @@ export class Gambler {
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a significant low.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.2)
         } else {
-            console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TWB: ${accountData.totalWalletBalance}`)
+            const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
+            const value = Number(accountData.totalWalletBalance) + availableUSDTBalanceInSpotAccount + Number(accountData.totalUnrealizedProfit)
+            console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TVL: ${value}`)
         }
     }
 
