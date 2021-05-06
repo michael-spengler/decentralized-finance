@@ -5,3 +5,4 @@ node_modules
 .env
 output
 /src/gambling-strategies/statistics.csv
+src/chart-analyzer/server/my_model.h5
