@@ -7,20 +7,21 @@ export class Gambler {
     private portfolio: IPortfolio[] = []
     private binanceConnector: BinanceConnector
     private portfolioProvider: PortfolioProvider
+    private liquidityRatioToTransfer: number
     private liquidityRatioToSell: number
-    private statistics: IBalPort[] = []
 
     public constructor(lrToSell: number, binanceApiKey: string, binanceApiSecret: string) {
+        this.liquidityRatioToTransfer = lrToSell
         this.liquidityRatioToSell = lrToSell
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
         this.portfolioProvider = new PortfolioProvider()
         this.portfolio = this.portfolioProvider.getPortfolio()
     }
 
-    public static gamble(lrToSell: number, binanceApiKey: string, binanceApiSecret: string): void {
+    public static gamble(lrToTransfer: number, lrToSell: number, binanceApiKey: string, binanceApiSecret: string): void {
 
         const i = new Gambler(lrToSell, binanceApiKey, binanceApiSecret)
-        if (lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
+        if (lrToTransfer < 0.8 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
         }
         setInterval(async () => {
@@ -49,7 +50,7 @@ export class Gambler {
 
         if (accountData.totalUnrealizedProfit === 0) {
             await this.buy(currentPrices, accountData, 1)
-        } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
+        } else if (this.liquidityRatioToTransfer < liquidityRatio) {
             console.log(`Saving something as I made some significant gains.`)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             await this.saveSomething(accountData)
