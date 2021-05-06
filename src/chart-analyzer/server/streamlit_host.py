@@ -17,7 +17,7 @@ path = os.path.join(path, "/Users/d050420/Desktop/FUN-APPS/defi/decentralized-fi
 
 
 from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input as mobile 
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input as mobilenet_v2_preprocess_input 
 
 print(path)
 print(os.path.isfile(path))
