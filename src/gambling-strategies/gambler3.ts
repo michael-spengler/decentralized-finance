@@ -33,13 +33,19 @@ export class Gambler {
                     console.log(`Saving something as I made some significant gains.`)
                     await i.binanceConnector.transferFromUSDTFuturesToSpotAccount(10)
 
-                } else if (usdtSpot >= 50) {
+                } else if (usdtSpot >= 200) {
 
                     const currentPrices = await i.binanceConnector.getCurrentPrices()
                     const converter = new Converter(i.binanceConnector)
-                    console.log(`I convert 50 USDT to Ether.`)
-                    i.converted = i.converted  + 50
-                    await converter.convert(currentPrices, 50, 'ETHUSDT', 3)
+
+                    console.log(`I convert 100 USDT to Ether.`)
+                    await converter.convert(currentPrices, 100, 'ETHUSDT', 3)
+                    i.converted = i.converted  + 100
+
+                    console.log(`I convert 100 USDT to BNB.`)
+                    await converter.convert(currentPrices, 100, 'BNBUSDT', 3)
+                    i.converted = i.converted  + 100
+                    
 
                 // } else if (ethSpot > 0.03) {
 
