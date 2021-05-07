@@ -20,6 +20,7 @@ export class Gambler {
                 const twb = Number(accountData.totalWalletBalance)
                 const availableUSDTBalanceInSpotAccount = Number(await i.binanceConnector.getUSDTBalance())
                 const value = twb + Number(availableUSDTBalanceInSpotAccount) + Number(accountData.totalUnrealizedProfit)
+                console.log('*******************************************************************************************************')
                 console.log(`availableUSDTBalSpot: ${availableUSDTBalanceInSpotAccount} - availableBalFut: ${accountData.availableBalance} - TVL: ${value}`)
 
                 if (accountData.availableBalance > minAvailableOnFuturesAccount) {
