@@ -9,7 +9,7 @@ export class AIConnector {
     public static async isThereASeriousVetoFromATAPerspective(currentEtherPrice: number, pair: string): Promise<boolean> {
 
         try {
-            const taForecastEntry = (await axios.get(`https://ml.aaronschweig.dev/technical/${pair.substr(0, 3)}-USD?days=1`)).data[1][0]
+            const taForecastEntry = (await axios.get(`https://ml.klopapier.exchange/technical/${pair.substr(0, 3)}-USD?days=1`)).data[1][0]
             if (new Date() < new Date(taForecastEntry.date)) { // there was an error in the dependency - that's why I introduced this
                 const predictedETHPriceBasedOnTA = taForecastEntry.value
                 const percentage = ((predictedETHPriceBasedOnTA - currentEtherPrice) / currentEtherPrice) * 100
@@ -36,7 +36,7 @@ export class AIConnector {
         // sentiment analysis has some errors regarding quota leverage optimization
         // let sentiment
         // try {
-        //     sentiment = (await axios.get('https://ml.aaronschweig.dev/sentiment/twitter')).data
+        //     sentiment = (await axios.get('https://ml.klopapier.exchange/sentiment/twitter')).data
 
         //     const referenceDate24HoursAgo = new Date(new Date().getTime() - 24 * 3600 * 1000)
 
