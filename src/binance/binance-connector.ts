@@ -63,6 +63,15 @@ export class BinanceConnector {
         return this.binance.futuresBalance()
     }
 
+    public async withdraw(symbol: string = 'ETH', targetWallet: string, amount: number) {
+        try {
+            const r = await this.binance.withdraw(symbol, targetWallet, amount)
+            console.log(r)
+        } catch(error){
+            console.log(error.message)
+        }
+    }
+
     public async buyFuture(pair: string, amount: number) {
         return this.binance.futuresMarketBuy(pair, amount)
     }
@@ -72,8 +81,14 @@ export class BinanceConnector {
     }
 
     public async cancelPosition(pair: string) {
-        console.log("can")
         return this.binance.futuresCancelAll("ETHUSDT")
+    }
+
+    public async getSpotBalance(symbol: string): Promise<number> {
+        const balances = await this.binance.balance()
+        const balance = balances[symbol].available
+
+        return balance
     }
 
 

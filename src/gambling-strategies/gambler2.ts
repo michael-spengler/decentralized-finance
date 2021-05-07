@@ -144,16 +144,6 @@ export class Gambler {
             } catch (error) {
                 console.log(`error from transferFromUSDTFuturesToSpotAccount: ${error.message}`)
             }
-
-            // Some might want to convert USDT to ETH... 
-            // const currentEtherPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price)
-            // const amountOfEthToBeBought = Number(((Number((savingsAmount / 2).toFixed(2))) / currentEtherPrice).toFixed(3))
-            // console.log(`I'll buy ${amountOfEthToBeBought} ETH paying with USDT to stay liquid and reasonably invested in my spot account as well.`)
-            // try {
-            //     await this.binanceConnector.placeBuyOrder("ETHUSDT", amountOfEthToBeBought)
-            // } catch (error) {
-            //     console.log(`error from placeBuyOrder: ${error.message}`)
-            // }
         }
     }
 
