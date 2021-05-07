@@ -41,12 +41,20 @@ export class Gambler {
                     i.converted = i.converted  + 50
                     await converter.convert(currentPrices, 50, 'ETHUSDT', 3)
 
-                } else if (ethSpot > 0.03) {
+                // } else if (ethSpot > 0.03) {
 
-                    const converter = new Converter(i.binanceConnector)
-                    console.log(`I withdraw Ether to ${targetETHWallet}.`)
-                    const r = await converter.withdraw(0.03, targetETHWallet)
-                    console.log(r)
+                    // console.log(`automated withdrawals would require unfair ID verification`)
+                    // [Object: null prototype] {
+                    //     93|edge  |   msg:
+                    //     93|edge  |    '-9000=Your withdrawal has been disabled due to suspicious activity on your account. Please complete your ID or facial verification on Binance PC website.',
+                    //     93|edge  |   success: false }
+                    
+                    // You gotta be kidding me
+                    
+                    // const converter = new Converter(i.binanceConnector)
+                    // console.log(`I withdraw Ether to ${targetETHWallet}.`)
+                    // const r = await converter.withdraw(0.03, targetETHWallet)
+                    // console.log(r)
 
                 } else if (fut.availableBalance < 2) { // this shall never happen
 
