@@ -5,7 +5,7 @@ export class Gambler {
     private binanceConnector: BinanceConnector
     private converted: number = 0
     private intervalCounter: number = 0
-    private intervalCounterLastSell: number = 0
+    private intervalCounterLastSell: number = -1
     private spenglersListe: string[] = ['BNB', 'XMR', 'ETH', 'BAT', 'AAVE', 'MKR', 'UNI', 'FIL', 'COMP', 'BTC', 'ADA', 'LINK', 'DOT']
 
     public constructor(binanceApiKey: string, binanceApiSecret: string) {
