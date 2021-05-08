@@ -31,7 +31,7 @@ export class Gambler {
                 // const ethSpot = await i.binanceConnector.getSpotBalance('ETH')
 
                 console.log('*******************************************************************************************************')
-                console.log(`bnbSpot: ${bnbSpot} - aB: ${fut.availableBalance} - valAtR: ${valAtR} - gains: ${valAtR + i.converted}`)
+                console.log(`usdtSpot: ${usdtSpot} - bnbSpot: ${bnbSpot} - aB: ${fut.availableBalance} - valAtR: ${valAtR} - gains: ${valAtR + i.converted}`)
 
                 if (valAtR < 500 && usdtSpot > 100) {
 
