@@ -36,7 +36,6 @@ export class Gambler {
 
                     console.log(`Reinvesting after a significant drop.`)
                     await i.transferUSDTFromSpotAccountToFuturesAccount(200)
-                    i.intervalCounterLastSell = -1
 
                 } else if (fut.availableBalance > (valAtR * 0.15) ) {
 
@@ -76,7 +75,7 @@ export class Gambler {
                     await i.checkAndSell(fut, 'LINKUSDT', 5)
                     await i.checkAndSell(fut, 'DOTUSDT', 2)
                     
-                    i.intervalCounterLastSell = Number(i.intervalCounter) // hmm :) 
+                    i.intervalCounterLastSell = i.intervalCounter
                 } else if (fut.availableBalance < (valAtR * 0.05) && fut.availableBalance > 10) {
 
                     console.log(`Saving something as I made some significant gains.`)
