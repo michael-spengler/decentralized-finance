@@ -37,7 +37,7 @@ export class Gambler {
                     console.log(`Reinvesting after a significant drop.`)
                     await i.transferUSDTFromSpotAccountToFuturesAccount(200)
 
-                } else if (fut.availableBalance > (valAtR * 0.3) && usdtSpot > 100) {
+                } else if (fut.availableBalance > (valAtR * 0.15) && usdtSpot > 100) {
 
                     if ((i.intervalCounter - i.intervalCounterLastSell) > 10) {
                         console.log(`I buy some fancy shit.`)
@@ -61,7 +61,6 @@ export class Gambler {
 
                 } else if (Number(fut.availableBalance) === 0) {
                     console.log(`I need to sell something to reduce the liquidation risk.`)
-                    // const xPosition = fut.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
                     await i.checkAndSell(fut, 'BNBUSDT', 0.1)
                     await i.checkAndSell(fut, 'XMRUSDT', 1)
                     await i.checkAndSell(fut, 'ETHUSDT', 0.1)
@@ -99,12 +98,10 @@ export class Gambler {
     }
 
     private async checkAndSell(fut: any, pair: string, amount: number) {
-        const xPosition = fut.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
+        const xPosition = fut.positions.filter((entry: any) => entry.symbol === pair)[0]
 
-        console.log(xPosition.positionAmt)
-
-        if (xPosition.positionAmt > 0.01) {
-            await this.binanceConnector.sellFuture(pair, 0.1)
+        if (Number(xPosition.positionAmt) > 0.01) {
+            await this.binanceConnector.sellFuture(pair, amount)
         }
     }
 
