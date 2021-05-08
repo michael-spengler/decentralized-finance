@@ -6,6 +6,7 @@ export class Gambler {
     private converted: number = 0
     private intervalCounter: number = 0
     private intervalCounterLastSell: number = 0
+    private spenglersListe: string[] = ['BNB', 'XMR', 'ETH', 'BAT', 'AAVE', 'MKR', 'UNI', 'FIL', 'COMP', 'BTC', 'ADA', 'LINK', 'DOT']
 
     public constructor(binanceApiKey: string, binanceApiSecret: string) {
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
@@ -31,65 +32,63 @@ export class Gambler {
                 console.log('*******************************************************************************************************')
                 console.log(`bnbSpot: ${bnbSpot} - aB: ${fut.availableBalance} - valAtR: ${valAtR} - gains: ${valAtR + i.converted}`)
 
-                if (fut.availableBalance > (valAtR * 0.3)) {
+                if (valAtR < 200) {
+
+                    console.log(`Reinvesting after a significant drop.`)
+                    await i.transferUSDTFromSpotAccountToFuturesAccount(200)
+
+                } else if (fut.availableBalance > (valAtR * 0.3) && usdtSpot > 100) {
 
                     if ((i.intervalCounter - i.intervalCounterLastSell) > 10) {
                         console.log(`I buy some fancy shit.`)
-                        await i.binanceConnector.buyFuture('ETHUSDT', 0.1)
-                        await i.binanceConnector.buyFuture('BTCUSDT', 0.005)
                         await i.binanceConnector.buyFuture('BNBUSDT', 0.1)
-                        await i.binanceConnector.buyFuture('ADAUSDT', 1)
-                        await i.binanceConnector.buyFuture('LINKUSDT', 0.1)
+                        await i.binanceConnector.buyFuture('XMRUSDT', 1)
+                        await i.binanceConnector.buyFuture('ETHUSDT', 0.1)
                         await i.binanceConnector.buyFuture('BATUSDT', 20)
-                        await i.binanceConnector.buyFuture('DOTUSDT', 0.1)
+                        await i.binanceConnector.buyFuture('AAVEUSDT', 1)
+                        await i.binanceConnector.buyFuture('MKRUSDT', 0.01)
                         await i.binanceConnector.buyFuture('UNIUSDT', 10)
                         await i.binanceConnector.buyFuture('FILUSDT', 0.1)
-                        await i.binanceConnector.buyFuture('XMRUSDT', 1)
-                        await i.binanceConnector.buyFuture('AAVEUSDT', 1)
                         await i.binanceConnector.buyFuture('COMPUSDT', 1)
-                        await i.binanceConnector.buyFuture('MKRUSDT', 0.01)
+                        await i.binanceConnector.buyFuture('BTCUSDT', 0.005)
+                        await i.binanceConnector.buyFuture('ADAUSDT', 5)
+                        await i.binanceConnector.buyFuture('LINKUSDT', 5)
+                        await i.binanceConnector.buyFuture('DOTUSDT', 2)
                     } else {
-                        console.log(`hmm - intervalCounter: ${i.intervalCounterLastSell} - intervalCounter: ${i.intervalCounterLastSell}`)
+                        console.log(`hmm - intervalCounter: ${i.intervalCounterLastSell} - intervalCounterLastSell: ${i.intervalCounterLastSell}`)
                     }
 
 
                 } else if (Number(fut.availableBalance) === 0) {
-
                     console.log(`I need to sell something to reduce the liquidation risk.`)
-                    await i.binanceConnector.sellFuture('ETHUSDT', 0.1)
-                    await i.binanceConnector.sellFuture('BTCUSDT', 0.01)
-                    await i.binanceConnector.sellFuture('BNBUSDT', 0.1)
-                    await i.binanceConnector.sellFuture('ADAUSDT', 1)
-                    await i.binanceConnector.sellFuture('LINKUSDT', 0.1)
-                    await i.binanceConnector.sellFuture('BATUSDT', 20)
-                    await i.binanceConnector.sellFuture('DOTUSDT', 0.1)
-                    await i.binanceConnector.sellFuture('UNIUSDT', 10)
-                    await i.binanceConnector.sellFuture('FILUSDT', 1)
-                    await i.binanceConnector.sellFuture('XMRUSDT', 1)
-                    await i.binanceConnector.sellFuture('AAVEUSDT', 1)
-                    await i.binanceConnector.sellFuture('COMPUSDT', 1)
-                    await i.binanceConnector.sellFuture('MKRUSDT', 0.01)
+                    // const xPosition = fut.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
+                    await i.checkAndSell(fut, 'BNBUSDT', 0.1)
+                    await i.checkAndSell(fut, 'XMRUSDT', 1)
+                    await i.checkAndSell(fut, 'ETHUSDT', 0.1)
+                    await i.checkAndSell(fut, 'BATUSDT', 20)
+                    await i.checkAndSell(fut, 'AAVEUSDT', 1)
+                    await i.checkAndSell(fut, 'MKRUSDT', 0.01)
+                    await i.checkAndSell(fut, 'UNIUSDT', 10)
+                    await i.checkAndSell(fut, 'FILUSDT', 0.1)
+                    await i.checkAndSell(fut, 'COMPUSDT', 1)
+                    await i.checkAndSell(fut, 'BTCUSDT', 0.005)
+                    await i.checkAndSell(fut, 'ADAUSDT', 5)
+                    await i.checkAndSell(fut, 'LINKUSDT', 5)
+                    await i.checkAndSell(fut, 'DOTUSDT', 2)
+                    
                     i.intervalCounterLastSell = i.intervalCounter
                 } else if (fut.availableBalance < (valAtR * 0.05) && fut.availableBalance > 10) {
 
                     console.log(`Saving something as I made some significant gains.`)
                     await i.binanceConnector.transferFromUSDTFuturesToSpotAccount(10)
 
-                } else if (usdtSpot >= 400) {
+                } else if (usdtSpot >= 5000) {
                     const converter = new Converter(i.binanceConnector)
                     const currentPrices = await i.binanceConnector.getCurrentPrices()
 
-                    console.log(`I convert 100 USDT to BNB.`)
-                    await converter.convert(currentPrices, 100, 'BNBUSDT', 3)
-                    i.converted = i.converted + 100
-                } else if (valAtR < 200) {
-                    console.log(`Reinvesting after a significant drop.`)
-                    await i.transferUSDTFromSpotAccountToFuturesAccount(200)
-
-
-                    // } else if (bnbSpot >= 0.1) {
-                    //     // const converter = new Converter(i.binanceConnector)
-                    //     // await converter.withdraw('BNB', 0.1, targetBNBWallet)
+                    console.log(`I convert 1000 USDT to BNB.`)
+                    await converter.convert(currentPrices, 1000, 'BNBUSDT', 3)
+                    i.converted = i.converted + 1000
                 } else {
                     console.log('boring times')
                 }
@@ -97,6 +96,16 @@ export class Gambler {
                 console.log(`you can improve something: ${error.message}`)
             }
         }, 11 * 1000)
+    }
+
+    private async checkAndSell(fut: any, pair: string, amount: number) {
+        const xPosition = fut.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
+
+        console.log(xPosition.positionAmt)
+
+        if (xPosition.positionAmt > 0.01) {
+            await this.binanceConnector.sellFuture(pair, 0.1)
+        }
     }
 
     private async transferUSDTFromSpotAccountToFuturesAccount(investmentAmount: number) {
