@@ -64,22 +64,26 @@ export class Gambler {
                     await i.binanceConnector.sellFuture('COMPUSDT', 1)
                     await i.binanceConnector.sellFuture('MKRUSDT', 0.01)
 
-                } else if (fut.availableBalance < (valAtR * 0.01) && fut.availableBalance > 10) {
+                } else if (fut.availableBalance < (valAtR * 0.05) && fut.availableBalance > 10) {
 
                     console.log(`Saving something as I made some significant gains.`)
                     await i.binanceConnector.transferFromUSDTFuturesToSpotAccount(10)
 
-                } else if (usdtSpot >= 70) {
+                } else if (usdtSpot >= 400) {
                     const converter = new Converter(i.binanceConnector)
                     const currentPrices = await i.binanceConnector.getCurrentPrices()
 
-                    console.log(`I convert 70 USDT to BNB.`)
-                    await converter.convert(currentPrices, 70, 'BNBUSDT', 3)
-                    i.converted = i.converted + 70
+                    console.log(`I convert 100 USDT to BNB.`)
+                    await converter.convert(currentPrices, 100, 'BNBUSDT', 3)
+                    i.converted = i.converted + 100
+                } else if (valAtR < 200) {
+                    console.log(`Reinvesting after a significant drop.`)
+                    await i.transferUSDTFromSpotAccountToFuturesAccount(200)
 
-                } else if (bnbSpot >= 0.1) {
-                    const converter = new Converter(i.binanceConnector)
-                    await converter.withdraw('BNB', 0.1, targetBNBWallet)
+
+                    // } else if (bnbSpot >= 0.1) {
+                    //     // const converter = new Converter(i.binanceConnector)
+                    //     // await converter.withdraw('BNB', 0.1, targetBNBWallet)
                 } else {
                     console.log('boring times')
                 }
@@ -88,4 +92,17 @@ export class Gambler {
             }
         }, 11 * 1000)
     }
+
+    private async transferUSDTFromSpotAccountToFuturesAccount(investmentAmount: number) {
+
+        try {
+            const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
+            const transferAmount = (availableUSDTBalanceInSpotAccount < investmentAmount) ? availableUSDTBalanceInSpotAccount : investmentAmount
+
+            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(transferAmount)
+        } catch (error) {
+            console.log(`you might take a look into this: ${error.message}`)
+        }
+    }
+
 }
