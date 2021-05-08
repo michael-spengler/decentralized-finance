@@ -76,7 +76,7 @@ export class Gambler {
                     await i.checkAndSell(fut, 'LINKUSDT', 5)
                     await i.checkAndSell(fut, 'DOTUSDT', 2)
                     
-                    i.intervalCounterLastSell = i.intervalCounter
+                    i.intervalCounterLastSell = Number(i.intervalCounter) // hmm :) 
                 } else if (fut.availableBalance < (valAtR * 0.05) && fut.availableBalance > 10) {
 
                     console.log(`Saving something as I made some significant gains.`)
