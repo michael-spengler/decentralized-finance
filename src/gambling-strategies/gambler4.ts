@@ -36,6 +36,7 @@ export class Gambler {
 
                     console.log(`Reinvesting after a significant drop.`)
                     await i.transferUSDTFromSpotAccountToFuturesAccount(200)
+                    i.intervalCounterLastSell = -1
 
                 } else if (fut.availableBalance > (valAtR * 0.15) ) {
 
