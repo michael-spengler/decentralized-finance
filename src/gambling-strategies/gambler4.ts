@@ -1,11 +1,12 @@
 import { BinanceConnector } from "../binance/binance-connector"
 import { Converter } from "./converter"
+
+let intervalCounter: number = 0
+let intervalCounterLastSell: number = -1
 export class Gambler {
 
     private binanceConnector: BinanceConnector
     private converted: number = 0
-    private intervalCounter: number = 0
-    private intervalCounterLastSell: number = -1
     private spenglersListe: string[] = ['BNB', 'XMR', 'ETH', 'BAT', 'AAVE', 'MKR', 'UNI', 'FIL', 'COMP', 'BTC', 'ADA', 'LINK', 'DOT']
 
     public constructor(binanceApiKey: string, binanceApiSecret: string) {
@@ -20,7 +21,7 @@ export class Gambler {
         }
 
         setInterval(async () => {
-            i.intervalCounter++
+            intervalCounter++
             try {
                 const fut = await i.binanceConnector.getFuturesAccountData()
                 const twb = Number(fut.totalWalletBalance)
@@ -32,14 +33,14 @@ export class Gambler {
                 console.log('*******************************************************************************************************')
                 console.log(`bnbSpot: ${bnbSpot} - aB: ${fut.availableBalance} - valAtR: ${valAtR} - gains: ${valAtR + i.converted}`)
 
-                if (valAtR < 200 && usdtSpot > 100) {
+                if (valAtR < 500 && usdtSpot > 100) {
 
                     console.log(`Reinvesting after a significant drop.`)
-                    await i.transferUSDTFromSpotAccountToFuturesAccount(200)
+                    await i.transferUSDTFromSpotAccountToFuturesAccount(500)
 
                 } else if (fut.availableBalance > (valAtR * 0.15) ) {
 
-                    if ((i.intervalCounter - i.intervalCounterLastSell) > 10) {
+                    if ((intervalCounter - intervalCounterLastSell) > 10 || intervalCounterLastSell === -1) {
                         console.log(`I buy some fancy shit.`)
                         await i.binanceConnector.buyFuture('BNBUSDT', 0.1)
                         await i.binanceConnector.buyFuture('XMRUSDT', 1)
@@ -50,12 +51,12 @@ export class Gambler {
                         await i.binanceConnector.buyFuture('UNIUSDT', 10)
                         await i.binanceConnector.buyFuture('FILUSDT', 0.1)
                         await i.binanceConnector.buyFuture('COMPUSDT', 1)
-                        await i.binanceConnector.buyFuture('BTCUSDT', 0.005)
+                        await i.binanceConnector.buyFuture('BTCUSDT', 0.01)
                         await i.binanceConnector.buyFuture('ADAUSDT', 5)
                         await i.binanceConnector.buyFuture('LINKUSDT', 5)
                         await i.binanceConnector.buyFuture('DOTUSDT', 2)
                     } else {
-                        console.log(`hmm - intervalCounter: ${i.intervalCounterLastSell} - intervalCounterLastSell: ${i.intervalCounterLastSell}`)
+                        console.log(`hmm - intervalCounter: ${intervalCounter} - intervalCounterLastSell: ${intervalCounterLastSell}`)
                     }
 
 
@@ -70,12 +71,12 @@ export class Gambler {
                     await i.checkAndSell(fut, 'UNIUSDT', 10)
                     await i.checkAndSell(fut, 'FILUSDT', 0.1)
                     await i.checkAndSell(fut, 'COMPUSDT', 1)
-                    await i.checkAndSell(fut, 'BTCUSDT', 0.005)
+                    await i.checkAndSell(fut, 'BTCUSDT', 0.05)
                     await i.checkAndSell(fut, 'ADAUSDT', 5)
                     await i.checkAndSell(fut, 'LINKUSDT', 5)
                     await i.checkAndSell(fut, 'DOTUSDT', 2)
                     
-                    i.intervalCounterLastSell = i.intervalCounter
+                    intervalCounterLastSell = intervalCounter
                 } else if (fut.availableBalance < (valAtR * 0.05) && fut.availableBalance > 10) {
 
                     console.log(`Saving something as I made some significant gains.`)
