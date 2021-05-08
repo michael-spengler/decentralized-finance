@@ -32,12 +32,12 @@ export class Gambler {
                 console.log('*******************************************************************************************************')
                 console.log(`bnbSpot: ${bnbSpot} - aB: ${fut.availableBalance} - valAtR: ${valAtR} - gains: ${valAtR + i.converted}`)
 
-                if (valAtR < 200) {
+                if (valAtR < 200 && usdtSpot > 100) {
 
                     console.log(`Reinvesting after a significant drop.`)
                     await i.transferUSDTFromSpotAccountToFuturesAccount(200)
 
-                } else if (fut.availableBalance > (valAtR * 0.15) && usdtSpot > 100) {
+                } else if (fut.availableBalance > (valAtR * 0.15) ) {
 
                     if ((i.intervalCounter - i.intervalCounterLastSell) > 10) {
                         console.log(`I buy some fancy shit.`)
