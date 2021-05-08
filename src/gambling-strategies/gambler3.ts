@@ -65,11 +65,15 @@ export class Gambler {
                 } else if (fut.availableBalance < 2) { // this shall never happen
 
                     console.log(`I need to sell something to reduce the liquidation risk.`)
-                    await i.binanceConnector.sellFuture('ETHUSDT', 0.1)
-                    await i.binanceConnector.sellFuture('BTCUSDT', 0.01)
-                    await i.binanceConnector.sellFuture('BCHUSDT', 0.01)
-                    await i.binanceConnector.sellFuture('BNBUSDT', 0.1)
-                    await i.binanceConnector.sellFuture('ADAUSDT', 0.1)
+                    await i.binanceConnector.sellFuture('ETHUSDT', 0.2)
+                    await i.binanceConnector.sellFuture('BTCUSDT', 0.05)
+                    await i.binanceConnector.sellFuture('BNBUSDT', 0.2)
+                    await i.binanceConnector.sellFuture('ADAUSDT', 1)
+                    await i.binanceConnector.sellFuture('LINKUSDT', 0.1)
+                    await i.binanceConnector.sellFuture('BATUSDT', 5)
+                    await i.binanceConnector.sellFuture('DOTUSDT', 0.1)
+                    await i.binanceConnector.sellFuture('UNIUSDT', 1)
+                    await i.binanceConnector.sellFuture('FILUSDT', 0.1)
                     await i.binanceConnector.sellFuture('XMRUSDT', 0.1)
 
                 } else {

@@ -8,9 +8,9 @@ export class Converter {
         this.binanceConnector = binanceConnector
     }
 
-    public async withdraw(amountToBeWithdrawn: number, targetWallet: string) {
+    public async withdraw(symbol: string, amountToBeWithdrawn: number, targetWallet: string) {
 
-        await this.binanceConnector.withdraw('ETH', targetWallet, amountToBeWithdrawn)
+        await this.binanceConnector.withdraw(symbol, targetWallet, amountToBeWithdrawn)
 
     
     }
