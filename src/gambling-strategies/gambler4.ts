@@ -8,9 +8,10 @@ export class Gambler {
     private binanceConnector: BinanceConnector
     private minValAtRisk: number = 0
     private factor: number = 0
+    private buyPauseAfterSale: number = 0
     // private spenglersListe: string[] = ['BNB', 'XMR', 'ETH', 'BAT', 'AAVE', 'MKR', 'UNI', 'FIL', 'COMP', 'BTC', 'ADA', 'LINK', 'DOT']
 
-    public constructor(minValAtRisk: number, factor: number, binanceApiKey: string, binanceApiSecret: string) {
+    public constructor(minValAtRisk: number, factor: number, buyPauseAfterSale: number, binanceApiKey: string, binanceApiSecret: string) {
 
         if (binanceApiKey === undefined || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
@@ -19,6 +20,7 @@ export class Gambler {
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
         this.minValAtRisk = minValAtRisk
         this.factor = factor
+        this.buyPauseAfterSale = buyPauseAfterSale
     }
 
 
@@ -45,7 +47,7 @@ export class Gambler {
 
                 } else if (fut.availableBalance > (valAtR * this.factor) ) {
 
-                    if ((intervalCounter - intervalCounterLastSell) > 50 || intervalCounterLastSell === -1) {
+                    if ((intervalCounter - intervalCounterLastSell) > this.buyPauseAfterSale || intervalCounterLastSell === -1) {
                         console.log(`I buy some fancy shit.`)
                         await this.binanceConnector.buyFuture('BNBUSDT', 0.1)
                         await this.binanceConnector.buyFuture('XMRUSDT', 1)
