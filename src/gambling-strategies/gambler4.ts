@@ -6,11 +6,11 @@ let intervalCounterLastSell: number = -1
 export class Gambler {
 
     private binanceConnector: BinanceConnector
-    private converted: number = 0
     private minValAtRisk: number = 0
+    private factor: number = 0
     // private spenglersListe: string[] = ['BNB', 'XMR', 'ETH', 'BAT', 'AAVE', 'MKR', 'UNI', 'FIL', 'COMP', 'BTC', 'ADA', 'LINK', 'DOT']
 
-    public constructor(minValAtRisk: number, binanceApiKey: string, binanceApiSecret: string) {
+    public constructor(minValAtRisk: number, factor: number, binanceApiKey: string, binanceApiSecret: string) {
 
         if (binanceApiKey === undefined || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
@@ -18,6 +18,7 @@ export class Gambler {
 
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
         this.minValAtRisk = minValAtRisk
+        this.factor = factor
     }
 
 
@@ -35,14 +36,14 @@ export class Gambler {
                 // const ethSpot = await this.binanceConnector.getSpotBalance('ETH')
 
                 console.log('*******************************************************************************************************')
-                console.log(`usdtSpot: ${usdtSpot} - bnbSpot: ${bnbSpot} - aB: ${fut.availableBalance} - valAtR: ${valAtR} - gains: ${valAtR + this.converted}`)
+                console.log(`usdtSpot: ${usdtSpot} - bnbSpot: ${bnbSpot} - aB: ${fut.availableBalance} - valAtR: ${valAtR} - total: ${valAtR + usdtSpot + bnbSpot}`)
 
                 if (valAtR < this.minValAtRisk && usdtSpot >= 10) {
 
                     console.log(`Reinvesting after a significant drop.`)
                     await this.transferUSDTFromSpotAccountToFuturesAccount(this.minValAtRisk - valAtR)
 
-                } else if (fut.availableBalance > (valAtR * 0.17) ) {
+                } else if (fut.availableBalance > (valAtR * this.factor) ) {
 
                     if ((intervalCounter - intervalCounterLastSell) > 50 || intervalCounterLastSell === -1) {
                         console.log(`I buy some fancy shit.`)
@@ -93,7 +94,6 @@ export class Gambler {
 
                     console.log(`I convert 1000 USDT to BNB.`)
                     await converter.convert(currentPrices, 1000, 'BNBUSDT', 3)
-                    this.converted = this.converted + 1000
                 } else {
                     console.log('boring times')
                 }
