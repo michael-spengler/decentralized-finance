@@ -46,7 +46,7 @@ export class GoWithTheFlow {
                 console.log('*******************************************************************************************************')
                 console.log(`usdt: ${usdtSpot} - bnb: ${bnbSpot} - aB: ${fut.availableBalance} - vaR: ${valAtR} - start: ${this.startTotal} - total: ${valAtR + usdtSpot + bnbSpot}`)
 
-                if (fut.availableBalance > twb) {
+                if (fut.availableBalance > twb && fut.availableBalance > Number(fut.totalUnrealizedProfit)) {
 
                     console.log(`Saving something as I made some significant gains.`)
                     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(fut.availableBalance * 0.7)
@@ -68,7 +68,8 @@ export class GoWithTheFlow {
 
                     if ((intervalCounter - intervalCounterLastSell) > this.buyPauseAfterSale || intervalCounterLastSell === -1) {
                         console.log(`I buy some fancy shit.`)
-                        await this.binanceConnector.buyFuture(this.pair, this.tradeUnitSize) // there is a margin limit per position per account from binance 
+                        const r = await this.binanceConnector.buyFuture(this.pair, this.tradeUnitSize) // there is a margin limit per position per account from binance 
+                        console.log(r)
                     } else {
                         console.log(`hmm - intervalCounter: ${intervalCounter} - intervalCounterLastSell: ${intervalCounterLastSell}`)
                     }
