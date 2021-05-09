@@ -4,7 +4,7 @@ import { Converter } from "./converter"
 let intervalCounter: number = 0
 let intervalCounterLastSell: number = -1
 
-export class GoWithTheFlow {
+export class ShortScamsStrategy {
 
     private binanceConnector: BinanceConnector
     private minValAtRisk: number = 0
@@ -67,16 +67,16 @@ export class GoWithTheFlow {
                 } else if (fut.availableBalance > (valAtR * this.factor)) {
 
                     if ((intervalCounter - intervalCounterLastSell) > this.buyPauseAfterSale || intervalCounterLastSell === -1) {
-                        console.log(`I buy some fancy shit.`)
-                        await this.binanceConnector.buyFuture(this.pair, this.tradeUnitSize) // there is a margin limit per position per account from binance 
+                        console.log(`I short some shity shit.`)
+                        await this.binanceConnector.sellFuture(this.pair, this.tradeUnitSize) // there is a margin limit per position per account from binance 
                     } else {
                         console.log(`hmm - intervalCounter: ${intervalCounter} - intervalCounterLastSell: ${intervalCounterLastSell}`)
                     }
 
                 } else if (Number(fut.availableBalance) === 0) {
 
-                    console.log(`I need to sell something to reduce the liquidation risk.`)
-                    await this.checkAndSell(fut, this.pair, this.tradeUnitSize * 2)
+                    console.log(`I need to buy some shit back temporarily to reduce the liquidation risk.`)
+                    await this.checkAndBuy(fut, this.pair, this.tradeUnitSize * 2)
 
                     intervalCounterLastSell = intervalCounter
 
@@ -96,11 +96,11 @@ export class GoWithTheFlow {
         }, 11 * 1000)
     }
 
-    private async checkAndSell(fut: any, pair: string, amount: number) {
+    private async checkAndBuy(fut: any, pair: string, amount: number) {
         const xPosition = fut.positions.filter((entry: any) => entry.symbol === pair)[0]
 
-        if (Number(xPosition.positionAmt) > 0.01) {
-            await this.binanceConnector.sellFuture(pair, amount)
+        if (Number(xPosition.positionAmt) < 0) { // shall be the case for short positions
+            await this.binanceConnector.buyFuture(pair, amount)
         }
     }
 
