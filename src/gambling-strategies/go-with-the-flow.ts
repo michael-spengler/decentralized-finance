@@ -46,7 +46,7 @@ export class GoWithTheFlow {
                 console.log('*******************************************************************************************************')
                 console.log(`usdt: ${usdtSpot} - bnb: ${bnbSpot} - aB: ${fut.availableBalance} - vaR: ${valAtR} - start: ${this.startTotal} - total: ${valAtR + usdtSpot + bnbSpot}`)
 
-                if (fut.availableBalance > twb && fut.availableBalance > Number(fut.totalUnrealizedProfit)) {
+                if (fut.availableBalance > twb && fut.availableBalance > Number(fut.totalUnrealizedProfit) && fut.availableBalance > this.minValAtRisk) {
 
                     console.log(`Saving something as I made some significant gains.`)
                     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(fut.availableBalance * 0.7)
