@@ -69,7 +69,7 @@ export class GoWithTheFlow {
                     if ((intervalCounter - intervalCounterLastSell) > this.buyPauseAfterSale || intervalCounterLastSell === -1) {
                         console.log(`I buy some fancy shit.`)
                         const r = await this.binanceConnector.buyFuture(this.pair, this.tradeUnitSize) // there is a margin limit per position per account from binance 
-                        console.log(r)
+                        // console.log(r)
                     } else {
                         console.log(`hmm - intervalCounter: ${intervalCounter} - intervalCounterLastSell: ${intervalCounterLastSell}`)
                     }
