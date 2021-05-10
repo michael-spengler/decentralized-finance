@@ -1,6 +1,7 @@
-import { BinanceConnector } from "../binance/binance-connector"
-import { Player } from "./player"
-import { IBalPort, IPortfolio, PortfolioProvider } from "./portfolio-provider"
+import { BinanceConnector } from "../../binance/binance-connector"
+import { Player } from "../utilities/player"
+
+import { IBalPort, IPortfolio, PortfolioProvider } from "../utilities/portfolio-provider"
 
 export class Gambler {
 

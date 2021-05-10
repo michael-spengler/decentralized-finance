@@ -1,4 +1,5 @@
-import { GoWithTheFlow } from "./go-with-the-flow"
+import { GoWithTheFlow } from "./archive/go-with-the-flow"
+
 
 const pair = process.argv[2] // e.g. BTCUSDT
 const tradeUnitSize = Number(process.argv[3]) // e.g. 0.01

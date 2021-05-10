@@ -1,5 +1,5 @@
-import { BinanceConnector } from "../binance/binance-connector"
-import { Converter } from "./converter"
+import { BinanceConnector } from "../../binance/binance-connector"
+import { Converter } from "../utilities/converter"
 
 let intervalCounter: number = 0
 let intervalCounterLastSell: number = -1

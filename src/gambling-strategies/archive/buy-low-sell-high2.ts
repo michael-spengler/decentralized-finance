@@ -1,9 +1,9 @@
+import { BinanceConnector } from "../../binance/binance-connector"
 
-const binanceApiKey = process.argv[2] // check your profile on binance.com --> API Management
-const binanceApiSecret = process.argv[3] // check your profile on binance.com --> API Management
-const pair = process.argv[4] // e.g. ETHUSDT or BTCUSDT
+const pair = process.argv[2] // e.g. ETHUSDT or BTCUSDT
+const binanceApiKey = process.argv[3] // check your profile on binance.com --> API Management
+const binanceApiSecret = process.argv[4] // check your profile on binance.com --> API Management
 
-import { BinanceConnector } from "../binance/binance-connector"
 
 export class BuyLowSellHighGambler {
 
@@ -39,10 +39,10 @@ export class BuyLowSellHighGambler {
             await this.binanceConnector.transferFromSpotAccountToUSDTFutures(50)
         }
 
-        let theBuyFactor = lowestSinceX / 1000
-        const theSellFactor = highestSinceX / 1000
+        let theBuyFactor = lowestSinceX / 100
+        const theSellFactor = highestSinceX / 100
 
-        theBuyFactor = (theBuyFactor > 0.1) ? 0.1 : theBuyFactor
+        theBuyFactor = (theBuyFactor > 0.2) ? 0.2 : theBuyFactor
 
         if (lowestSinceX >= 5) {
             const amountToBeInvested = Number((((Number(accountData.availableBalance)) / price) * theBuyFactor).toFixed(3))
@@ -50,9 +50,9 @@ export class BuyLowSellHighGambler {
                 console.log(`amountToBeInvested: ${amountToBeInvested}`)
                 await this.binanceConnector.buyFuture(pair, amountToBeInvested)
             } else {
-                console.log(`below minimum buy amount of 0.001 with theBuyFactor: ${theBuyFactor}`)
+                console.log(`${amountToBeInvested} is below minimum buy amount of 0.001 with theBuyFactor: ${theBuyFactor}`)
             }
-        } else if (highestSinceX >= 5 && Number(accountData.totalUnrealizedProfit) > 2) {
+        } else if (highestSinceX >= 5) {
             const xPosition = accountData.positions.filter((entry: any) => entry.symbol === pair)[0]
             let amountToBeSold = Number(((Number(xPosition.positionAmt)) * theSellFactor).toFixed(3))
             amountToBeSold = (amountToBeSold <= Number(xPosition.positionAmt)) ? amountToBeSold : Number(xPosition.positionAmt)

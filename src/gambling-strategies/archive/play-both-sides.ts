@@ -1,4 +1,5 @@
-import { BinanceConnector } from "../binance/binance-connector"
+import { BinanceConnector } from "../../binance/binance-connector"
+
 
 const pair = process.argv[6] // e.g. ETHUSDT or BTCUSDT
 const takeProfitLimit = Number(process.argv[7]) // e.g. 3

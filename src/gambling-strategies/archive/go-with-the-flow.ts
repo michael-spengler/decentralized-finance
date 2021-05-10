@@ -1,5 +1,5 @@
-import { BinanceConnector } from "../binance/binance-connector"
-import { Converter } from "./converter"
+import { BinanceConnector } from "../../binance/binance-connector"
+import { Converter } from "../utilities/converter"
 
 let intervalCounter: number = 0
 let intervalCounterLastSell: number = -1
@@ -62,7 +62,8 @@ export class GoWithTheFlow {
                 } else if (valAtR < this.minValAtRisk && usdtSpot >= 10) {
 
                     console.log(`Reinvesting after a significant drop.`)
-                    await this.transferUSDTFromSpotAccountToFuturesAccount(this.minValAtRisk - valAtR)
+                    const r = await this.transferUSDTFromSpotAccountToFuturesAccount(this.minValAtRisk - valAtR)
+                    console.log(r)
 
                 } else if (fut.availableBalance > (valAtR * this.factor)) {
 

@@ -1,4 +1,4 @@
-import { BinanceConnector } from "../binance/binance-connector"
+import { BinanceConnector } from "../../binance/binance-connector"
 
 export class Converter {
 

@@ -4,8 +4,8 @@ const highInterval = Number(process.argv[3]) // check your profile on binance.co
 const binanceApiKey = process.argv[4] // check your profile on binance.com --> API Management
 const binanceApiSecret = process.argv[5] // check your profile on binance.com --> API Management
 
-import { BinanceConnector } from "../binance/binance-connector"
-import { getHighestPriceOfRecentXIntervals, getLowestPriceOfRecentXIntervals } from "./utils"
+import { BinanceConnector } from "../../binance/binance-connector"
+import { getHighestPriceOfRecentXIntervals, getLowestPriceOfRecentXIntervals } from "../utils"
 
 
 export class BuyLowSellHighGambler {

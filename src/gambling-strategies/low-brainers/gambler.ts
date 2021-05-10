@@ -1,6 +1,6 @@
-import { BinanceConnector } from "../binance/binance-connector"
-import { Player } from "./player"
-import { IBalPort, IPortfolio, PortfolioProvider } from "./portfolio-provider"
+import { BinanceConnector } from "../../binance/binance-connector"
+import { Player } from "../utilities/player"
+import { IBalPort, IPortfolio, PortfolioProvider } from "../utilities/portfolio-provider"
 
 export class Gambler {
 
@@ -91,8 +91,8 @@ export class Gambler {
                 await this.sell(0.5)
             }
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
-            if (this.intervalCounter > 1200) {
-            // if (this.intervalCounter > 12) {
+            // if (this.intervalCounter > 1200) {
+            if (this.intervalCounter > 12) {
                 if (cPP === lowestPrice900_1200) {
                     await this.buy(currentPrices, accountData, 0.1)
                     console.log(`I bought with factor 0.1`)

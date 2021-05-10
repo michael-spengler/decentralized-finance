@@ -1,5 +1,6 @@
-import { BinanceConnector } from "../binance/binance-connector"
-import { Converter } from "./converter"
+import { BinanceConnector } from "../../binance/binance-connector"
+import { Converter } from "../utilities/converter"
+
 export class Gambler {
 
     private binanceConnector: BinanceConnector

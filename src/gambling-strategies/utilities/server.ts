@@ -1,4 +1,4 @@
-import { BinanceConnector } from "../binance/binance-connector";
+import { BinanceConnector } from "../../binance/binance-connector";
 const fse = require('fs-extra')
 const fs = require('fs');
 const express = require('express');

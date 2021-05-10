@@ -1,5 +1,6 @@
-import { BinanceConnector } from "../binance/binance-connector"
-import { Player } from "./player"
+
+import { BinanceConnector } from "../../binance/binance-connector"
+import { Player } from "../utilities/player"
 
 export interface IList {
     pairName: string
