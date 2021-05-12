@@ -46,7 +46,7 @@ export class JumpStarter {
             console.log(`emergency selling 10 Percent`)
             await this.sell(0.1)
             Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
-            
+
         } else if (Number(xPosition.positionAmt) >= 0) {
 
             if (lowestPriceSince >= 50) {
@@ -78,6 +78,8 @@ export class JumpStarter {
                 await this.sell(0.1)
                 Player.playMP3(`${__dirname}/../../sounds/game-new-level.mp3`)
 
+            } else {
+                this.stimmungsbarometer = 0
             }
 
         } else if (Number(accountData.availableBalance) > 1000) {
