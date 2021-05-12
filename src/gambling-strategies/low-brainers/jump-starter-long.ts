@@ -67,9 +67,11 @@ export class JumpStarter {
             } else if (highestPriceSince >= 50) {
 
                 this.stimmungsbarometer = this.stimmungsbarometer + 2
-                console.log(`time to follow the severe upwards momentum - buying at ${currentPrice}`)
-                this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
-                Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`)
+                if (this.stimmungsbarometer > 4) {
+                    console.log(`time to follow the severe upwards momentum - buying at ${currentPrice}`)
+                    this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
+                    Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`)
+                }
 
             } else if (highestPriceSince > 30 && Number(xPosition.unrealizedProfit) > 5) {
 
