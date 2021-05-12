@@ -33,6 +33,8 @@ export class Gambler {
         if (lrToBuy < 0.6 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
         }
+
+
         setInterval(async () => {
             i.intervalCounter++
 
@@ -61,14 +63,16 @@ export class Gambler {
         const highestPrice3_8 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(3, 8)
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
-        
+        if (this.intervalCounter === 2) {
+            await this.adjustLeverageEffect(accountData)
+        }
         if (this.writeStats) {
 
             if (this.statistics.length > 500000) {
                 this.statistics.shift()
             }
-    
-            this.statistics.push({balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit), portfolioPriceInUSDT: cPV})
+
+            this.statistics.push({ balanceInUSDT: Number(usdtBalanceOnSpot) + Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit), portfolioPriceInUSDT: cPV })
             await this.portfolioProvider.saveStatistics(this.statistics)
         }
 
@@ -131,6 +135,31 @@ export class Gambler {
             const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
             const value = Number(accountData.totalWalletBalance) + availableUSDTBalanceInSpotAccount + Number(accountData.totalUnrealizedProfit)
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TVL: ${value}`)
+        }
+    }
+    public async adjustLeverageEffect(accountData: any) {
+
+        const leverageEntries = await this.binanceConnector.futuresLeverageBracket()
+
+        // console.log(accountData.positions[0])
+        // console.log(JSON.stringify(leverageEntries[1]))
+
+        for (const p of accountData.positions) {
+            if (p.positionAmt > 0) {
+
+                const leverageInfo = leverageEntries.filter((e: any) => e.symbol == p.symbol)[0]
+                if (leverageInfo !== undefined) {
+                    console.log(p.symbol)
+
+                    let maxLeverageForPosition = leverageEntries.filter((e: any) => e.symbol === p.symbol)[0].brackets[0].initialLeverage
+                    console.log(`adjusting leverage of ${p.symbol} to ${maxLeverageForPosition}`)
+                    await this.binanceConnector.futuresLeverage(p.symbol, maxLeverageForPosition)
+                } else {
+                    console.log(p.symbol)
+                }
+
+
+            }
         }
     }
 

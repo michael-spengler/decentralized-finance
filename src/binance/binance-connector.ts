@@ -15,6 +15,28 @@ export class BinanceConnector {
         })
     }
 
+    public async get24HoursPrices() {
+        return this.binance.candlesticks("ETHUSDT", "1m")
+        // this.binance.candlesticks("ETHUSDT", "1m", (error: any, ticks: any, symbol: string) => {
+        //     console.info("candlesticks()", ticks);
+        //     let last_tick = ticks[ticks.length - 1];
+        //     let [time, open, high, low, close, volume, closeTime, assetVolume, trades, buyBaseVolume, buyAssetVolume, ignored] = last_tick;
+            
+        //     console.info(symbol+" last close: "+close);
+
+        //     if (error){
+        //         //
+        //     }
+        //   }, {limit: 500, endTime: 1514764800000});
+    }
+
+    public async futuresLeverageBracket() {
+        return this.binance.futuresLeverageBracket()
+    }
+
+    public async futuresLeverage(symbol: string, amount: number) {
+        return this.binance.futuresLeverage(symbol, amount)
+    }
     public async getCurrentPrices(): Promise<any[]> {
 
         const pricesResult = await this.binance.prices();
@@ -67,7 +89,7 @@ export class BinanceConnector {
         try {
             const r = await this.binance.withdraw(symbol, targetWallet, amount)
             console.log(r)
-        } catch(error){
+        } catch (error) {
             console.log(error.message)
         }
     }

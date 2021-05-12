@@ -44,7 +44,6 @@ export class PortfolioProvider {
 
     public getCurrentPortfolioValue(positions: any[], currentPrices: any) {
 
-
         let portfolioValue = 0
         for (const p of positions) {
             if (p.positionAmt > 0) {
