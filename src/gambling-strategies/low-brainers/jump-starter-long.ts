@@ -43,6 +43,7 @@ export class JumpStarter {
 
 
         console.log(`lowestSince: ${lowestPriceSince} - highestSince: ${highestPriceSince} - unrP: ${xPosition.unrealizedProfit} - availableBalance: ${accountData.availableBalance}`)
+        console.log(`limit: ${this.limit} - transferLimit: ${transferLimit} - unrP: ${xPosition.unrealizedProfit} - availableBalance: ${accountData.availableBalance}`)
 
         if (Number(accountData.availableBalance) < 1) {
 
@@ -50,9 +51,9 @@ export class JumpStarter {
             await this.sell(0.1)
             Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
 
-        } else if (Number(xPosition.positionAmt) >= 0) {
+        } else {
 
-            if (lowestPriceSince >= this.limit) {
+            if (lowestPriceSince >= this.limit && Number(xPosition.positionAmt) >= this.tradingUnit) {
                 console.log(`time to follow the severe downwards momentum - selling 70 percent at ${currentPrice}`)
                 this.sell(0.7)
                 Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
@@ -69,7 +70,7 @@ export class JumpStarter {
                 this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
                 Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`)
 
-            } else if (highestPriceSince > this.limit * 0.5 && Number(xPosition.unrealizedProfit) > 5) {
+            } else if (highestPriceSince > this.limit * 0.5 && Number(xPosition.unrealizedProfit) > 5 && Number(xPosition.positionAmt) >= this.tradingUnit) {
 
                 console.log(`time to sell at ${currentPrice}`)
                 await this.sell(0.1)
@@ -77,10 +78,12 @@ export class JumpStarter {
 
             }
 
-        } else if (Number(accountData.availableBalance) > this.transferLimit) {
 
-            await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(this.transferLimit * 0.1)
+            if (Number(accountData.availableBalance) > this.transferLimit) {
 
+                await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(this.transferLimit * 0.1)
+
+            }
         }
 
 
