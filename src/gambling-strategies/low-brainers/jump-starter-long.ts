@@ -10,13 +10,16 @@ export class JumpStarter {
     private portfolioProvider: PortfolioProvider
     private tradingUnit: number
     private pair: string
-    private stimmungsbarometer: number = 0
+    private transferLimit: number = 0
+    private limit: number = 0
 
-    public constructor(apiKey: string, apiSecret: string, tradingUnit: number, pair: string) {
+    public constructor(apiKey: string, apiSecret: string, tradingUnit: number, pair: string, limit = 40, transferLimit = 1000) {
         this.binanceConnector = new BinanceConnector(apiKey, apiSecret)
         this.portfolioProvider = new PortfolioProvider()
         this.tradingUnit = tradingUnit
         this.pair = pair
+        this.transferLimit = transferLimit
+        this.limit = limit
     }
 
     public async investWisely(): Promise<void> {
@@ -27,7 +30,7 @@ export class JumpStarter {
 
         // const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
 
-        console.log(`currentPrice: ${currentPrice} - stimmungsbarometer: ${this.stimmungsbarometer}`)
+        console.log(`currentPrice: ${currentPrice}`)
 
         if (this.historicData.length === 500000) {
             this.historicData.splice(this.historicData.length - 1, 1)
@@ -49,44 +52,34 @@ export class JumpStarter {
 
         } else if (Number(xPosition.positionAmt) >= 0) {
 
-            if (lowestPriceSince >= 50) {
-                this.stimmungsbarometer = this.stimmungsbarometer - 2
-                if (this.stimmungsbarometer < -4) {
-                    console.log(`time to follow the severe downwards momentum - selling 70 percent at ${currentPrice}`)
-                    this.sell(0.7)
-                    Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
-                }
+            if (lowestPriceSince >= this.limit) {
+                console.log(`time to follow the severe downwards momentum - selling 70 percent at ${currentPrice}`)
+                this.sell(0.7)
+                Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
 
-            } else if (lowestPriceSince > 20) {
+            } else if (lowestPriceSince > this.limit * 0.3) {
 
-                this.stimmungsbarometer = this.stimmungsbarometer - 1
                 console.log(`time to start the jump - buying at ${currentPrice}`)
                 this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
                 Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
 
-            } else if (highestPriceSince >= 50) {
+            } else if (highestPriceSince >= this.limit) {
 
-                this.stimmungsbarometer = this.stimmungsbarometer + 2
-                if (this.stimmungsbarometer > 4) {
-                    console.log(`time to follow the severe upwards momentum - buying at ${currentPrice}`)
-                    this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
-                    Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`)
-                }
+                console.log(`time to follow the severe upwards momentum - buying at ${currentPrice}`)
+                this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
+                Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`)
 
-            } else if (highestPriceSince > 30 && Number(xPosition.unrealizedProfit) > 5) {
+            } else if (highestPriceSince > this.limit * 0.5 && Number(xPosition.unrealizedProfit) > 5) {
 
-                this.stimmungsbarometer = this.stimmungsbarometer + 1
                 console.log(`time to sell at ${currentPrice}`)
                 await this.sell(0.1)
                 Player.playMP3(`${__dirname}/../../sounds/game-new-level.mp3`)
 
-            } else {
-                this.stimmungsbarometer = 0
             }
 
-        } else if (Number(accountData.availableBalance) > 1000) {
+        } else if (Number(accountData.availableBalance) > this.transferLimit) {
 
-            await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(100)
+            await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(this.transferLimit * 0.1)
 
         }
 
@@ -143,11 +136,12 @@ export class JumpStarter {
 const binanceApiKey = process.argv[2] // check your profile on binance.com --> API Management
 const binanceApiSecret = process.argv[3] // check your profile on binance.com --> API Management
 
-const tradingUnit = 0.007
-const pair = 'ETHUSDT'
+const tradingUnit = Number(process.argv[4]) // e.g. 0.007
+const pair = process.argv[5] // e.g. 'ETHUSDT'
+const limit = Number(process.argv[6]) // e.g. 50
+const transferLimit = Number(process.argv[7]) // e.g. 1000
 
-
-const jumpStarter = new JumpStarter(binanceApiKey, binanceApiSecret, tradingUnit, pair)
+const jumpStarter = new JumpStarter(binanceApiKey, binanceApiSecret, tradingUnit, pair, limit, transferLimit)
 
 
 setInterval(async () => {
