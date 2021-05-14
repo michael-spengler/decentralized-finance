@@ -86,7 +86,11 @@ export class Gambler {
         //     console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             // await this.sell(0.1)
             // await this.saveSomething(currentPrices, accountData)
-        } else if (liquidityRatio <= this.liquidityRatioToSell) {
+        } 
+        // else if (Number(accountData.totalUnrealizedProfit) > 100) {
+        //     console.log(JSON.stringify(accountData.positions[0])
+        // }
+         else if (liquidityRatio <= this.liquidityRatioToSell) {
             if (liquidityRatio <= (this.liquidityRatioToSell * 0.9)) {
                 await this.sell(0.8)
                 console.log(`selling 95% of assets as it looks like a very strong dip`)
@@ -134,7 +138,13 @@ export class Gambler {
         } else {
             const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
             const value = Number(accountData.totalWalletBalance) + availableUSDTBalanceInSpotAccount + Number(accountData.totalUnrealizedProfit)
-            console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TVL: ${value}`)
+
+            if (value > 200) {
+                console.log(`Saving something due to high TVL of ${value}`)
+                await this.saveSomething(currentPrices, accountData)
+            } else {
+                console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TVL: ${value}`)
+            }
         }
     }
     public async adjustLeverageEffect(accountData: any) {
