@@ -81,10 +81,10 @@ export class Gambler {
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
             console.log(`I transfer USDT from Spot Account to Futures Account e.g. after a serious drop which resulted in a low wallet ballance.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
-        } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
-            console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
-            console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
-            await this.sell(0.1)
+        // } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
+        //     console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
+        //     console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
+            // await this.sell(0.1)
             // await this.saveSomething(currentPrices, accountData)
         } else if (liquidityRatio <= this.liquidityRatioToSell) {
             if (liquidityRatio <= (this.liquidityRatioToSell * 0.9)) {
