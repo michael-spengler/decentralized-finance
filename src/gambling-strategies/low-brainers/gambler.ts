@@ -139,8 +139,8 @@ export class Gambler {
             const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
             const value = Number(accountData.totalWalletBalance) + availableUSDTBalanceInSpotAccount + Number(accountData.totalUnrealizedProfit)
 
-            if (value > 200) {
-                console.log(`Saving something due to high TVL of ${value}`)
+            if (Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit) > this.investmentAmount * 3) {
+                console.log(`Saving something due to high value at risk`)
                 await this.saveSomething(currentPrices, accountData)
             } else {
                 console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TVL: ${value}`)
