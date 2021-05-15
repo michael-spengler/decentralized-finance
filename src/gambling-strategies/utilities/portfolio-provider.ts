@@ -209,9 +209,9 @@ export class PortfolioProvider {
     // }
 
     private preparePortfolioList() {
-        this.portfolio.push({ pairName: "ETHUSDT", percentage: 10, decimalPlaces: 2 })
-        this.portfolio.push({ pairName: "BTCUSDT", percentage: 10, decimalPlaces: 3 })
-        this.portfolio.push({ pairName: "BNBUSDT", percentage: 10, decimalPlaces: 2 })
+        this.portfolio.push({ pairName: "ETHUSDT", percentage: 15, decimalPlaces: 2 })
+        this.portfolio.push({ pairName: "BTCUSDT", percentage: 8, decimalPlaces: 3 })
+        this.portfolio.push({ pairName: "BNBUSDT", percentage: 7, decimalPlaces: 2 })
         this.portfolio.push({ pairName: "COMPUSDT", percentage: 5, decimalPlaces: 2 })
         this.portfolio.push({ pairName: "UNIUSDT", percentage: 5, decimalPlaces: 0 })
         this.portfolio.push({ pairName: "ADAUSDT", percentage: 3, decimalPlaces: 0 })
