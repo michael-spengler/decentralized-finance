@@ -123,8 +123,8 @@ export class Gambler {
             if (cPP < highestPrice3_8) {
                 console.log(`I'm seeking to reduce my risk as soon as soon as I hit the highest relative price.`)
             } else {
-                console.log(`gently reducing the risk by selling 10%`)
-                await this.sell(0.1)
+                console.log(`gently reducing the risk by selling 7%`)
+                await this.sell(0.07)
             }
         } else if ((Number(accountData.totalUnrealizedProfit)) < ((Number(accountData.totalWalletBalance) * -1) / 2)) {
             console.log(`unfortunately it seems time to realize some losses. I'm selling 10 Percent of my assets.`)

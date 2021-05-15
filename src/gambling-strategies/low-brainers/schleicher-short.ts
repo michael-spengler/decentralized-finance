@@ -2,15 +2,13 @@ import { BinanceConnector } from "../../binance/binance-connector"
 import { Player } from "../utilities/player"
 import { PortfolioProvider } from "../utilities/portfolio-provider"
 
-
-export class JumpStarter {
+export class SchleicherShort {
 
     private binanceConnector: BinanceConnector
     private historicData: any[] = []
     private portfolioProvider: PortfolioProvider
     private tradingUnit: number
     private pair: string
-    private stimmungsbarometer: number = 0
 
     public constructor(apiKey: string, apiSecret: string, tradingUnit: number, pair: string) {
         this.binanceConnector = new BinanceConnector(apiKey, apiSecret)
@@ -27,7 +25,7 @@ export class JumpStarter {
 
         // const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
 
-        console.log(`currentPrice: ${currentPrice} - stimmungsbarometer: ${this.stimmungsbarometer}`)
+        console.log(`currentPrice: ${currentPrice}`)
 
         if (this.historicData.length === 500000) {
             this.historicData.splice(this.historicData.length - 1, 1)
@@ -39,26 +37,39 @@ export class JumpStarter {
         const highestPriceSince = this.getIsHighestSinceX(currentPrice)
 
 
-        console.log(`lowestSince: ${lowestPriceSince} - highestSince: ${highestPriceSince} - unrP: ${xPosition.unrealizedProfit} - availableBalance: ${accountData.availableBalance}`)
+        console.log(`lS: ${lowestPriceSince} - hS: ${highestPriceSince} - unrP: ${xPosition.unrealizedProfit} - avB: ${accountData.availableBalance} - posAmt: ${xPosition.positionAmt}`)
 
-        if (Number(accountData.availableBalance) < 1) {
-
-            console.log(`emergency buying`)
-            await this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
-            Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
-
-        } else if (Number(xPosition.positionAmt) <= 0) {
-
-
-        } else if (Number(accountData.availableBalance) > 1000) {
-
-            await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(100)
-
+        if (Number(xPosition.unrealizedProfit) > 10) {
+            console.log(`time to buy back some of the shit`)
+            this.binanceConnector.buyFuture(pair, Number((Number(xPosition.positionAmt) * 0.4).toFixed(0)))
+        } else if (Number(xPosition.unrealizedProfit) < -1) {
+            console.log(`this time you fucked it up - time to buy back most of the shit`)
+            this.binanceConnector.buyFuture(pair, Number((Number(xPosition.positionAmt) * 0.9).toFixed(0)))
+        } else {
+            if (highestPriceSince >= 300 && Number(xPosition.positionAmt) > this.tradingUnit * 8 * -1) {
+                console.log(`time to go short`)
+                this.binanceConnector.sellFuture(pair, this.tradingUnit)
+            } else if (Number(accountData.availableBalance) > 65) {
+                console.log(`time to save something`)
+                await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(5)
+            } else {
+                console.log(`boring times`)
+            }
         }
+        // if (Number(accountData.availableBalance) < 1) {
+
+        //     console.log(`emergency buying`)
+        //     await this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
+        //     Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
+
+        // } else if (Number(xPosition.positionAmt) <= 0) {
 
 
+        // } else if (Number(accountData.availableBalance) > 1000) {
 
+        //     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(100)
 
+        // }
 
     }
 
@@ -109,11 +120,14 @@ export class JumpStarter {
 const binanceApiKey = process.argv[2] // check your profile on binance.com --> API Management
 const binanceApiSecret = process.argv[3] // check your profile on binance.com --> API Management
 
-const tradingUnit = 0.007
-const pair = 'ETHUSDT'
+// const pair = 'ETHUSDT'
+// const tradingUnit = 0.007
+
+const pair = 'DOGEUSDT'
+const tradingUnit = 100
 
 
-const jumpStarter = new JumpStarter(binanceApiKey, binanceApiSecret, tradingUnit, pair)
+const jumpStarter = new SchleicherShort(binanceApiKey, binanceApiSecret, tradingUnit, pair)
 
 
 setInterval(async () => {
