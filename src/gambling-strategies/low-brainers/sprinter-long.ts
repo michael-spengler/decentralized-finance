@@ -46,7 +46,7 @@ export class SprinterLong
             console.log(`time to sell some of the assets`)
             this.binanceConnector.sellFuture(pair, Number((Number(xPosition.positionAmt) * 0.8).toFixed(this.decimalPlacesOfPair)))
         } else {
-            if (lowestPriceSince >= 300 && Number(xPosition.positionAmt) > this.tradingUnit * 8 * -1 && Number(accountData.availableBalance) > 65) {
+            if ((lowestPriceSince >= 300 || this.historicData.length === 1) && Number(xPosition.positionAmt) > this.tradingUnit * 8 * -1 && Number(accountData.availableBalance) > 65) {
                 console.log(`time to go long`)
                 this.binanceConnector.buyFuture(pair, this.tradingUnit)
             } else if (Number(accountData.availableBalance) > 65) {
