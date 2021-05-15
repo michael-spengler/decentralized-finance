@@ -39,12 +39,9 @@ export class SchleicherShort {
 
         console.log(`lS: ${lowestPriceSince} - hS: ${highestPriceSince} - unrP: ${xPosition.unrealizedProfit} - avB: ${accountData.availableBalance} - posAmt: ${xPosition.positionAmt}`)
 
-        if (Number(xPosition.unrealizedProfit) > 10) {
+        if (Number(xPosition.unrealizedProfit) < -1) {
             console.log(`time to buy back some of the shit`)
-            this.binanceConnector.buyFuture(pair, Number((Number(xPosition.positionAmt) * 0.4).toFixed(0)))
-        } else if (Number(xPosition.unrealizedProfit) < -1) {
-            console.log(`this time you fucked it up - time to buy back most of the shit`)
-            this.binanceConnector.buyFuture(pair, Number((Number(xPosition.positionAmt) * 0.9).toFixed(0)))
+            this.binanceConnector.buyFuture(pair, Number((Number(xPosition.positionAmt) * 0.5).toFixed(0)))
         } else {
             if (highestPriceSince >= 300 && Number(xPosition.positionAmt) > this.tradingUnit * 8 * -1) {
                 console.log(`time to go short`)
@@ -56,20 +53,6 @@ export class SchleicherShort {
                 console.log(`boring times`)
             }
         }
-        // if (Number(accountData.availableBalance) < 1) {
-
-        //     console.log(`emergency buying`)
-        //     await this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
-        //     Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
-
-        // } else if (Number(xPosition.positionAmt) <= 0) {
-
-
-        // } else if (Number(accountData.availableBalance) > 1000) {
-
-        //     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(100)
-
-        // }
 
     }
 
