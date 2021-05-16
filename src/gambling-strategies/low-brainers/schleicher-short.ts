@@ -39,14 +39,16 @@ export class SchleicherShort {
 
         console.log(`lS: ${lowestPriceSince} - hS: ${highestPriceSince} - unrP: ${xPosition.unrealizedProfit} - avB: ${accountData.availableBalance} - posAmt: ${xPosition.positionAmt}`)
 
+        const pricePerTradingUnit = currentPrice * this.tradingUnit
+
         if (Number(xPosition.unrealizedProfit) < -1) {
             console.log(`time to buy back some of the shit`)
             this.binanceConnector.buyFuture(pair, Number((Number(xPosition.positionAmt) * 0.5).toFixed(0)))
         } else {
-            if (highestPriceSince >= 300 && Number(xPosition.positionAmt) > this.tradingUnit * 8 * -1) {
+            if (highestPriceSince >= 300 && Number(xPosition.positionAmt) > this.tradingUnit * 8 * -1 && Number(accountData.availableBalance) > pricePerTradingUnit / 5) {
                 console.log(`time to go short`)
                 this.binanceConnector.sellFuture(pair, this.tradingUnit)
-            } else if (Number(accountData.availableBalance) > 65) {
+            } else if (Number(accountData.availableBalance) > pricePerTradingUnit / 2) {
                 console.log(`time to save something`)
                 await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(5)
             } else {

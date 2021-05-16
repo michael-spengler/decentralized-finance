@@ -44,7 +44,6 @@ export class SprinterLong
 
         const pricePerTradingUnit = currentPrice * this.tradingUnit
 
-        console.log(pricePerTradingUnit)
         if (Number(accountData.availableBalance) < 2) {
             console.log(`time to sell some of the assets`)
             this.binanceConnector.sellFuture(pair, Number((Number(xPosition.positionAmt) * 0.8).toFixed(this.decimalPlacesOfPair)))
