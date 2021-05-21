@@ -101,13 +101,17 @@ export class Gambler {
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
             if (this.intervalCounter > 1200) {
             // if (this.intervalCounter > 12) {
-                if (cPP === lowestPrice900_1200) {
-                    await this.buy(currentPrices, accountData, 0.7)
-                    console.log(`I bought with factor 0.7`)
+                if (cPP === lowestPrice300000_400000){
+                    await this.buy(currentPrices, accountData, 0.1)
+                    console.log(`I bought with factor 0.1`)
                     await this.saveSomething(currentPrices, accountData)
-                } else if (cPP === lowestPrice300_500) {
+                } else if (cPP === lowestPrice900_1200) {
                     await this.buy(currentPrices, accountData, 0.05)
                     console.log(`I bought with factor 0.05`)
+                    await this.saveSomething(currentPrices, accountData)
+                } else if (cPP === lowestPrice300_500) {
+                    await this.buy(currentPrices, accountData, 0.03)
+                    console.log(`I bought with factor 0.03`)
                     await this.saveSomething(currentPrices, accountData)
                 } else if (cPP === lowestPrice80_100) {
                     await this.buy(currentPrices, accountData, 0.02)
@@ -133,13 +137,13 @@ export class Gambler {
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.2)
         } else {
             const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
-            const value = Number(accountData.totalWalletBalance) + availableUSDTBalanceInSpotAccount + Number(accountData.totalUnrealizedProfit)
+            const totalGamblingValue = Number(accountData.totalWalletBalance) + availableUSDTBalanceInSpotAccount + Number(accountData.totalUnrealizedProfit)
 
             if (Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit) > this.investmentAmount * 3) {
                 console.log(`Saving something due to high value at risk`)
                 await this.saveSomething(currentPrices, accountData)
             } else {
-                console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TVL: ${value}`)
+                console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TGV: ${totalGamblingValue}`)
             }
         }
     }
