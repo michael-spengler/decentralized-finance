@@ -37,6 +37,11 @@ export class ShortHighBuyLow {
         console.log(`price: ${currentPrice} = lowestSince: ${lowestPriceSince} - highestSince: ${highestPriceSince} - uPNL: ${xPosition.unrealizedProfit} - wB: ${accountData.totalWalletBalance} - lr: ${liquidityRatio}`)
         // console.log(JSON.stringify(xPosition))
 
+        if (Number(accountData.totalWalletBalance) === 0) {
+            const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
+            const transferAmount = availableUSDTBalanceInSpotAccount / 2
+            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(transferAmount)
+        }
 
         if (highestPriceSince > this.highestSinceXLimit && liquidityRatio > 0.9) {
 

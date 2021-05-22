@@ -39,6 +39,12 @@ export class BuyLowSellHigh {
         console.log(`highestPriceSince: ${highestPriceSince}`)
         console.log(`unrealizedProfit: ${xPosition.unrealizedProfit}`)
 
+        if (Number(accountData.totalWalletBalance) === 0) {
+            const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
+            const transferAmount = availableUSDTBalanceInSpotAccount / 2
+            await this.binanceConnector.transferFromSpotAccountToUSDTFutures(transferAmount)
+        }
+
         if (lowestPriceSince > this.lowestSinceXLimit) {
 
             console.log(`time to start - buying at ${currentPrice}`)

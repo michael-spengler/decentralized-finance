@@ -48,32 +48,28 @@ export class JumpStarter {
 
             console.log(`emergency selling 10 Percent`)
             await this.sell(0.1)
-            Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
 
         } else {
 
             if (lowestPriceSince >= this.limit && Number(xPosition.positionAmt) >= this.tradingUnit) {
+                
                 console.log(`time to follow the severe downwards momentum - selling 70 percent at ${currentPrice}`)
                 this.sell(0.7)
-                Player.playMP3(`${__dirname}/../../sounds/single-bell-two-strikes.mp3`)
 
             } else if (lowestPriceSince > this.limit * 0.3) {
 
                 console.log(`time to start the jump - buying at ${currentPrice}`)
                 this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
-                Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`) // https://www.freesoundslibrary.com/cow-moo-sounds/ 
 
             } else if (highestPriceSince >= this.limit) {
 
                 console.log(`time to follow the severe upwards momentum - buying at ${currentPrice}`)
                 this.binanceConnector.buyFuture(this.pair, this.tradingUnit)
-                Player.playMP3(`${__dirname}/../../sounds/cow-moo-sound.mp3`)
 
             } else if (highestPriceSince > this.limit * 0.5 && Number(xPosition.unrealizedProfit) > 5 && Number(xPosition.positionAmt) >= this.tradingUnit) {
 
                 console.log(`time to sell at ${currentPrice}`)
                 await this.sell(0.1)
-                Player.playMP3(`${__dirname}/../../sounds/game-new-level.mp3`)
 
             }
 
