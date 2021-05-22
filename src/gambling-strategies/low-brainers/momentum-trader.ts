@@ -22,7 +22,7 @@ export class Sprinter2 {
         const currentPrices = await this.binanceConnector.getCurrentPrices()
         const currentPrice = this.portfolioProvider.getCurrentXPrice(currentPrices, this.pair)
         const accountData = await this.binanceConnector.getFuturesAccountData()
-       
+
         // console.log(`currentPrice: ${currentPrice}`)
 
         if (this.historicData.length === 500000) {
@@ -32,15 +32,15 @@ export class Sprinter2 {
         this.historicData.unshift(currentPrice)
 
         const delta = this.historicData[1] - currentPrice
-        
+
         const x = Math.abs(Number(((delta * 100) / this.historicData[1]).toFixed(2)))
-        
+
         if (accountData.totalWalletBalance < 20) {
             await this.binanceConnector.transferFromSpotAccountToUSDTFutures(5)
         } else if (accountData.totalWalletBalance > 55) {
             await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(5)
         }
-        
+
         // console.log(x)
         if (x > 0.1) {
             const theFactor = Number((x * 30).toFixed(0))
@@ -61,10 +61,10 @@ export class Sprinter2 {
                 const r = await this.binanceConnector.sellFuture(this.pair, Number(position.positionAmt))
                 console.log(r)
             } else if (Number(position.positionAmt) < 0) {
-                const r =  await this.binanceConnector.buyFuture(this.pair, Number(position.positionAmt) * -1)
+                const r = await this.binanceConnector.buyFuture(this.pair, Number(position.positionAmt) * -1)
                 console.log(r)
             }
-        } else if (this.previousPNL > Number(accountData.totalUnrealizedProfit) * 1.5){
+        } else if (this.previousPNL > Math.abs(Number(accountData.totalUnrealizedProfit)) * 2) {
             console.log('time to kate')
             const position = accountData.positions.filter((entry: any) => entry.symbol === this.pair)[0]
             if (position.positionAmt > 0) {
