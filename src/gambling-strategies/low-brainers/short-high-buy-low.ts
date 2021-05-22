@@ -2,28 +2,27 @@ import { BinanceConnector } from "../../binance/binance-connector"
 import { PortfolioProvider } from "../utilities/portfolio-provider"
 
 
-export class BuyLowSellHigh {
+export class ShortHighBuyLow {
 
     private binanceConnector: BinanceConnector
     private historicData: any[] = []
     private portfolioProvider: PortfolioProvider
-    private lowestSinceXLimit: number
+    private highestSinceXLimit: number
 
-    public constructor(apiKey: string, apiSecret: string, lowestSinceXLimit: number) {
+    public constructor(apiKey: string, apiSecret: string, highestSinceXLimit: number) {
         this.binanceConnector = new BinanceConnector(apiKey, apiSecret)
         this.portfolioProvider = new PortfolioProvider()
-        this.lowestSinceXLimit = lowestSinceXLimit
+        this.highestSinceXLimit = highestSinceXLimit
     }
 
     public async investWisely(): Promise<void> {
         const currentPrices = await this.binanceConnector.getCurrentPrices()
-        const currentPrice = this.portfolioProvider.getCurrentXPrice(currentPrices, 'BTCUSDT')
+        const currentPrice = this.portfolioProvider.getCurrentXPrice(currentPrices, 'DOGEUSDT')
         const accountData = await this.binanceConnector.getFuturesAccountData()
-        const xPosition = accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
+        const xPosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
+        const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
 
         // const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
-
-        console.log(currentPrice)
 
         if (this.historicData.length === 500000) {
             this.historicData.splice(this.historicData.length - 1, 1)
@@ -35,20 +34,20 @@ export class BuyLowSellHigh {
         const highestPriceSince = this.getIsHighestSinceX(currentPrice)
 
 
-        console.log(`lowestPriceSince: ${lowestPriceSince}`)
-        console.log(`highestPriceSince: ${highestPriceSince}`)
-        console.log(`unrealizedProfit: ${xPosition.unrealizedProfit}`)
+        console.log(`price: ${currentPrice} = lowestSince: ${lowestPriceSince} - highestSince: ${highestPriceSince} - uPNL: ${xPosition.unrealizedProfit} - wB: ${accountData.totalWalletBalance} - lr: ${liquidityRatio}`)
+        // console.log(JSON.stringify(xPosition))
 
-        if (lowestPriceSince > this.lowestSinceXLimit) {
 
-            console.log(`time to start - buying at ${currentPrice}`)
-            this.binanceConnector.buyFuture('BTCUSDT', 0.001)
+        if (highestPriceSince > this.highestSinceXLimit && liquidityRatio > 0.9) {
+
+            console.log(`time to start - shorting at ${currentPrice}`)
+            this.binanceConnector.sellFuture('DOGEUSDT', 100)
             await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(1)
 
-        } else if (highestPriceSince > (lowestSinceXLimit * 2) && Number(xPosition.positionAmt) >= 0.001) {
+        } else if (highestPriceSince > (highestSinceXLimit * 2) && Number(xPosition.positionAmt) <= -100) {
 
-            console.log(`time to land - selling at ${currentPrice}`)
-            this.binanceConnector.sellFuture('BTCUSDT', 0.001)
+            console.log(`time to land - buying back the dogshit at ${currentPrice}`)
+            this.binanceConnector.buyFuture('DOGEUSDT', 100)
 
 
         }
@@ -82,9 +81,9 @@ export class BuyLowSellHigh {
 
 const binanceApiKey = process.argv[2] // check your profile on binance.com --> API Management
 const binanceApiSecret = process.argv[3] // check your profile on binance.com --> API Management
-const lowestSinceXLimit = Number(process.argv[4]) // e.g. 3
+const highestSinceXLimit = Number(process.argv[4]) // e.g. 3
 
-const buyLowSellHigh = new BuyLowSellHigh(binanceApiKey, binanceApiSecret, lowestSinceXLimit)
+const buyLowSellHigh = new ShortHighBuyLow(binanceApiKey, binanceApiSecret, highestSinceXLimit)
 
 setInterval(async () => {
 
