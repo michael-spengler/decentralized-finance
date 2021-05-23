@@ -246,6 +246,15 @@ Some of the most famous projects using this package
 ## Philosophy
 This package shall increase freedom for those who increase freedom. Actions of the weak shall be private. Actions of the powerful shall be transparent.
 
+## Open Source DeFi Coin
+Under Construction
+### Tokenomics
+**Challenges**
+If we define a max supply, the problem might be that at one point there will be less and less transactions if many of the owners decide just to hodl.
+Clearly define the incentives.
+Who will add Liquidity Pools?
+How could the process of collecting wallet addresses who want to participate look like?
+
 ## Support our Open Source Contributions
 If you like our work, you might download the Brave Browser via our
 promotion link: [https://brave.com/fan464](https://brave.com/fan464) and enjoy the new (2021) [IPFS browser standard](https://brave.com/brave-integrates-ipfs/).

@@ -42,7 +42,7 @@ export class MomentumTrader {
         }
 
         // console.log(x)
-        if (x > 0.3) {
+        if (x > 0.4) {
             let theFactor = Number((x * 30).toFixed(0))
             theFactor = (theFactor > 7) ? 7 : theFactor
             console.log(`theFactor: ${theFactor}`)
