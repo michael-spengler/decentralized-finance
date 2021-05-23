@@ -2,7 +2,7 @@ import { BinanceConnector } from "../../binance/binance-connector"
 import { Player } from "../utilities/player"
 import { PortfolioProvider } from "../utilities/portfolio-provider"
 
-export class Sprinter2 {
+export class MomentumTrader {
 
     private binanceConnector: BinanceConnector
     private historicData: any[] = []
@@ -22,7 +22,8 @@ export class Sprinter2 {
         const currentPrices = await this.binanceConnector.getCurrentPrices()
         const currentPrice = this.portfolioProvider.getCurrentXPrice(currentPrices, this.pair)
         const accountData = await this.binanceConnector.getFuturesAccountData()
-
+        const position = accountData.positions.filter((entry: any) => entry.symbol === this.pair)[0]
+        console.log(JSON.stringify(position))
         // console.log(`currentPrice: ${currentPrice}`)
 
         if (this.historicData.length === 500000) {
@@ -35,7 +36,7 @@ export class Sprinter2 {
 
         const x = Math.abs(Number(((delta * 100) / this.historicData[1]).toFixed(2)))
 
-        if (accountData.totalWalletBalance < 20) {
+        if (accountData.totalWalletBalance === 0) {
             await this.binanceConnector.transferFromSpotAccountToUSDTFutures(5)
         } else if (accountData.totalWalletBalance > 55) {
             await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(5)
@@ -52,9 +53,9 @@ export class Sprinter2 {
                 console.log(`the price increased significantly by ${x} Percent`)
                 await this.binanceConnector.buyFuture(pair, this.tradingUnit * theFactor)
             }
-        } else if (Number(accountData.totalUnrealizedProfit) > 1) {
+        } else if (Number(position.unrealizedProfit) > 1) {
             await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(1)
-        } else if (Number(accountData.totalUnrealizedProfit) < -0.2) {
+        } else if (Number(position.unrealizedProfit) < -0.2) {
             console.log('this time the magic did not go too well')
             const position = accountData.positions.filter((entry: any) => entry.symbol === this.pair)[0]
             if (Number(position.positionAmt) > 0) {
@@ -64,9 +65,8 @@ export class Sprinter2 {
                 const r = await this.binanceConnector.buyFuture(this.pair, Number(position.positionAmt) * -1)
                 console.log(r)
             }
-        } else if (this.previousPNL > Math.abs(Number(accountData.totalUnrealizedProfit)) * 2) {
+        } else if (this.previousPNL > Math.abs(Number(position.unrealizedProfit)) * 2) {
             console.log('time to kate')
-            const position = accountData.positions.filter((entry: any) => entry.symbol === this.pair)[0]
             if (position.positionAmt > 0) {
                 await this.binanceConnector.sellFuture(this.pair, position.positionAmt)
             } else if (position.positionAmt < 0) {
@@ -76,7 +76,7 @@ export class Sprinter2 {
             console.log(`boring times - avB: ${accountData.availableBalance}`)
         }
 
-        this.previousPNL = Number(accountData.totalUnrealizedProfit)
+        this.previousPNL = Number(position.unrealizedProfit)
 
     }
 
@@ -86,11 +86,11 @@ export class Sprinter2 {
 const binanceApiKey = process.argv[2] // check your profile on binance.com --> API Management
 const binanceApiSecret = process.argv[3] // check your profile on binance.com --> API Management
 
-const pair = 'BTCUSDT'
-const tradingUnit = 0.001
+const pair = 'DOGEUSDT'
+const tradingUnit = 100
 
 
-const jumpStarter = new Sprinter2(binanceApiKey, binanceApiSecret, tradingUnit, pair)
+const jumpStarter = new MomentumTrader(binanceApiKey, binanceApiSecret, tradingUnit, pair)
 
 
 setInterval(async () => {
