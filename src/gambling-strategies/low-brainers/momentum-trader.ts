@@ -23,7 +23,6 @@ export class MomentumTrader {
         const currentPrice = this.portfolioProvider.getCurrentXPrice(currentPrices, this.pair)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const position = accountData.positions.filter((entry: any) => entry.symbol === this.pair)[0]
-        console.log(JSON.stringify(position))
         // console.log(`currentPrice: ${currentPrice}`)
 
         if (this.historicData.length === 500000) {
@@ -43,7 +42,7 @@ export class MomentumTrader {
         }
 
         // console.log(x)
-        if (x > 0.1) {
+        if (x > 0.2) {
             const theFactor = Number((x * 30).toFixed(0))
             console.log(theFactor)
             if (delta > 0) {
