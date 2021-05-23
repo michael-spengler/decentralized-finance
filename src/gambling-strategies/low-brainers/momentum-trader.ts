@@ -43,8 +43,9 @@ export class MomentumTrader {
 
         // console.log(x)
         if (x > 0.3) {
-            const theFactor = Number((x * 30).toFixed(0))
-            console.log(theFactor)
+            let theFactor = Number((x * 30).toFixed(0))
+            theFactor = (theFactor > 7) ? 7 : theFactor
+            console.log(`theFactor: ${theFactor}`)
             if (delta > 0) {
                 console.log(`the price decreased significantly by ${x} Percent`)
                 await this.binanceConnector.sellFuture(pair, this.tradingUnit * theFactor)
