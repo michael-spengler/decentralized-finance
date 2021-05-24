@@ -37,7 +37,7 @@ export class MomentumTrader {
 
         const x = Math.abs(Number(((delta * 100) / this.historicData[1]).toFixed(2)))
 
-        if (accountData.totalWalletBalance === 0) {
+        if (Number(accountData.totalWalletBalance) < 5) {
             await this.binanceConnector.transferFromSpotAccountToUSDTFutures(5)
         } else if (accountData.totalWalletBalance > 55) {
             await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(5)
@@ -85,7 +85,7 @@ export class MomentumTrader {
         } else {
 
             console.log(`boring times (${x} is below ${limit}) - avB: ${accountData.availableBalance}`)
-            
+
         }
 
         this.previousPNL = Number(position.unrealizedProfit)
