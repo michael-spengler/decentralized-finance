@@ -55,7 +55,7 @@ export class Gambler {
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const cPV = this.portfolioProvider.getCurrentPortfolioValue(accountData.positions, currentPrices)
-        const liquidityRatio = accountData.availableBalance / accountData.totalWalletBalance
+        const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
         const lowestPrice80_100 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(80, 100) // about 20 mins
         const lowestPrice300_500 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300, 500) // about 1.5 hours
         const lowestPrice900_1200 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(900, 1200) // about 3.5 hours
@@ -79,18 +79,19 @@ export class Gambler {
         console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP80_100: ${lowestPrice80_100.toFixed(2)}; nyrPNL: ${accountData.totalUnrealizedProfit}`)
 
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
+
             console.log(`I transfer USDT from Spot Account to Futures Account e.g. after a serious drop which resulted in a low wallet ballance.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
-        // } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
-        //     console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
-        //     console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
-            // await this.sell(0.1)
-            // await this.saveSomething(currentPrices, accountData)
-        } 
-        // else if (Number(accountData.totalUnrealizedProfit) > 100) {
-        //     console.log(JSON.stringify(accountData.positions[0])
-        // }
-         else if (liquidityRatio <= this.liquidityRatioToSell) {
+
+        } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
+
+            console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
+            console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
+            await this.sell(0.1)
+            await this.saveSomething(currentPrices, accountData)
+
+        } else if (liquidityRatio <= this.liquidityRatioToSell) {
+
             if (liquidityRatio <= (this.liquidityRatioToSell * 0.9)) {
                 await this.sell(0.8)
                 console.log(`selling 95% of assets as it looks like a very strong dip`)
@@ -98,10 +99,12 @@ export class Gambler {
                 console.log(`selling 50% of assets as it looks like a strong dip`)
                 await this.sell(0.5)
             }
+
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
+
             if (this.intervalCounter > 1200) {
-            // if (this.intervalCounter > 12) {
-                if (cPP === lowestPrice300000_400000){
+                // if (this.intervalCounter > 12) {
+                if (cPP === lowestPrice300000_400000) {
                     await this.buy(currentPrices, accountData, 0.1)
                     console.log(`I bought with factor 0.1`)
                     await this.saveSomething(currentPrices, accountData)
@@ -123,19 +126,29 @@ export class Gambler {
             } else {
                 console.log(`intervalCounter: ${this.intervalCounter}`)
             }
+
         } else if ((((this.liquidityRatioToBuy + this.liquidityRatioToSell) / 2) > liquidityRatio)) {
-                console.log(`gently reducing the risk by selling 7%`)
-                await this.sell(0.07)
+
+            console.log(`gently reducing the risk by selling 7%`)
+            await this.sell(0.07)
+
         } else if ((Number(accountData.totalUnrealizedProfit)) < ((Number(accountData.totalWalletBalance) * -1) / 2)) {
+
             console.log(`unfortunately it seems time to realize some losses. I'm selling 10 Percent of my assets.`)
             await this.sell(0.1)
+
         } else if (cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
+
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a long term low.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
+
         } else if (cPP === lowestPrice900_1200 && this.intervalCounter > 1200) {
+
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a significant low.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.2)
+
         } else {
+
             const availableUSDTBalanceInSpotAccount = Number(await this.binanceConnector.getUSDTBalance())
             const totalGamblingValue = Number(accountData.totalWalletBalance) + availableUSDTBalanceInSpotAccount + Number(accountData.totalUnrealizedProfit)
 
@@ -145,8 +158,10 @@ export class Gambler {
             } else {
                 console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TGV: ${totalGamblingValue}`)
             }
+            
         }
     }
+
     public async adjustLeverageEffect(accountData: any) {
 
         const leverageEntries = await this.binanceConnector.futuresLeverageBracket()
@@ -206,9 +221,11 @@ export class Gambler {
         } catch (error) {
             console.log(`you might take a look into this: ${error.message}`)
         }
+
     }
 
     private async buy(currentPrices: any[], accountData: any, couldBuyWouldBuyFactor: number) {
+
         try {
             for (const listEntry of this.portfolio) {
                 const currentPrice = currentPrices.filter((e: any) => e.coinSymbol === listEntry.pairName)[0].price
@@ -222,6 +239,7 @@ export class Gambler {
         } catch (error) {
             console.log(`shit happened: ${error.message}`)
         }
+
     }
 
     private async sell(positionSellFactor: number = 0.3) {
@@ -240,4 +258,5 @@ export class Gambler {
             console.log(`shit happened: ${error.message}`)
         }
     }
+
 }

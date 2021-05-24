@@ -10,12 +10,14 @@ export class MomentumTrader {
     private tradingUnit: number
     private pair: string
     private previousPNL: number = 0
+    private limit: number = 0
 
-    public constructor(apiKey: string, apiSecret: string, tradingUnit: number, pair: string) {
+    public constructor(apiKey: string, apiSecret: string, tradingUnit: number, pair: string, limit: number) {
         this.binanceConnector = new BinanceConnector(apiKey, apiSecret)
         this.portfolioProvider = new PortfolioProvider()
         this.tradingUnit = tradingUnit
         this.pair = pair
+        this.limit = limit
     }
 
     public async investWisely(): Promise<void> {
@@ -42,8 +44,9 @@ export class MomentumTrader {
         }
 
         // console.log(x)
-        if (x > 0.4) {
-            let theFactor = Number((x * 30).toFixed(0))
+        if (x > this.limit) {
+
+            let theFactor = Number((x * 10).toFixed(0))
             theFactor = (theFactor > 7) ? 7 : theFactor
             console.log(`theFactor: ${theFactor}`)
             if (delta > 0) {
@@ -53,11 +56,15 @@ export class MomentumTrader {
                 console.log(`the price increased significantly by ${x} Percent`)
                 await this.binanceConnector.buyFuture(pair, this.tradingUnit * theFactor)
             }
+
         } else if (Number(position.unrealizedProfit) > 1) {
+
             await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(1)
+
         } else if (Number(position.unrealizedProfit) < -0.2) {
-            console.log('this time the magic did not go too well')
-            const position = accountData.positions.filter((entry: any) => entry.symbol === this.pair)[0]
+
+            console.log(`I should get out of that shit as the PNL is ${position.unrealizedProfit}`)
+
             if (Number(position.positionAmt) > 0) {
                 const r = await this.binanceConnector.sellFuture(this.pair, Number(position.positionAmt))
                 console.log(r)
@@ -65,15 +72,20 @@ export class MomentumTrader {
                 const r = await this.binanceConnector.buyFuture(this.pair, Number(position.positionAmt) * -1)
                 console.log(r)
             }
+
         } else if (this.previousPNL > Math.abs(Number(position.unrealizedProfit)) * 2) {
-            console.log('time to kate')
+
+            console.log(`the previous PNL ${this.previousPNL} was much better than the current ${position.unrealizedProfit}`)
             if (position.positionAmt > 0) {
                 await this.binanceConnector.sellFuture(this.pair, position.positionAmt)
             } else if (position.positionAmt < 0) {
                 await this.binanceConnector.buyFuture(this.pair, Number(position.positionAmt) * -1)
             }
+
         } else {
-            console.log(`boring times - avB: ${accountData.availableBalance}`)
+
+            console.log(`boring times (${x} is below ${limit}) - avB: ${accountData.availableBalance}`)
+            
         }
 
         this.previousPNL = Number(position.unrealizedProfit)
@@ -85,16 +97,17 @@ export class MomentumTrader {
 
 const binanceApiKey = process.argv[2] // check your profile on binance.com --> API Management
 const binanceApiSecret = process.argv[3] // check your profile on binance.com --> API Management
+const limit = Number(process.argv[4]) // e.g. 0.4
 
 const pair = 'DOGEUSDT'
 const tradingUnit = 100
 
 
-const jumpStarter = new MomentumTrader(binanceApiKey, binanceApiSecret, tradingUnit, pair)
+const momentumTrader = new MomentumTrader(binanceApiKey, binanceApiSecret, tradingUnit, pair, limit)
 
 
 setInterval(async () => {
 
-    jumpStarter.investWisely()
+    momentumTrader.investWisely()
 
 }, 11 * 1000)
