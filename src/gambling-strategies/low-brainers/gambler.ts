@@ -89,10 +89,10 @@ export class Gambler {
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             await this.sell(0.1)
             await this.saveSomething(currentPrices, accountData)
-
+            
         } else if (liquidityRatio <= this.liquidityRatioToSell) {
 
-            if (liquidityRatio <= (this.liquidityRatioToSell * 0.9)) {
+            if (liquidityRatio <= this.liquidityRatioToSell) {
                 await this.sell(0.8)
                 console.log(`selling 95% of assets as it looks like a very strong dip`)
             } else {
@@ -100,6 +100,10 @@ export class Gambler {
                 await this.sell(0.5)
             }
 
+        } else if (Number(accountData.totalWalletBalance) > (this.investmentAmount * 3)) {
+
+            await this.saveSomething(currentPrices, accountData)
+            
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
 
             if (this.intervalCounter > 1200) {
@@ -116,10 +120,10 @@ export class Gambler {
                     await this.buy(currentPrices, accountData, 0.03)
                     console.log(`I bought with factor 0.03`)
                     await this.saveSomething(currentPrices, accountData)
-                } else if (cPP === lowestPrice80_100) {
-                    await this.buy(currentPrices, accountData, 0.02)
-                    console.log(`I bought with factor 0.02`)
-                    await this.saveSomething(currentPrices, accountData)
+                // } else if (cPP === lowestPrice80_100) {
+                //     await this.buy(currentPrices, accountData, 0.02)
+                //     console.log(`I bought with factor 0.02`)
+                //     await this.saveSomething(currentPrices, accountData)
                 } else {
                     console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
                 }
