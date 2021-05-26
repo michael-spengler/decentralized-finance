@@ -66,7 +66,7 @@ export class Gambler {
             console.log(`I transfer USDT from Spot Account to Futures Account e.g. after a serious drop which resulted in a low wallet ballance.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
 
-        } else if (Number(accountData.totalUnrealizedProfit) > Number(accountData.totalWalletBalance)) {
+        } else if (this.shouldISellSomethingDueToSignificantGains(Number(accountData.totalUnrealizedProfit), Number(accountData.totalWalletBalance))) {
 
             console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
@@ -122,6 +122,18 @@ export class Gambler {
             }
 
         }
+    }
+
+    private shouldISellSomethingDueToSignificantGains(totalUnrealizedProfit: number, totalWalletBalance: number): boolean {
+        const randomNumberBetween7And10 = Math.floor( (Math.random() * (10 - 7 + 1) + 7))
+        const randomFactor = randomNumberBetween7And10 / 10
+
+        console.log(`randomFactor: ${randomFactor}`)
+        if (totalUnrealizedProfit > totalWalletBalance * randomFactor){
+            return true
+        }
+
+        return false
     }
 
     private async adjustLeverageEffect(accountData: any): Promise<void> {
