@@ -50,8 +50,7 @@ export class Gambler {
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
-        const lowestPrice300_500 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300, 500) // about 1.5 hours
-        const lowestPrice900_1200 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(900, 1200) // about 3.5 hours
+        const lowestPrice900_5000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(900, 5000) // averaging at about 7 hours
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
@@ -59,7 +58,7 @@ export class Gambler {
             await this.adjustLeverageEffect(accountData)
         }
 
-        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP300_500: ${lowestPrice300_500.toFixed(2)}; nyrPNL: ${accountData.totalUnrealizedProfit}`)
+        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP900_1200: ${lowestPrice900_5000.toFixed(2)}; nyrPNL: ${accountData.totalUnrealizedProfit}`)
 
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
 
@@ -83,8 +82,8 @@ export class Gambler {
 
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
 
-            if (this.intervalCounter > 1200) {
-                if (cPP === lowestPrice300_500) {
+            if (this.intervalCounter > 1000) {
+                if (cPP === lowestPrice900_5000) {
                     await this.buy(currentPrices, accountData, 0.03)
                     console.log(`I bought with factor 0.03`)
                     await this.saveSomething(currentPrices, accountData)
@@ -105,7 +104,7 @@ export class Gambler {
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a long term low.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
 
-        } else if (cPP === lowestPrice900_1200 && this.intervalCounter > 1200) {
+        } else if (cPP === lowestPrice900_5000 && this.intervalCounter > 1200) {
 
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a significant low.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.2)
@@ -125,8 +124,8 @@ export class Gambler {
     }
 
     private shouldISellSomethingDueToSignificantGains(totalUnrealizedProfit: number, totalWalletBalance: number): boolean {
-        const randomNumberBetween7And10 = Math.floor( (Math.random() * (10 - 7 + 1) + 7))
-        const randomFactor = randomNumberBetween7And10 / 10
+        const randomNumberBetween7And40 = Math.floor( (Math.random() * (40 - 7 + 1) + 7)) // empirical observations suggest this strangely looking approach
+        const randomFactor = randomNumberBetween7And40 / 10 
 
         console.log(`randomFactor: ${randomFactor}`)
         if (totalUnrealizedProfit > totalWalletBalance * randomFactor){
