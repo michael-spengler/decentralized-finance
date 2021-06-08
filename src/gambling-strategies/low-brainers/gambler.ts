@@ -50,7 +50,7 @@ export class Gambler {
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
-        const lowestPrice900_5000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(900, 5000) // averaging at about 7 hours
+        const lowestPrice10_10000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 10000) 
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
@@ -58,7 +58,7 @@ export class Gambler {
             await this.adjustLeverageEffect(accountData)
         }
 
-        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP900_1200: ${lowestPrice900_5000.toFixed(2)}; nyrPNL: ${accountData.totalUnrealizedProfit}`)
+        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP100_10000: ${lowestPrice10_10000.toFixed(2)}; nyrPNL: ${accountData.totalUnrealizedProfit}`)
 
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
 
@@ -83,9 +83,9 @@ export class Gambler {
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
 
             if (this.intervalCounter > 1000) {
-                if (cPP === lowestPrice900_5000) {
-                    await this.buy(currentPrices, accountData, 0.03)
-                    console.log(`I bought with factor 0.03`)
+                if (cPP === lowestPrice10_10000) {
+                    await this.buy(currentPrices, accountData, 0.01)
+                    console.log(`I bought with factor 0.01`)
                     await this.saveSomething(currentPrices, accountData)
                 } else {
                     console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
@@ -103,11 +103,6 @@ export class Gambler {
 
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a long term low.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
-
-        } else if (cPP === lowestPrice900_5000 && this.intervalCounter > 1200) {
-
-            console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a significant low.`)
-            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.2)
 
         } else {
 
