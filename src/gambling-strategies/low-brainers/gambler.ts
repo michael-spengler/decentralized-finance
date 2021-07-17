@@ -76,7 +76,7 @@ export class Gambler {
 
             await this.sell(0.07)
 
-        } else if (Number(accountData.totalWalletBalance) > (this.investmentAmount * 3)) {
+        } else if (Number(accountData.totalWalletBalance) > (this.reinvestAt * 3)) {
 
             await this.saveSomething(currentPrices, accountData)
 
