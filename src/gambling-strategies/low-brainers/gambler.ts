@@ -50,7 +50,7 @@ export class Gambler {
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
-        const lowestPrice10_1000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 1000) 
+        const lowestPrice10_1000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 1000)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
@@ -108,22 +108,17 @@ export class Gambler {
 
             const totalGamblingValue = Number(accountData.totalWalletBalance) + usdtBalanceOnSpot + Number(accountData.totalUnrealizedProfit)
 
-            if (Number(accountData.totalWalletBalance) + Number(accountData.totalUnrealizedProfit) > this.investmentAmount * 3) {
-                console.log(`Saving something due to high value at risk`)
-                await this.saveSomething(currentPrices, accountData)
-            } else {
-                console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TGV: ${totalGamblingValue}`)
-            }
+            console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TGV: ${totalGamblingValue}`)
 
         }
     }
 
     private shouldISellSomethingDueToSignificantGains(totalUnrealizedProfit: number, totalWalletBalance: number): boolean {
-        const randomNumberBetween7And40 = Math.floor( (Math.random() * (40 - 7 + 1) + 7)) // empirical observations suggest this strangely looking approach
-        const randomFactor = randomNumberBetween7And40 / 10 
+        const randomNumberBetween7And40 = Math.floor((Math.random() * (40 - 7 + 1) + 7)) // empirical observations suggest this strangely looking approach
+        const randomFactor = randomNumberBetween7And40 / 10
 
         console.log(`randomFactor: ${randomFactor}`)
-        if (totalUnrealizedProfit > totalWalletBalance * randomFactor){
+        if (totalUnrealizedProfit > totalWalletBalance * randomFactor) {
             return true
         }
 
