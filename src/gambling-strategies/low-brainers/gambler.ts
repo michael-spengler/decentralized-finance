@@ -84,7 +84,7 @@ export class Gambler {
 
             if (this.intervalCounter > 1000) {
                 if (cPP === lowestPrice10_1000) {
-                    await this.buy(currentPrices, accountData, 0.01)
+                    await this.buy(currentPrices, accountData, 0.07)
                     console.log(`I bought with factor 0.01`)
                     await this.saveSomething(currentPrices, accountData)
                 } else {
