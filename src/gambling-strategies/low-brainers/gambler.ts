@@ -50,7 +50,7 @@ export class Gambler {
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
-        const lowestPrice10_1000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 1000)
+        const lowestPrice10_5000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 5000)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
@@ -58,7 +58,7 @@ export class Gambler {
             await this.adjustLeverageEffect(accountData)
         }
 
-        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP100_1000: ${lowestPrice10_1000.toFixed(2)}; nyrPNL: ${accountData.totalUnrealizedProfit}`)
+        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP10_5000: ${lowestPrice10_5000.toFixed(2)}; nyrPNL: ${accountData.totalUnrealizedProfit}`)
 
         if (Number(accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
 
@@ -83,9 +83,10 @@ export class Gambler {
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
 
             if (this.intervalCounter > 1000) {
-                if (cPP === lowestPrice10_1000) {
-                    await this.buy(currentPrices, accountData, 0.07)
-                    console.log(`I bought with factor 0.01`)
+                if (cPP === lowestPrice10_5000) {
+                    const couldBuyWouldBuyFactor = 0.1
+                    await this.buy(currentPrices, accountData, couldBuyWouldBuyFactor)
+                    console.log(`I bought with factor ${couldBuyWouldBuyFactor}`)
                     await this.saveSomething(currentPrices, accountData)
                 } else {
                     console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
