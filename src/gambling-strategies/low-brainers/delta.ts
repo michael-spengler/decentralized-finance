@@ -44,7 +44,7 @@ export class DeltaGambler {
 
                 console.log(`unrealizedDogeProfit: ${xPosition.unrealizedProfit}`)
 
-                if (calculatedDelta < this.delta) {
+                if (calculatedDelta < (-1 * this.delta)) {
                     console.log('time to buy')
                     await this.binanceConnector.buyFuture('DOGEUSDT', 100)
                 } else if (calculatedDelta > this.delta) {
