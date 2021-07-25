@@ -78,48 +78,50 @@ export class ShitcoinGambler {
 
                     console.log(`shorting the shitcoin awaits some profits as the unrealized PNL is: ${shitCoinPosition.unrealizedProfit}`)
 
-                    if (ethPosition.positionAmt > 0) {
-
-                        const ethProfitInPercent = (ethPosition.unrealizedProfit * 100) / ethPosition.initialMargin
-                        const btcProfitInPercent = (btcPosition.unrealizedProfit * 100) / btcPosition.initialMargin
-                        const bnbProfitInPercent = (bnbPosition.unrealizedProfit * 100) / bnbPosition.initialMargin
-                        const adaProfitInPercent = (adaPosition.unrealizedProfit * 100) / adaPosition.initialMargin
-                        const dotProfitInPercent = (dotPosition.unrealizedProfit * 100) / dotPosition.initialMargin
-
-                        console.log(`ethProfit in percent: ${ethProfitInPercent}`)
-                        console.log(`btcProfit in percent: ${btcProfitInPercent}`)
-                        console.log(`bnbProfit in percent: ${bnbProfitInPercent}`)
-                        console.log(`adaProfit in percent: ${adaProfitInPercent}`)
-                        console.log(`dotProfit in percent: ${dotProfitInPercent}`)
-
-
-                        if (ethProfitInPercent > 25) {
-                            await this.binanceConnector.sellFuture('ETHUSDT', ethPosition.positionAmt)
-                        }
-                        if (btcProfitInPercent > 25) {
-                            await this.binanceConnector.sellFuture('BTCUSDT', btcPosition.positionAmt)
-                        }
-                        if (bnbProfitInPercent > 25) {
-                            await this.binanceConnector.sellFuture('BNBUSDT', bnbPosition.positionAmt)
-                        }
-                        if (adaProfitInPercent > 25) {
-                            await this.binanceConnector.sellFuture('ADAUSDT', adaPosition.positionAmt)
-                        }
-                        if (dotProfitInPercent > 25) {
-                            await this.binanceConnector.sellFuture('DOTUSDT', dotPosition.positionAmt)
-                        }
-
-                    }
 
                 } else {
 
                     console.log(`shorting the shitcoin's unrealized PNL is: ${shitCoinPosition.unrealizedProfit}`)
                 }
 
+                if (ethPosition.positionAmt > 0) {
+
+                    const ethProfitInPercent = (ethPosition.unrealizedProfit * 100) / ethPosition.initialMargin
+                    const btcProfitInPercent = (btcPosition.unrealizedProfit * 100) / btcPosition.initialMargin
+                    const bnbProfitInPercent = (bnbPosition.unrealizedProfit * 100) / bnbPosition.initialMargin
+                    const adaProfitInPercent = (adaPosition.unrealizedProfit * 100) / adaPosition.initialMargin
+                    const dotProfitInPercent = (dotPosition.unrealizedProfit * 100) / dotPosition.initialMargin
+
+                    console.log(`ethProfit in percent: ${ethProfitInPercent}`)
+                    console.log(`btcProfit in percent: ${btcProfitInPercent}`)
+                    console.log(`bnbProfit in percent: ${bnbProfitInPercent}`)
+                    console.log(`adaProfit in percent: ${adaProfitInPercent}`)
+                    console.log(`dotProfit in percent: ${dotProfitInPercent}`)
+
+
+                    if (ethProfitInPercent > 100) {
+                        await this.binanceConnector.sellFuture('ETHUSDT', ethPosition.positionAmt)
+                    }
+                    if (btcProfitInPercent > 75) {
+                        await this.binanceConnector.sellFuture('BTCUSDT', btcPosition.positionAmt)
+                    }
+                    if (bnbProfitInPercent > 50) {
+                        await this.binanceConnector.sellFuture('BNBUSDT', bnbPosition.positionAmt)
+                    }
+                    if (adaProfitInPercent > 25) {
+                        await this.binanceConnector.sellFuture('ADAUSDT', adaPosition.positionAmt)
+                    }
+                    if (dotProfitInPercent > 25) {
+                        await this.binanceConnector.sellFuture('DOTUSDT', dotPosition.positionAmt)
+                    }
+
+                }
+
+
             } else {
 
                 console.log('still collecting data')
-                
+
             }
 
         }, this.intervalLengthInSeconds * 1000)
