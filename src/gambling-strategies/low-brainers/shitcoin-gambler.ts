@@ -56,7 +56,7 @@ export class ShitcoinGambler {
                 }
 
 
-                if (shitCoinPosition.unrealizedProfit > 0) {
+                if (shitCoinPosition.unrealizedProfit > 0) { // öfter die u.g. kaufen... - e.g. below average berechnung... 
 
                     console.log(`shorting the shitcoin pays off as the unrealized PNL is: ${shitCoinPosition.unrealizedProfit}`)
 

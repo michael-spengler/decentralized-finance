@@ -112,7 +112,38 @@ export class Gambler {
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TGV: ${totalGamblingValue}`)
 
         }
+
+        await this.hedgeWisely(currentPrices, accountData, lowestPrice10_5000)
     }
+
+    public async hedgeWisely(currentPrices: any[], accountData: any, lowestPrice10_5000: number): Promise<void> {
+
+        if (lowestPrice10_5000 < 5) {
+            await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
+        } else {
+            console.log(`lowestPrice10_5000: ${lowestPrice10_5000}`)
+        }
+
+        const currentHedgePosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
+        const hedgeProfitInPercent = (currentHedgePosition.unrealizedProfit * 100) / currentHedgePosition.initialMargin
+            
+        console.log(`hedgeProfitInPercent: ${hedgeProfitInPercent}`)
+
+        if (hedgeProfitInPercent > 100) {
+            await this.binanceConnector.sellFuture('DOGEUSDT', currentHedgePosition.positionAmt)
+        }
+
+    }
+
+    // public getTheAverage(list: number[]): number {
+
+    //     let sum = 0
+    //     for (const e of list) {
+    //         sum = sum + Number(e)
+    //     }
+
+    //     return sum / list.length
+    // }
 
     private shouldISellSomethingDueToSignificantGains(totalUnrealizedProfit: number, totalWalletBalance: number): boolean {
         const randomNumberBetween7And40 = Math.floor((Math.random() * (40 - 7 + 1) + 7)) // empirical observations suggest this strangely looking approach
