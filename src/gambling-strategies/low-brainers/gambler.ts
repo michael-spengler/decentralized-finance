@@ -119,21 +119,22 @@ export class Gambler {
 
     public async hedgeWisely(accountData: any, highestPrice10_100: number, cPP: number): Promise<void> {
 
-        console.log(`cPP (${cPP}) === highestPrice100_1000 (${highestPrice10_100}) = ${cPP === highestPrice10_100}`)
-
+        
         if (cPP === highestPrice10_100) {
             await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
         } else {
             console.log(`highestPrice10_100 ok: ${highestPrice10_100}`)
         }
-
+        
         const currentHedgePosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
         const hedgeProfitInPercent = (currentHedgePosition.unrealizedProfit * 100) / currentHedgePosition.initialMargin
-            
+        
         console.log(`hedgeProfitInPercent: ${hedgeProfitInPercent}`)
-
+        
+        console.log(`hedgeProfitInPercent (${hedgeProfitInPercent}) > 24 = ${hedgeProfitInPercent > 24}`)
         if (hedgeProfitInPercent > 24) {
-            await this.binanceConnector.buyFuture('DOGEUSDT', currentHedgePosition.positionAmt)
+            const result = await this.binanceConnector.buyFuture('DOGEUSDT', currentHedgePosition.positionAmt)
+            console.log(result)
         }
 
     }
