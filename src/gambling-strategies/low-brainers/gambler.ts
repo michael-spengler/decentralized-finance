@@ -121,7 +121,7 @@ export class Gambler {
 
         
         if (cPP === highestPrice10_100) {
-            await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
+            await this.binanceConnector.sellFuture('DOGEUSDT', 10000)
         } else {
             console.log(`highestPrice10_100 ok: ${highestPrice10_100}`)
         }
@@ -132,7 +132,7 @@ export class Gambler {
         console.log(`hedgeProfitInPercent: ${hedgeProfitInPercent}`)
         
         console.log(`hedgeProfitInPercent (${hedgeProfitInPercent}) > 24 = ${hedgeProfitInPercent > 24}`)
-        if (hedgeProfitInPercent > 24) {
+        if (hedgeProfitInPercent > 20) {
             const result = await this.binanceConnector.buyFuture('DOGEUSDT', currentHedgePosition.positionAmt)
             console.log(result)
         }
