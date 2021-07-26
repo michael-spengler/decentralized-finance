@@ -71,7 +71,7 @@ export class Gambler {
             console.log(`Saving something as I made some significant gains and the market seems a bit overhyped atm.`)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
             await this.sell(0.07)
-            await this.saveSomething(currentPrices, accountData)
+            await this.saveSomething(accountData)
 
         } else if (liquidityRatio <= this.liquidityRatioToSell) {
 
@@ -79,7 +79,7 @@ export class Gambler {
 
         } else if (Number(accountData.totalWalletBalance) > (this.reinvestAt * 3)) {
 
-            await this.saveSomething(currentPrices, accountData)
+            await this.saveSomething(accountData)
 
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
 
@@ -88,7 +88,7 @@ export class Gambler {
                     const couldBuyWouldBuyFactor = 0.1
                     await this.buy(currentPrices, accountData, couldBuyWouldBuyFactor)
                     console.log(`I bought with factor ${couldBuyWouldBuyFactor}`)
-                    await this.saveSomething(currentPrices, accountData)
+                    await this.saveSomething(accountData)
                 } else {
                     console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
                 }
@@ -117,14 +117,14 @@ export class Gambler {
         await this.hedgeWisely(accountData, highestPrice10_100, cPP)
     }
 
-    public async hedgeWisely(accountData: any, highestPrice100_1000: number, cPP: number): Promise<void> {
+    public async hedgeWisely(accountData: any, highestPrice10_100: number, cPP: number): Promise<void> {
 
-        console.log(`cPP (${cPP}) > highestPrice100_1000 (${highestPrice100_1000}) = ${cPP > highestPrice100_1000}`)
+        console.log(`cPP (${cPP}) === highestPrice100_1000 (${highestPrice10_100}) = ${cPP === highestPrice10_100}`)
 
-        if (cPP > highestPrice100_1000) {
+        if (cPP === highestPrice10_100) {
             await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
         } else {
-            console.log(`highestPrice100_1000 ok: ${highestPrice100_1000}`)
+            console.log(`highestPrice10_100 ok: ${highestPrice10_100}`)
         }
 
         const currentHedgePosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
@@ -181,7 +181,7 @@ export class Gambler {
         }
     }
 
-    private async saveSomething(currentPrices: any[], accountData: any, savingsFactor: number = 0.05): Promise<void> {
+    private async saveSomething(accountData: any, savingsFactor: number = 0.05): Promise<void> {
         const savingsAmount = Number((accountData.availableBalance * savingsFactor).toFixed(0))
         console.log(`saveSomething - savingsAmount: ${savingsAmount}`)
         if (savingsAmount >= 1) {
