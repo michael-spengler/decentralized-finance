@@ -67,9 +67,9 @@ export class Gambler {
 
         } else if (this.shouldISellSomethingDueToSignificantGains(Number(accountData.totalUnrealizedProfit), Number(accountData.totalWalletBalance))) {
 
-            console.log(`Selling and saving something as I made some significant gains and the market seems a bit overhyped atm.`)
+            console.log(`Saving something as I made some significant gains and the market seems a bit overhyped atm.`)
             console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
-            await this.sell(0.1)
+            await this.sell(0.07)
             await this.saveSomething(currentPrices, accountData)
 
         } else if (liquidityRatio <= this.liquidityRatioToSell) {
@@ -228,7 +228,7 @@ export class Gambler {
         try {
             const accountData = await this.binanceConnector.getFuturesAccountData()
             for (const position of accountData.positions) {
-                if (position.positionAmt > 0) {
+                if (position.positionAmt > 0 && position.symbol !=='DOGEUSDT') { // the hedge is handled separately
                     const howMuchToSell = Number((position.positionAmt * positionSellFactor).toFixed(this.portfolioProvider.getDecimalPlaces(position.symbol)))
                     console.log(`I'll sell ${howMuchToSell} ${position.symbol}`)
                     await this.binanceConnector.sellFuture(position.symbol, howMuchToSell)
