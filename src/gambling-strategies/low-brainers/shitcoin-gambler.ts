@@ -63,8 +63,8 @@ export class ShitcoinGambler {
                     if (accountData.availableBalance > 100) {
 
                         await this.binanceConnector.buyFuture('ETHUSDT', 0.1)
-                        await this.binanceConnector.buyFuture('BTCUSDT', 0.01)
-                        await this.binanceConnector.buyFuture('BNBUSDT', 0.1)
+                        await this.binanceConnector.buyFuture('BTCUSDT', 0.007)
+                        await this.binanceConnector.buyFuture('BNBUSDT', 0.2)
                         await this.binanceConnector.buyFuture('ADAUSDT', 40)
                         await this.binanceConnector.buyFuture('DOTUSDT', 5)
 
