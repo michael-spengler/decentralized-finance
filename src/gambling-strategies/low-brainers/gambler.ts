@@ -132,8 +132,8 @@ export class Gambler {
             
         console.log(`hedgeProfitInPercent: ${hedgeProfitInPercent}`)
 
-        if (hedgeProfitInPercent > 25) {
-            await this.binanceConnector.sellFuture('DOGEUSDT', currentHedgePosition.positionAmt)
+        if (hedgeProfitInPercent > 24) {
+            await this.binanceConnector.buyFuture('DOGEUSDT', currentHedgePosition.positionAmt)
         }
 
     }
