@@ -39,8 +39,8 @@ export class BasicDoubleGambler {
             }
             this.shitcoinPrices.unshift(currentShitcoinPrice)
 
-            const lowestRandomBitcoinPrice = this.getLowestBitcoinPrice(27, this.bitcoinPrices.length)
-            const highestRandomShitCoinPrice = this.getHighestShitcoinPrice(27, this.shitcoinPrices.length)
+            const lowestRandomBitcoinPrice = this.getLowestBitcoinPrice(27, 36)
+            const highestRandomShitCoinPrice = this.getHighestShitcoinPrice(27, 36)
 
             if (this.bitcoinPrices.length === this.historicPricesLength) {
 
