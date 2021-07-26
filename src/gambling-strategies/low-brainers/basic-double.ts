@@ -7,7 +7,6 @@ export class BasicDoubleGambler {
     private shitcoinPrices: number[] = []
     private historicPricesLength = 0
     private intervalLengthInSeconds = 0
-    private delta = 0
 
     public constructor(historicPricesLength: number, intervalLengthInSeconds: number, binanceApiKey: string, binanceApiSecret: string) {
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
@@ -40,8 +39,8 @@ export class BasicDoubleGambler {
             }
             this.shitcoinPrices.unshift(currentShitcoinPrice)
 
-            const lowestRandomBitcoinPrice = this.getLowestBitcoinPrice(3, this.bitcoinPrices.length)
-            const highestRandomShitCoinPrice = this.getHighestShitcoinPrice(3, this.shitcoinPrices.length)
+            const lowestRandomBitcoinPrice = this.getLowestBitcoinPrice(27, this.bitcoinPrices.length)
+            const highestRandomShitCoinPrice = this.getHighestShitcoinPrice(27, this.shitcoinPrices.length)
 
             if (this.bitcoinPrices.length === this.historicPricesLength) {
 
@@ -66,15 +65,14 @@ export class BasicDoubleGambler {
             bitcoinProfitInPercent = 0
         }
 
-        const sellingAt = Math.floor(Math.random() * (100 - 10 + 1) + 10);
+        const sellingAt = Math.floor(Math.random() * (27 - 18 + 1) + 18);
         
-        console.log(`I would sell BTC when I made ${sellingAt}% - current profit: ${bitcoinProfitInPercent}`)
         
         if (bitcoinProfitInPercent > sellingAt && bitcoinPosition.positionAmt > 0.1) {
-            console.log(`selling BTC to take some profits`)
-            await this.binanceConnector.sellFuture('BTCUSDT', 0.001)
-        } else if (lowestRandomBitcoinPrice === currentBitcoinPrice && Number(accountData.availableBalance) > 50) {
-            let factor = Number(bitcoinProfitInPercent.toFixed(0)) * -1
+            console.log(`selling BTC to take some profits as bitcoinProfitInPercent (${bitcoinProfitInPercent}) is above ${sellingAt}`)
+            await this.binanceConnector.sellFuture('BTCUSDT', 0.018)
+        } else if (lowestRandomBitcoinPrice === currentBitcoinPrice && Number(accountData.availableBalance) > 27) {
+            let factor = (Number((bitcoinProfitInPercent / 10).toFixed(0)) * -1)
             
             
             if (factor <= 0) {
@@ -82,7 +80,10 @@ export class BasicDoubleGambler {
             }
             
             console.log(`buying BTC due to a low price at a factor of ${factor}`)
-            await this.binanceConnector.buyFuture('BTCUSDT', 0.001 * factor)
+
+            await this.binanceConnector.buyFuture('BTCUSDT', 0.09 * factor)
+        } else {
+            console.log(`bitcoinProfitInPercent: ${bitcoinProfitInPercent} - bitcoinPosition.positionAmt: ${bitcoinPosition.positionAmt}`)
         }
 
     }
@@ -95,21 +96,21 @@ export class BasicDoubleGambler {
             shitcoinProfitInPercent = 0
         }
 
-        const buyingBackAt = Math.floor(Math.random() * (100 - 10 + 1) + 10);
-
-        console.log(`I would buy back shorted shitcoin when I made ${buyingBackAt}%`)
+        const buyingBackAt = Math.floor(Math.random() * (27 - 18 + 1) + 18);
 
         if (shitcoinProfitInPercent > buyingBackAt) {
-            console.log(`buying back shorted shitcoin to take some profits`)
-            await this.binanceConnector.buyFuture('DOGEUSDT', 100)
-        } else if (highestRandomShitCoinPrice === currentShitcoinPrice && Number(accountData.availableBalance) > 50) {
+            console.log(`buying back shorted shitcoin to take some profits as shitcoinProfitInPercent (shitcoinProfitInPercent) is above ${buyingBackAt}`)
+            await this.binanceConnector.buyFuture('DOGEUSDT', 432)
+        } else if (highestRandomShitCoinPrice === currentShitcoinPrice && Number(accountData.availableBalance) > 27) {
             let factor = Number(shitcoinProfitInPercent.toFixed(0)) * -1
             if (factor <= 0) {
                 factor = 1
             }
 
             console.log(`selling Shitcoin due to a high price at a factor of ${factor}`)
-            await this.binanceConnector.sellFuture('DOGEUSDT', 100 * factor)
+            await this.binanceConnector.sellFuture('DOGEUSDT', 153 * factor)
+        } else {
+            console.log(`shitcoinProfitInPercent: ${shitcoinProfitInPercent} - shitCoinPosition.positionAmt: ${shitCoinPosition.positionAmt}`)
         }
 
     }
