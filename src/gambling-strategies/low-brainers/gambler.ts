@@ -52,7 +52,7 @@ export class Gambler {
         const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
         const lowestPrice10_5000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 5000)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
-        const highestPrice100_1000 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(1000, 5000) 
+        const highestPrice10_100 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(10, 100) 
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
         if (this.intervalCounter === 2) {
@@ -114,7 +114,7 @@ export class Gambler {
 
         }
 
-        await this.hedgeWisely(accountData, highestPrice100_1000, cPP)
+        await this.hedgeWisely(accountData, highestPrice10_100, cPP)
     }
 
     public async hedgeWisely(accountData: any, highestPrice100_1000: number, cPP: number): Promise<void> {
@@ -132,7 +132,7 @@ export class Gambler {
             
         console.log(`hedgeProfitInPercent: ${hedgeProfitInPercent}`)
 
-        if (hedgeProfitInPercent > 100) {
+        if (hedgeProfitInPercent > 25) {
             await this.binanceConnector.sellFuture('DOGEUSDT', currentHedgePosition.positionAmt)
         }
 
