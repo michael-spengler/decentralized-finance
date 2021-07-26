@@ -68,7 +68,7 @@ export class BasicDoubleGambler {
         const sellingAt = Math.floor(Math.random() * (27 - 18 + 1) + 18);
         
         
-        if (bitcoinProfitInPercent > sellingAt && bitcoinPosition.positionAmt > 0.1) {
+        if (bitcoinProfitInPercent > sellingAt && bitcoinPosition.positionAmt > 0.5) {
             console.log(`selling BTC to take some profits as bitcoinProfitInPercent (${bitcoinProfitInPercent}) is above ${sellingAt}`)
             await this.binanceConnector.sellFuture('BTCUSDT', 0.018)
         } else if (lowestRandomBitcoinPrice === currentBitcoinPrice && Number(accountData.availableBalance) > 27) {
@@ -99,7 +99,7 @@ export class BasicDoubleGambler {
         const buyingBackAt = Math.floor(Math.random() * (27 - 18 + 1) + 18);
 
         if (shitcoinProfitInPercent > buyingBackAt) {
-            console.log(`buying back shorted shitcoin to take some profits as shitcoinProfitInPercent (shitcoinProfitInPercent) is above ${buyingBackAt}`)
+            console.log(`buying back shorted shitcoin to take some profits as shitcoinProfitInPercent (${shitcoinProfitInPercent}) is above ${buyingBackAt}`)
             await this.binanceConnector.buyFuture('DOGEUSDT', 432)
         } else if (highestRandomShitCoinPrice === currentShitcoinPrice && Number(accountData.availableBalance) > 27) {
             let factor = Number(shitcoinProfitInPercent.toFixed(0)) * -1
