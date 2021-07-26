@@ -119,10 +119,12 @@ export class Gambler {
 
     public async hedgeWisely(accountData: any, highestPrice100_1000: number, cPP: number): Promise<void> {
 
+        console.log(`cPP (${cPP}) > highestPrice100_1000 (${highestPrice100_1000}) = ${cPP > highestPrice100_1000}`)
+
         if (cPP > highestPrice100_1000) {
             await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
         } else {
-            console.log(`highestPrice100_1000: ${highestPrice100_1000}`)
+            console.log(`highestPrice100_1000 ok: ${highestPrice100_1000}`)
         }
 
         const currentHedgePosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
