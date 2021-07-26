@@ -52,7 +52,7 @@ export class Gambler {
         const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
         const lowestPrice10_5000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 5000)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
-        const highestPrice10_100 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(10, 100) 
+        const highestPrice10_100 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(10, 100)
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
         if (this.intervalCounter === 2) {
@@ -120,31 +120,30 @@ export class Gambler {
     public async hedgeWisely(accountData: any, highestPrice10_100: number, cPP: number): Promise<void> {
 
         const currentHedgePosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
-        
+
         if (cPP === highestPrice10_100) {
             if (Number(currentHedgePosition.positionAmt) === 0) {
                 await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
             } else {
-                await this.binanceConnector.sellFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * 2)
+                await this.binanceConnector.sellFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1 * 2)
             }
         } else {
             console.log(`highestPrice10_100 ok: ${highestPrice10_100}`)
         }
-        
-        
+
+
         const hedgeProfitInPercent = (currentHedgePosition.unrealizedProfit * 100) / currentHedgePosition.initialMargin
-        
-        
-        console.log(`hedgeProfitInPercent (${hedgeProfitInPercent}) > 20 = ${hedgeProfitInPercent > 20}`)
+
+
         if (hedgeProfitInPercent > 20) {
 
-            const result = await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt))
+            const result = await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
             console.log(result)
 
-        } else if (hedgeProfitInPercent < -100) {
+        } else if (hedgeProfitInPercent < -200) {
 
             console.log(`I need to restart the hedge as the hedgeProfitInPercent is: ${hedgeProfitInPercent}`)
-            const result = await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt))
+            const result = await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
             console.log(result)
 
         }
@@ -245,7 +244,7 @@ export class Gambler {
         try {
             const accountData = await this.binanceConnector.getFuturesAccountData()
             for (const position of accountData.positions) {
-                if (position.positionAmt > 0 && position.symbol !=='DOGEUSDT') { // the hedge is handled separately
+                if (position.positionAmt > 0 && position.symbol !== 'DOGEUSDT') { // the hedge is handled separately
                     const howMuchToSell = Number((position.positionAmt * positionSellFactor).toFixed(this.portfolioProvider.getDecimalPlaces(position.symbol)))
                     console.log(`I'll sell ${howMuchToSell} ${position.symbol}`)
                     await this.binanceConnector.sellFuture(position.symbol, howMuchToSell)
