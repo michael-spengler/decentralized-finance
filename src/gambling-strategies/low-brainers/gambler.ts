@@ -143,18 +143,18 @@ export class Gambler {
 
         const hedgeProfitInPercent = (currentHedgePosition.unrealizedProfit * 100) / currentHedgePosition.initialMargin
 
+        const sellAtHedgeProfitOf = Math.floor(Math.random() * (50 - 17 + 1) + 17);
 
-        if (hedgeProfitInPercent > 17) {
+        if (hedgeProfitInPercent > sellAtHedgeProfitOf) {
 
-            const result = await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
-            console.log(result)
+            console.log(`selling with a minimum of ${sellAtHedgeProfitOf}% plus`)
+
+            await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
 
         } else if (hedgeProfitInPercent < -200) {
 
             console.log(`I need to restart the hedge as the hedgeProfitInPercent is: ${hedgeProfitInPercent}`)
-            const result = await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
-            console.log(result)
-
+            await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
         }
 
 

@@ -70,7 +70,7 @@ export class BasicDoubleGambler {
         
         console.log(`I would sell BTC when I made ${sellingAt}% - current profit: ${bitcoinProfitInPercent}`)
         
-        if (bitcoinProfitInPercent > sellingAt) {
+        if (bitcoinProfitInPercent > sellingAt && bitcoinPosition.positionAmt > 0.1) {
             console.log(`selling BTC to take some profits`)
             await this.binanceConnector.sellFuture('BTCUSDT', 0.001)
         } else if (lowestRandomBitcoinPrice === currentBitcoinPrice && Number(accountData.availableBalance) > 50) {
