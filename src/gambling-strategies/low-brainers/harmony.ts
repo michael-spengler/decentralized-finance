@@ -11,6 +11,8 @@ export class Harmony {
     private beastMode = false
     private eskalationsStufe = 0
     private pause = false
+    private previousPNL = 0
+    private letTheBeastSleep = false
 
     public constructor(binanceApiKey: string, binanceApiSecret: string) {
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
@@ -24,16 +26,26 @@ export class Harmony {
 
             console.log(`randomDelayInSeconds: ${randomDelayInSeconds}`)
 
-            const accountData = await this.binanceConnector.getFuturesAccountData()
-
-            if (Number(accountData.availableBalance) > 200) {
-                await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - 200)
-            } else if (Number(accountData.availableBalance) < 180) {
-                await this.binanceConnector.transferFromSpotAccountToUSDTFutures(200 - Number(accountData.availableBalance))
-            }
-
             setTimeout(async () => {
 
+                const accountData = await this.binanceConnector.getFuturesAccountData()
+
+                if (Number(accountData.availableBalance) > 200) {
+                    await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - 200)
+                } else if (Number(accountData.availableBalance) < 180) {
+                    await this.binanceConnector.transferFromSpotAccountToUSDTFutures(200 - Number(accountData.availableBalance))
+                }
+                const unrealizedProfitInPercent = (Number(accountData.totalUnrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
+    
+                const flowIndicator = this.previousPNL - unrealizedProfitInPercent
+                if (this.previousPNL !== 0 && (flowIndicator < -1 * Math.PI || flowIndicator > Math.PI)) {
+                    this.letTheBeastSleep = true
+                    console.log(`The beast sleeps as the flow indicator is ${flowIndicator}`)
+                } else {
+                    this.letTheBeastSleep = false
+                    console.log(`The beast would be ready as the flow indicator is ${flowIndicator}`)
+                }
+    
                 this.counter++
                 const bitcoinPosition = accountData.positions.filter((entry: any) => entry.symbol === this.investmentPair)[0]
                 const hedgePosition = accountData.positions.filter((entry: any) => entry.symbol === this.hedgePair)[0]
@@ -44,7 +56,6 @@ export class Harmony {
                 const bitcoinPositionValue = Number(bitcoinPosition.positionAmt) * currentBitcoinPrice
                 const hedgeProfitInPercent = (hedgePosition.unrealizedProfit * 100) / hedgePosition.initialMargin
 
-                const unrealizedProfitInPercent = (Number(accountData.totalUnrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
                 console.log(`unrealizedProfitInPercent: ${unrealizedProfitInPercent}`)
 
                 console.log(`I would sell at: ${sellingAt}% overall profit`)
@@ -81,17 +92,21 @@ export class Harmony {
                     this.beastMode = true
                     const randomIndicator = ((Math.floor(Math.random() * (3 - 0 + 1) + 0) + this.eskalationsStufe) * -1)
                     console.log(`randomIndicator: ${randomIndicator}`)
+                    if (this.letTheBeastSleep) {
+                        console.log("sleeping seems especially cool in times of those overhyped pumps and dumps which do not work in our favour")
+                    } else {
 
-                    if (hedgeProfitInPercent < randomIndicator && hedgeProfitInPercent < bitcoinProfitInPercent) {
-                        console.log(`short selling hedge in beast mode`)
-                        const responseInvestment = await this.binanceConnector.sellFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
-                        console.log(responseInvestment)
-                        this.eskalationsStufe++
-                    } else if (bitcoinProfitInPercent < randomIndicator && bitcoinProfitInPercent < hedgeProfitInPercent) {
-                        console.log(`buying btc in beast mode`)
-                        const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, Number(bitcoinPosition.positionAmt))
-                        console.log(responseInvestment)
-                        this.eskalationsStufe++
+                        if (hedgeProfitInPercent < randomIndicator && hedgeProfitInPercent < bitcoinProfitInPercent) {
+                            console.log(`short selling hedge in beast mode`)
+                            const responseInvestment = await this.binanceConnector.sellFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
+                            console.log(responseInvestment)
+                            this.eskalationsStufe++
+                        } else if (bitcoinProfitInPercent < randomIndicator && bitcoinProfitInPercent < hedgeProfitInPercent) {
+                            console.log(`buying btc in beast mode`)
+                            const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, Number(bitcoinPosition.positionAmt))
+                            console.log(responseInvestment)
+                            this.eskalationsStufe++
+                        }
                     }
 
                     console.log(`eskalationsStufe: ${this.eskalationsStufe}`)
@@ -130,6 +145,7 @@ export class Harmony {
                         }
                     }
                 }
+                this.previousPNL = unrealizedProfitInPercent
             }, 1000 * randomDelayInSeconds)
         }, 1000 * this.intervalLengthInSeconds)
     }
