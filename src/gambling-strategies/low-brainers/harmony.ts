@@ -51,8 +51,8 @@ export class Harmony {
 
                 if (Number(accountData.availableBalance) > 200) {
                     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - 200)
-                } else if (Number(accountData.availableBalance) < 200) {
-                    await this.binanceConnector.transferFromSpotAccountToUSDTFutures(200 - Number(accountData.availableBalance))
+                } else if (Number(accountData.availableBalance) < 50) {
+                    await this.binanceConnector.transferFromSpotAccountToUSDTFutures(10 - Number(accountData.availableBalance))
                 }
 
 
