@@ -33,7 +33,7 @@ export class Harmony {
                 if (Number(accountData.availableBalance) > 500) {
                     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - 500)
                 } 
-                
+
                 const unrealizedProfitInPercent = (Number(accountData.totalUnrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
     
                 const flowIndicator = this.previousPNL - unrealizedProfitInPercent
@@ -60,13 +60,6 @@ export class Harmony {
                 console.log(`unrealizedProfitInPercent: ${unrealizedProfitInPercent}`)
 
                 console.log(`I would sell at: ${sellingAt}% overall profit`)
-
-                if (Number(accountData.availableBalance) > 200) {
-                    await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - 200)
-                } else if (Number(accountData.availableBalance) < 50) {
-                    await this.binanceConnector.transferFromSpotAccountToUSDTFutures(10 - Number(accountData.availableBalance))
-                }
-
 
                 if (unrealizedProfitInPercent > sellingAt || this.eskalationsStufe === 9 || unrealizedProfitInPercent < - 45) {
                     console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}% - eskalationsStufe: ${this.eskalationsStufe}`)
