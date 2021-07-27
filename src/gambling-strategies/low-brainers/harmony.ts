@@ -30,11 +30,10 @@ export class Harmony {
 
                 const accountData = await this.binanceConnector.getFuturesAccountData()
 
-                if (Number(accountData.availableBalance) > 200) {
-                    await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - 200)
-                } else if (Number(accountData.availableBalance) < 180) {
-                    await this.binanceConnector.transferFromSpotAccountToUSDTFutures(200 - Number(accountData.availableBalance))
-                }
+                if (Number(accountData.availableBalance) > 500) {
+                    await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - 500)
+                } 
+                
                 const unrealizedProfitInPercent = (Number(accountData.totalUnrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
     
                 const flowIndicator = this.previousPNL - unrealizedProfitInPercent
