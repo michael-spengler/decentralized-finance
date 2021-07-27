@@ -1,6 +1,7 @@
 import { BinanceConnector } from "../../binance/binance-connector"
 
 
+
 export class BasicDoubleGambler {
     private binanceConnector: BinanceConnector
     private bitcoinPrices: number[] = []
