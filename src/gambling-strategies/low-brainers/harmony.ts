@@ -69,7 +69,7 @@ export class Harmony {
                 }
 
 
-                if (unrealizedProfitInPercent > sellingAt) {
+                if (unrealizedProfitInPercent > sellingAt || this.eskalationsStufe === 9 || unrealizedProfitInPercent < - 45) {
                     console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}% - eskalationsStufe: ${this.eskalationsStufe}`)
 
                     const responseInvestment = await this.binanceConnector.sellFuture(this.investmentPair, Number(bitcoinPosition.positionAmt))
@@ -120,7 +120,7 @@ export class Harmony {
                             const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
                             console.log(responseHedge)
                         }
-                        
+
                     }
 
                     console.log(`eskalationsStufe: ${this.eskalationsStufe}`)
