@@ -50,10 +50,12 @@ export class Harmony {
                 const bitcoinPosition = accountData.positions.filter((entry: any) => entry.symbol === this.investmentPair)[0]
                 const hedgePosition = accountData.positions.filter((entry: any) => entry.symbol === this.hedgePair)[0]
                 const currentPrices = await this.binanceConnector.getCurrentPrices()
-                const currentBitcoinPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price
+                const currentBitcoinPrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.investmentPair)[0].price
+                const currentHedgePrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.hedgePair)[0].price
                 const bitcoinProfitInPercent = (bitcoinPosition.unrealizedProfit * 100) / bitcoinPosition.initialMargin
                 const sellingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18)) - this.eskalationsStufe * Math.PI + 9
                 const bitcoinPositionValue = Number(bitcoinPosition.positionAmt) * currentBitcoinPrice
+                const hedgePositionValue = Number(hedgePosition.positionAmt) * currentHedgePrice
                 const hedgeProfitInPercent = (hedgePosition.unrealizedProfit * 100) / hedgePosition.initialMargin
 
                 console.log(`unrealizedProfitInPercent: ${unrealizedProfitInPercent}`)
@@ -94,12 +96,12 @@ export class Harmony {
                     console.log(`randomIndicator: ${randomIndicator}`)
                     if (this.letTheBeastSleep) {
                         console.log("sleeping seems especially cool in times of those overhyped pumps and dumps which do not work in our favour")
-                    } else {
+                    } else if (this.eskalationsStufe < 2 || (hedgeProfitInPercent > 0 || bitcoinProfitInPercent > 0)) {
 
                         if (hedgeProfitInPercent < randomIndicator && hedgeProfitInPercent < bitcoinProfitInPercent) {
                             console.log(`short selling hedge in beast mode`)
-                            const responseInvestment = await this.binanceConnector.sellFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
-                            console.log(responseInvestment)
+                            const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
+                            console.log(responseHedge)
                             this.eskalationsStufe++
                         } else if (bitcoinProfitInPercent < randomIndicator && bitcoinProfitInPercent < hedgeProfitInPercent) {
                             console.log(`buying btc in beast mode`)
@@ -107,6 +109,18 @@ export class Harmony {
                             console.log(responseInvestment)
                             this.eskalationsStufe++
                         }
+                    } else if (this.eskalationsStufe >= 2 && hedgeProfitInPercent < 0 && bitcoinProfitInPercent < 0) {
+
+                        console.log(`thug life :) --> pimping the underrepresented position - bitcoinPositionValue: ${bitcoinPositionValue} vs. hedgePositionValue: ${hedgePositionValue}`)
+
+                        if (bitcoinPositionValue < hedgePositionValue) {
+                            const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, Number(bitcoinPosition.positionAmt))
+                            console.log(responseInvestment)
+                        } else {
+                            const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
+                            console.log(responseHedge)
+                        }
+                        
                     }
 
                     console.log(`eskalationsStufe: ${this.eskalationsStufe}`)
