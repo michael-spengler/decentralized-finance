@@ -12,6 +12,7 @@ export class Gambler {
     private reinvestAt: number
     private investmentAmount: number
     private intervalCounter: number
+    private currentPrices: any[] = []
 
     public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
         this.liquidityRatioToBuy = lrToBuy
@@ -46,17 +47,17 @@ export class Gambler {
 
     private async investWisely(): Promise<void> {
 
-        const currentPrices = await this.binanceConnector.getCurrentPrices()
-        const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(currentPrices)
+        this.currentPrices = await this.binanceConnector.getCurrentPrices()
+        const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(this.currentPrices)
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
         const lowestPrice10_5000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 5000)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
-        const highestPrice10_30 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(10, 30)
+        const highestPrice10_30 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(1, 33)
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
         if (this.intervalCounter === 2) {
-            await this.adjustLeverageEffect(accountData)
+            // await this.adjustLeverageEffect(accountData)
         }
 
         console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP10_5000: ${lowestPrice10_5000.toFixed(2)}; nyrPNL: ${accountData.totalUnrealizedProfit}`)
@@ -86,7 +87,7 @@ export class Gambler {
             if (this.intervalCounter > 1000) {
                 if (cPP === lowestPrice10_5000) {
                     const couldBuyWouldBuyFactor = 0.1
-                    await this.buy(currentPrices, accountData, couldBuyWouldBuyFactor)
+                    await this.buy(this.currentPrices, accountData, couldBuyWouldBuyFactor)
                     console.log(`I bought with factor ${couldBuyWouldBuyFactor}`)
                     await this.saveSomething(accountData)
                 } else {
@@ -128,16 +129,29 @@ export class Gambler {
 
             } else if ((Number(currentHedgePosition.positionAmt) * -1) < 24000) {
 
-                let amountToBeShortSold = Number(currentHedgePosition.positionAmt) * -1 * 2
+                const amountToBeShortSold = Number(currentHedgePosition.positionAmt) * -1 * 2
+            
+                const currentEtherPosition = accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
+                const currentEtherPrice: number = this.currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price
+                const etherPositionValue = Number(currentEtherPosition.positionAmt) * currentEtherPrice
+                
+                const valueToBeShortSold = amountToBeShortSold * this.currentPrices.filter((e: any) => e.coinSymbol === 'DOGEUSDT')[0].price
+                
+                console.log(`valueToBeShortSold: ${valueToBeShortSold}`)
 
-                if (amountToBeShortSold > 20000) {
-                    amountToBeShortSold = 20000
+                console.log(`etherPositionValue: ${etherPositionValue}`)
+
+               
+                if (etherPositionValue > valueToBeShortSold) {
+                    await this.binanceConnector.sellFuture('DOGEUSDT', amountToBeShortSold)
                 }
-
-                await this.binanceConnector.sellFuture('DOGEUSDT', amountToBeShortSold)
+                
             }
+
         } else {
+
             console.log(`highestPrice10_30 ok: ${highestPrice10_30}`)
+
         }
 
 
