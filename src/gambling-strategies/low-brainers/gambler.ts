@@ -53,7 +53,7 @@ export class Gambler {
         const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
         const lowestPrice10_5000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 5000)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
-        const highestPrice10_30 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(1, 33)
+        const highestPrice10_30 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(10, 30)
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
         if (this.intervalCounter === 2) {

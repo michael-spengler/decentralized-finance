@@ -101,7 +101,7 @@ export class Harmony {
                     Number(bitcoinPosition.positionAmt) > 0) {
 
                     console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}% - eskalationsStufe: ${this.eskalationsStufe} - bitCoinAverageDeltaInPercent ${bitCoinAverageDeltaInPercent}`)
-                    this.overallPNL = this.overallPNL + unrealizedProfitInPercent
+                    this.overallPNL = this.overallPNL + accountData.totalUnrealizedProfit
                     this.investmentSpecificCounter = 0
                     const responseInvestment = await this.binanceConnector.sellFuture(this.investmentPair, Number(bitcoinPosition.positionAmt))
                     console.log(responseInvestment)
