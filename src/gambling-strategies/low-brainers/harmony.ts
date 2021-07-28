@@ -160,16 +160,23 @@ export class Harmony {
                 } else {
 
                     // check if I shall go to thug life mode
-                    if ((hedgeProfitInPercent < 0 && bitcoinProfitInPercent < 0) || (this.investmentSpecificCounter % 9 === 0 && this.eskalationsStufe < 3)) {
+                    if ((hedgeProfitInPercent < 0 && bitcoinProfitInPercent < 0) ||
+                        (this.investmentSpecificCounter % 9 === 0 && this.eskalationsStufe < 3)) {
 
-                        console.log(`thug life :) --> pimping the underrepresented position - bitcoinPositionValue: ${bitcoinPositionValue} vs. hedgePositionValue: ${hedgePositionValue}`)
+                        console.log(`thug life :) --> bitcoinPositionValue: ${bitcoinPositionValue} vs. hedgePositionValue: ${hedgePositionValue}`)
 
                         if (bitcoinPositionValue < (hedgePositionValue * -1)) {
-                            const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, Number(bitcoinPosition.positionAmt))
-                            console.log(responseInvestment)
+                            if (bitcoinProfitInPercent < 0) {
+                                console.log(`thug life :) --> pimping the underrepresented bitcoin position`)
+                                const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, Number(bitcoinPosition.positionAmt))
+                                console.log(responseInvestment)
+                            }
                         } else if (bitcoinPositionValue > hedgePositionValue * -1) {
-                            const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
-                            console.log(responseHedge)
+                            if (hedgeProfitInPercent < 0) {
+                                console.log(`thug life :) --> pimping the underrepresented hedge position`)
+                                const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
+                                console.log(responseHedge)
+                            }
                         }
                     }
 
