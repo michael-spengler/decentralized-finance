@@ -6,7 +6,6 @@ export class Harmony {
     private intervalLengthInSeconds = 9
     private investmentPair = 'BTCUSDT'
     private hedgePair = 'DOGEUSDT'
-    private overallCounter = 0
     private investmentSpecificCounter = 0
     private targetInvestmentAmount = 0.003
     private targetHedgePositionAmount = 0
@@ -19,6 +18,7 @@ export class Harmony {
     private overallPNL = 0
     private initialBitcoinPrice = 0
     private initialHedgePrice = 0
+    private previousPriceDeltaDifference = 0
 
 
     public constructor(binanceApiKey: string, binanceApiSecret: string) {
@@ -38,11 +38,7 @@ export class Harmony {
 
                 console.log(`overallPNL: ${this.overallPNL}`)
 
-
-
-                this.overallCounter++
                 this.investmentSpecificCounter++
-
 
                 // collect relevant data
                 const accountData = await this.binanceConnector.getFuturesAccountData()
@@ -53,8 +49,6 @@ export class Harmony {
                 const currentHedgePrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.hedgePair)[0].price
                 const bitcoinProfitInPercent = (bitcoinPosition.unrealizedProfit * 100) / bitcoinPosition.initialMargin
                 const sellingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18)) - this.eskalationsStufe * Math.PI + 9
-                const bitcoinPositionValue = Number(bitcoinPosition.positionAmt) * currentBitcoinPrice
-                const hedgePositionValue = Number(hedgePosition.positionAmt) * currentHedgePrice
                 const hedgeProfitInPercent = (hedgePosition.unrealizedProfit * 100) / hedgePosition.initialMargin
                 const unrealizedProfitInPercent = (Number(accountData.totalUnrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
                 const flowIndicator = this.previousPNL - unrealizedProfitInPercent
@@ -78,10 +72,8 @@ export class Harmony {
                 // console.log(`averageBitcoinPrice: ${averageBitcoinPrice}`)
                 // console.log(`currentBitcoinPrice: ${currentBitcoinPrice}`)
                 // console.log(`bitCoinAverageDeltaInPercent: ${bitCoinAverageDeltaInPercent}`)
-                // console.log(`overallCounter: ${this.overallCounter}`)
                 console.log(`unrealizedProfitInPercent: ${unrealizedProfitInPercent} - would sell at ${sellingAt}%`)
                 console.log(`investmentSpecificCounter: ${this.investmentSpecificCounter}`)
-                // console.log(`bitcoinPositionValue: ${bitcoinPositionValue} vs. hedgePositionValue: ${hedgePositionValue}`)
 
 
 
@@ -115,7 +107,7 @@ export class Harmony {
                     const responseHedge = await this.binanceConnector.buyFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
                     console.log(responseHedge)
 
-                    switch (this.overallCounter % 2) {
+                    switch (this.investmentSpecificCounter % 2) {
                         case 0: this.hedgePair = 'DOGEUSDT'
                         case 1: this.hedgePair = 'DOGEUSDT' // doges seem to be the best hedge
                         // case 1: this.hedgePair = 'DOTUSDT'
@@ -126,10 +118,10 @@ export class Harmony {
                     this.eskalationsStufe = 0
                     this.pauseAsTheDealHadJustBeenClosed = true
 
-                } else if (unrealizedProfitInPercent < 0 && Number(hedgePosition.positionAmt) > 0) {
+                } else if (unrealizedProfitInPercent < 0 && Number(hedgePosition.positionAmt) < 0) {
 
                     console.log(`beast mode`)
-                    const randomIndicator = ((Math.floor(Math.random() * (2 - 0 + 1) + 0) + this.eskalationsStufe) * -1)
+                    const randomIndicator = ((Math.floor(Math.random() * (5 - 2 + 1) + 2) + this.eskalationsStufe) * -1)
                     console.log(`randomIndicator: ${randomIndicator}`)
 
                     if (this.letTheBeastSleep) {
@@ -191,14 +183,23 @@ export class Harmony {
                     console.log(`thug life :) --> bitcoinPriceDeltaInPercent: ${bitcoinPriceDeltaInPercent} vs. hedgePriceDeltaInPercent: ${hedgePriceDeltaInPercent}`)
 
                     if ((bitcoinPriceDeltaInPercent < hedgePriceDeltaInPercent) || (hedgeProfitInPercent < 0 && bitcoinProfitInPercent < 0)) {
-                        console.log(`thug life :) --> pimping the bitcoin position`)
 
-                        const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, this.targetInvestmentAmount)
-                        console.log(responseInvestment)
+                        const priceDeltaDifference = hedgePriceDeltaInPercent - bitcoinPriceDeltaInPercent
+                        console.log(`previousPriceDeltaDifference: ${this.previousPriceDeltaDifference} vs. priceDeltaDifference: ${priceDeltaDifference}`)
 
-                        const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, this.targetHedgePositionAmount)
-                        console.log(responseHedge)
+                        if (priceDeltaDifference > this.previousPriceDeltaDifference) {
 
+                            console.log(`thug life :) --> pimping the bitcoin position`)
+                            
+                            const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, this.targetInvestmentAmount)
+                            console.log(responseInvestment)
+                            
+                            const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, this.targetHedgePositionAmount)
+                            console.log(responseHedge)
+
+                        }
+                        
+                        this.previousPriceDeltaDifference = priceDeltaDifference
                     }
 
                 }
@@ -208,6 +209,7 @@ export class Harmony {
             }, 1000 * randomDelayInSeconds)
 
         }, 1000 * this.intervalLengthInSeconds)
+
     }
 
 
