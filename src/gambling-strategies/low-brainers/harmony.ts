@@ -94,7 +94,8 @@ export class Harmony {
                 // check if I should close the deal or potentially act in beast mode
                 if ((unrealizedProfitInPercent > sellingAt ||
                     unrealizedProfitInPercent < - 54 ||
-                    unrealizedProfitInPercent >= 18 && this.investmentSpecificCounter % 9 === 0) &&
+                    unrealizedProfitInPercent >= 11 && this.investmentSpecificCounter % 9 === 0 || 
+                    (this.investmentSpecificCounter > 200 && unrealizedProfitInPercent > 7)) &&
                     Number(bitcoinPosition.positionAmt) > 0) {
 
                     console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}% - eskalationsStufe: ${this.eskalationsStufe} - bitCoinAverageDeltaInPercent ${bitCoinAverageDeltaInPercent}`)
