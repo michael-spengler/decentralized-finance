@@ -132,7 +132,7 @@ export class Harmony {
                         if (hedgeProfitInPercent < randomIndicator && hedgeProfitInPercent < bitcoinProfitInPercent) {
 
                             console.log(`short selling hedge in beast mode`)
-                            const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, Number((this.targetHedgePositionAmount * 3).toFixed(0)))
+                            const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, Number((this.targetHedgePositionAmount).toFixed(0)))
                             console.log(responseHedge)
                             if (this.eskalationsStufe < 10) {
                                 this.eskalationsStufe++
@@ -141,7 +141,7 @@ export class Harmony {
                         } else if (bitcoinProfitInPercent < randomIndicator && bitcoinProfitInPercent < hedgeProfitInPercent) {
 
                             console.log(`buying btc in beast mode`)
-                            const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, Number((this.targetInvestmentAmount * 3).toFixed(3)))
+                            const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, Number((this.targetInvestmentAmount).toFixed(3)))
                             console.log(responseInvestment)
                             this.eskalationsStufe++
 
