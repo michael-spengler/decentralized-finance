@@ -48,7 +48,7 @@ export class Harmony {
                 const currentBitcoinPrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.investmentPair)[0].price
                 const currentHedgePrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.hedgePair)[0].price
                 const bitcoinProfitInPercent = (bitcoinPosition.unrealizedProfit * 100) / bitcoinPosition.initialMargin
-                const sellingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18)) - this.eskalationsStufe * Math.PI + 9
+                const sellingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18))
                 const hedgeProfitInPercent = (hedgePosition.unrealizedProfit * 100) / hedgePosition.initialMargin
                 const unrealizedProfitInPercent = (Number(accountData.totalUnrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
                 const flowIndicator = this.previousPNL - unrealizedProfitInPercent
@@ -94,8 +94,7 @@ export class Harmony {
                 // check if I should close the deal or potentially act in beast mode
                 if ((unrealizedProfitInPercent > sellingAt ||
                     unrealizedProfitInPercent < - 54 ||
-                    unrealizedProfitInPercent > 6 && this.investmentSpecificCounter % 9 === 0 ||
-                    this.eskalationsStufe === 9) &&
+                    unrealizedProfitInPercent >= 9 && this.investmentSpecificCounter % 9 === 0) &&
                     Number(bitcoinPosition.positionAmt) > 0) {
 
                     console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}% - eskalationsStufe: ${this.eskalationsStufe} - bitCoinAverageDeltaInPercent ${bitCoinAverageDeltaInPercent}`)
@@ -133,14 +132,14 @@ export class Harmony {
                         if (hedgeProfitInPercent < randomIndicator && hedgeProfitInPercent < bitcoinProfitInPercent) {
 
                             console.log(`short selling hedge in beast mode`)
-                            const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, Number(hedgePosition.positionAmt) * -1)
+                            const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, this.targetHedgePositionAmount * 3)
                             console.log(responseHedge)
                             this.eskalationsStufe++
 
                         } else if (bitcoinProfitInPercent < randomIndicator && bitcoinProfitInPercent < hedgeProfitInPercent) {
 
                             console.log(`buying btc in beast mode`)
-                            const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, Number(bitcoinPosition.positionAmt))
+                            const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, this.targetInvestmentAmount * 3)
                             console.log(responseInvestment)
                             this.eskalationsStufe++
 
