@@ -15,7 +15,9 @@ export class BinanceConnectorDouble {
         })
     }
 
-    public async get24HoursPrices() {
+    public async candlesticks(pair: string, timeFrame: string) {
+        return this.binance.candlesticks(pair, timeFrame)
+
         // return this.binance.candlesticks("ETHUSDT", "1m")
         // this.binance.candlesticks("ETHUSDT", "1m", (error: any, ticks: any, symbol: string) => {
         //     console.info("candlesticks()", ticks);

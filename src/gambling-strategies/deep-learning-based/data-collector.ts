@@ -16,7 +16,7 @@ export class DataCollector {
 
         const fsExtra = require('fs-extra')
 
-        const ticks = await this.binanceConnector.get24HoursPrices()
+        const ticks = await this.binanceConnector.candlesticks('ETHUSDT', '5m')
         // console.log(ticks.length)
 
         for (const e of ticks) {
