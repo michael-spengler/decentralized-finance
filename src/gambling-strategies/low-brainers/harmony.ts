@@ -9,7 +9,6 @@ export class Harmony {
     private intervalLengthInSeconds = 9
     private investmentPair = 'BTCUSDT'
     private hedgePair = 'DOGEUSDT'
-    private targetInvestmentAmount = 0.003
     private targetHedgePositionAmount = 0
     private historicEtherPrices: number[] = []
     private historicPricesLength = 100
@@ -37,7 +36,7 @@ export class Harmony {
 
                 const accountData = await this.binanceConnector.getFuturesAccountData()
                 const currentPrices = await this.binanceConnector.getCurrentPrices()
-    
+
                 if (Number(accountData.availableBalance) > 500) {
                     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - 500)
                 }
@@ -90,11 +89,7 @@ export class Harmony {
         console.log(`priceDeltaDifference: ${priceDeltaDifference}`)
 
 
-        if ((((unrealizedProfitInPercent > sellingAt &&
-            bitcoinPriceDeltaInPercent > hedgePriceDeltaInPercent) ||
-            unrealizedProfitInPercent < - 54)) &&
-            Number(bitcoinPosition.positionAmt) > 0 &&
-            pnlFromBadAssStretch > 5) {
+        if (unrealizedProfitInPercent > sellingAt && Number(bitcoinPosition.positionAmt) > 0 && pnlFromBadAssStretch > 5) {
 
             console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}%`)
 
@@ -106,17 +101,17 @@ export class Harmony {
 
         } else {
 
-            if (Number(bitcoinPosition.positionAmt) < this.targetInvestmentAmount) {
+            if (Number(bitcoinPosition.positionAmt) < 0.003) {
 
                 console.log(`initializing the bad ass stretch game`)
 
-                const bitcoinDelta = this.targetInvestmentAmount - Number(bitcoinPosition.positionAmt)
+                const bitcoinDelta = 0.003 - Number(bitcoinPosition.positionAmt)
                 console.log(`I buy ${bitcoinDelta} BTC`)
                 const responseInvestment = await this.binanceConnector.buyFuture('BTCUSDT', bitcoinDelta)
                 console.log(responseInvestment)
                 this.initialBitcoinPrice = currentBitcoinPrice
 
-                this.targetHedgePositionAmount = Number(((this.targetInvestmentAmount / currentHedgePrice) * currentBitcoinPrice).toFixed(0))
+                this.targetHedgePositionAmount = Number(((0.003 / currentHedgePrice) * currentBitcoinPrice).toFixed(0))
                 console.log(`I sell ${this.targetHedgePositionAmount} ${this.hedgePair} to establish the hedge`)
                 const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, this.targetHedgePositionAmount)
                 console.log(responseHedge)
@@ -131,7 +126,7 @@ export class Harmony {
 
                 if (priceDeltaDifference > this.previousPriceDeltaDifference && priceDeltaDifference > 0.027) {
 
-                    const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, this.targetInvestmentAmount)
+                    const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, 0.003)
                     console.log(responseInvestment)
 
                     const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, this.targetHedgePositionAmount)
@@ -171,32 +166,30 @@ export class Harmony {
 
             const bidsAndAsks = this.indicator.getAmountOfBidsAndAsksFromOrderbook(orderBook)
             console.log(bidsAndAsks)
-            
-            const currentETHPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price
 
             const bidsAndAsksDeltaInPercent = this.indicator.getBidsAndAsksDeltaInPercent(bidsAndAsks)
             console.log(`bidsAndAsksDeltaInPercent: ${bidsAndAsksDeltaInPercent}`)
 
+            console.log(`current Ether Profit: ${Number(etherPosition.unrealizedProfit)}`)
 
             if (lowestSinceX > 50) {
 
-               
+
                 if (sellPressureFromCryptometer > 50 && bidsAndAsksDeltaInPercent < - 30) { // this might sound counterintuitive - in some respect you need to do the opposite of what 75 % of traders do
 
                     let amountToBeBought = 0.02 * Number((lowestSinceX / 10).toFixed(2))
 
                     console.log(`amountToBeBought before potential correction: ${amountToBeBought}`)
-                    if (amountToBeBought > 2 - Number(etherPosition.positionAmt)) {
-                        amountToBeBought = 2 - Number(etherPosition.positionAmt)
+                    if (amountToBeBought > 3 - Number(etherPosition.positionAmt)) {
+                        amountToBeBought = 3 - Number(etherPosition.positionAmt)
                     }
 
                     console.log(`amountToBeBought after potential correction: ${amountToBeBought}`)
 
-                    if (amountToBeBought <= 2 - Number(etherPosition.positionAmt)) {
                         console.log(`Buying ${amountToBeBought} Ether`)
                         const responseBuyEther = await this.binanceConnector.buyFuture('ETHUSDT', amountToBeBought)
                         console.log(responseBuyEther)
-                    }
+                    
                 }
 
             } else if (highestSinceX > 50) {
@@ -211,11 +204,9 @@ export class Harmony {
                     }
 
                     console.log(`amountToBeSold after potential Correction: ${amountToBeSold}`)
-                    if (Number(etherPosition.positionAmt) > amountToBeSold + 0.1) {
                         console.log(`Selling ${amountToBeSold} Ether`)
                         const responseSellEther = await this.binanceConnector.sellFuture('ETHUSDT', amountToBeSold)
                         console.log(responseSellEther)
-                    }
                 }
             }
         }
