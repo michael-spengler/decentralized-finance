@@ -76,7 +76,7 @@ export class Harmony {
         const pnlFromBitcoinPosition = Number(bitcoinPosition.unrealizedProfit)
         const pnlFromHedgePosition = Number(hedgePosition.unrealizedProfit)
 
-        console.log(`****************************************\npnlFromBitcoinPosition: ${pnlFromBitcoinPosition}`)
+        console.log(`\n****************************************\npnlFromBitcoinPosition: ${pnlFromBitcoinPosition}`)
         console.log(`pnlFromHedgePosition: ${pnlFromHedgePosition}`)
 
         const pnlFromBadAssStretch = pnlFromBitcoinPosition + pnlFromHedgePosition
@@ -127,10 +127,10 @@ export class Harmony {
                 if (priceDeltaDifference > this.previousPriceDeltaDifference && priceDeltaDifference > 0.027) {
 
                     const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, this.targetInvestmentAmount)
-                    console.log(responseInvestment)
+                    // console.log(responseInvestment)
 
                     const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, this.targetHedgePositionAmount)
-                    console.log(responseHedge)
+                    // console.log(responseHedge)
 
                 }
 
@@ -156,28 +156,33 @@ export class Harmony {
         const lowestSinceX = this.getIsLowestEtherPriceSinceX(currentEtherPrice)
         const highestSinceX = this.getIsHighestEtherPriceSinceX(currentEtherPrice)
 
-        console.log(`****************************************\ncurrent: ${currentEtherPrice} (lowestSinceX: ${lowestSinceX}) - (highestSinceX: ${highestSinceX})`)
+        console.log(`\n****************************************\ncurrent: ${currentEtherPrice} (lowestSinceX: ${lowestSinceX}) - (highestSinceX: ${highestSinceX})`)
+
+        const orderBook = await this.binanceConnector.getOrderbook('ETHBTC')
+
+        const bidsAndAsks = this.indicator.getAmountOfBidsAndAsksFromOrderbook(orderBook)
+        console.log(bidsAndAsks)
+
+        const bidsAndAsksDeltaInPercent = this.indicator.getBidsAndAsksDeltaInPercent(bidsAndAsks)
+        console.log(`bidsAndAsksDeltaInPercent: ${bidsAndAsksDeltaInPercent}`)
+
+        console.log(`current Ether Profit: ${Number(etherPosition.unrealizedProfit)}`)
 
         if (lowestSinceX > 50 || highestSinceX > 50) {
 
             const sellPressureFromCryptometer = (await this.cryptoMeterConnector.getTrendIndicators()).sell_pressure
 
-            const orderBook = await this.binanceConnector.getOrderbook('ETHBTC')
-
-            const bidsAndAsks = this.indicator.getAmountOfBidsAndAsksFromOrderbook(orderBook)
-            console.log(bidsAndAsks)
-
-            const bidsAndAsksDeltaInPercent = this.indicator.getBidsAndAsksDeltaInPercent(bidsAndAsks)
-            console.log(`bidsAndAsksDeltaInPercent: ${bidsAndAsksDeltaInPercent}`)
-
-            console.log(`current Ether Profit: ${Number(etherPosition.unrealizedProfit)}`)
-
+           
             if (lowestSinceX > 50) {
+                
+                if (Number(etherPosition.unrealizedProfit) < -42) {
+                    
+                    console.log(`things went south. I sell my ether position with a pnl of: ${Number(etherPosition.unrealizedProfit)}`)
+                    await this.binanceConnector.sellFuture('ETHUSDT', Number(etherPosition.positionAmt))
 
+                } else if (sellPressureFromCryptometer > 50 && bidsAndAsksDeltaInPercent < - 30) { // this might sound counterintuitive - in some respect you need to do the opposite of what 75 % of traders do
 
-                if (sellPressureFromCryptometer > 50 && bidsAndAsksDeltaInPercent < - 30) { // this might sound counterintuitive - in some respect you need to do the opposite of what 75 % of traders do
-
-                    let amountToBeBought = 0.02 * Number((lowestSinceX / 10).toFixed(2))
+                    let amountToBeBought = 0.02 * Number((lowestSinceX / 10).toFixed(0))
 
                     console.log(`amountToBeBought before potential correction: ${amountToBeBought}`)
                     if (amountToBeBought > 3 - Number(etherPosition.positionAmt)) {
@@ -196,7 +201,7 @@ export class Harmony {
 
                 if (sellPressureFromCryptometer < 50 && bidsAndAsksDeltaInPercent > 100) {
 
-                    let amountToBeSold = 0.02 * Number((highestSinceX / 10).toFixed(2))
+                    let amountToBeSold = 0.02 * Number((highestSinceX / 10).toFixed(0))
 
                     console.log(`amountToBeSold before potential Correction: ${amountToBeSold}`)
                     if (amountToBeSold > Number(etherPosition.positionAmt) - 0.1) {
