@@ -91,7 +91,9 @@ export class Harmony {
 
         this.targetHedgePositionAmount = Number(((this.targetInvestmentAmount / currentHedgePrice) * currentBitcoinPrice).toFixed(0))
 
-        if (Number(bitcoinPosition.positionAmt) > 0 && pnlFromBadAssStretch > 8) {
+        console.log(`debugging: ${pnlFromBadAssStretch > 8} - ${Number(bitcoinPosition.positionAmt)} - ${this.investmentPair}`)
+        
+        if (pnlFromBadAssStretch > 8) {
 
             console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}%`)
 
