@@ -155,7 +155,7 @@ export class Harmony {
         const lowestSinceX = this.getIsLowestEtherPriceSinceX(currentEtherPrice)
         const highestSinceX = this.getIsHighestEtherPriceSinceX(currentEtherPrice)
 
-        console.log(`\n****************************************\ncurrent: ${currentEtherPrice} (${Number(etherPosition.unrealizedProfit)}) - lowestSinceX: ${lowestSinceX}) - (highestSinceX: ${highestSinceX}`)
+        console.log(`\n****************************************\ncurrent: ${currentEtherPrice} (${Number(etherPosition.unrealizedProfit)}) - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX}`)
 
         const orderBook = await this.binanceConnector.getOrderbook('ETHBTC')
 
@@ -167,7 +167,7 @@ export class Harmony {
 
         if (lowestSinceX > 50 || highestSinceX > 50) {
 
-            const sellPressureFromCryptometer = (await this.cryptoMeterConnector.getTrendIndicators()).sell_pressure
+            // const sellPressureFromCryptometer = (await this.cryptoMeterConnector.getTrendIndicators()).sell_pressure
 
            
             if (lowestSinceX > 50) {
@@ -177,7 +177,7 @@ export class Harmony {
                     console.log(`things went south. I sell my ether position with a pnl of: ${Number(etherPosition.unrealizedProfit)}`)
                     await this.binanceConnector.sellFuture('ETHUSDT', Number(etherPosition.positionAmt))
 
-                } else if (sellPressureFromCryptometer > 50 && bidsAndAsksDeltaInPercent < - 30) { // this might sound counterintuitive - in some respect you need to do the opposite of what 75 % of traders do
+                } else if (bidsAndAsksDeltaInPercent < - 30) { // this might sound counterintuitive - in some respect you need to do the opposite of what 75 % of traders do
 
                     let amountToBeBought = 0.02 * Number((lowestSinceX / 10).toFixed(0))
 
@@ -196,7 +196,7 @@ export class Harmony {
 
             } else if (highestSinceX > 50) {
 
-                if (sellPressureFromCryptometer < 50 && bidsAndAsksDeltaInPercent > 100) {
+                if (bidsAndAsksDeltaInPercent > 100) {
 
                     let amountToBeSold = 0.02 * Number((highestSinceX / 10).toFixed(0))
 
