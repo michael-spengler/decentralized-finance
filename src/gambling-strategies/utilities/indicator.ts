@@ -8,13 +8,13 @@ export class Indicator {
         for (let e of Object.keys(orderBook.bids)) {
             amountOfBids = amountOfBids + (Number(e) * orderBook.bids[e]) 
         }
-        console.log(amountOfBids)
+        // console.log(amountOfBids)
         
         let amountOfAsks = 0
         for (let e of Object.keys(orderBook.asks)) {
             amountOfAsks = amountOfAsks + (Number(e) * orderBook.asks[e]) 
         }
-        console.log(amountOfAsks)
+        // console.log(amountOfAsks)
 
         return {
             bids: amountOfBids,

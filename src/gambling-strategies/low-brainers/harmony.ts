@@ -76,8 +76,7 @@ export class Harmony {
         const pnlFromBitcoinPosition = Number(bitcoinPosition.unrealizedProfit)
         const pnlFromHedgePosition = Number(hedgePosition.unrealizedProfit)
 
-        console.log(`\n****************************************\npnlFromBitcoinPosition: ${pnlFromBitcoinPosition}`)
-        console.log(`pnlFromHedgePosition: ${pnlFromHedgePosition}`)
+        console.log(`\n****************************************\npnlFromBitcoinPosition: ${pnlFromBitcoinPosition} - pnlFromHedgePosition: ${pnlFromHedgePosition}`)
 
         const pnlFromBadAssStretch = pnlFromBitcoinPosition + pnlFromHedgePosition
 
@@ -156,7 +155,7 @@ export class Harmony {
         const lowestSinceX = this.getIsLowestEtherPriceSinceX(currentEtherPrice)
         const highestSinceX = this.getIsHighestEtherPriceSinceX(currentEtherPrice)
 
-        console.log(`\n****************************************\ncurrent: ${currentEtherPrice} (lowestSinceX: ${lowestSinceX}) - (highestSinceX: ${highestSinceX})`)
+        console.log(`\n****************************************\ncurrent: ${currentEtherPrice} (${Number(etherPosition.unrealizedProfit)}) - lowestSinceX: ${lowestSinceX}) - (highestSinceX: ${highestSinceX}`)
 
         const orderBook = await this.binanceConnector.getOrderbook('ETHBTC')
 
@@ -165,8 +164,6 @@ export class Harmony {
 
         const bidsAndAsksDeltaInPercent = this.indicator.getBidsAndAsksDeltaInPercent(bidsAndAsks)
         console.log(`bidsAndAsksDeltaInPercent: ${bidsAndAsksDeltaInPercent}`)
-
-        console.log(`current Ether Profit: ${Number(etherPosition.unrealizedProfit)}`)
 
         if (lowestSinceX > 50 || highestSinceX > 50) {
 
