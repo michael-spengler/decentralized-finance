@@ -61,7 +61,7 @@ export class Harmony {
         const hedgePosition = accountData.positions.filter((entry: any) => entry.symbol === this.hedgePair)[0]
         const bitcoinProfitInPercent = (bitcoinPosition.unrealizedProfit * 100) / bitcoinPosition.initialMargin
         const hedgeProfitInPercent = (hedgePosition.unrealizedProfit * 100) / hedgePosition.initialMargin
-        const unrealizedProfitInPercent = (Number(accountData.totalUnrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
+        const unrealizedProfitInPercent = (Number(accountData.totalunrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
 
 
         if (this.initialBitcoinPrice === 0) this.initialBitcoinPrice = currentBitcoinPrice
@@ -71,11 +71,11 @@ export class Harmony {
         const hedgePriceDeltaInPercent = ((currentHedgePrice * 100) / this.initialHedgePrice) - 100
         const priceDeltaDifference = hedgePriceDeltaInPercent - bitcoinPriceDeltaInPercent
 
-        // const pnlFromBitcoinPosition = Number(bitcoinPosition.entryPrice) * Number(bitcoinPosition.unRealizedProfit)
-        // const pnlFromHedgePosition = Number(hedgePosition.entryPrice) * Number(hedgePosition.unRealizedProfit)
+        // const pnlFromBitcoinPosition = Number(bitcoinPosition.entryPrice) * Number(bitcoinPosition.unrealizedProfit)
+        // const pnlFromHedgePosition = Number(hedgePosition.entryPrice) * Number(hedgePosition.unrealizedProfit)
 
-        const pnlFromBitcoinPosition = Number(bitcoinPosition.unRealizedProfit)
-        const pnlFromHedgePosition = Number(hedgePosition.unRealizedProfit)
+        const pnlFromBitcoinPosition = Number(bitcoinPosition.unrealizedProfit)
+        const pnlFromHedgePosition = Number(hedgePosition.unrealizedProfit)
 
         console.log(`pnlFromBitcoinPosition: ${pnlFromBitcoinPosition}`)
         console.log(`pnlFromHedgePosition: ${pnlFromHedgePosition}`)
@@ -129,7 +129,7 @@ export class Harmony {
 
                 console.log(`previousPriceDeltaDifference: ${this.previousPriceDeltaDifference} vs. priceDeltaDifference: ${priceDeltaDifference}`)
 
-                if (priceDeltaDifference > this.previousPriceDeltaDifference && priceDeltaDifference > 0.03) {
+                if (priceDeltaDifference > this.previousPriceDeltaDifference && priceDeltaDifference > 0.027) {
 
                     const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, this.targetInvestmentAmount)
                     console.log(responseInvestment)
