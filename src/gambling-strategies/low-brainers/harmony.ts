@@ -56,7 +56,7 @@ export class Harmony {
 
         const currentBitcoinPrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.investmentPair)[0].price
         const currentHedgePrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.hedgePair)[0].price
-        const sellingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18))
+        // const sellingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18))
         const bitcoinPosition = accountData.positions.filter((entry: any) => entry.symbol === this.investmentPair)[0]
         const hedgePosition = accountData.positions.filter((entry: any) => entry.symbol === this.hedgePair)[0]
         const bitcoinProfitInPercent = (bitcoinPosition.unrealizedProfit * 100) / bitcoinPosition.initialMargin
@@ -90,8 +90,8 @@ export class Harmony {
         console.log(`priceDeltaDifference: ${priceDeltaDifference}`)
 
         this.targetHedgePositionAmount = Number(((this.targetInvestmentAmount / currentHedgePrice) * currentBitcoinPrice).toFixed(0))
-        
-        if (unrealizedProfitInPercent > sellingAt && Number(bitcoinPosition.positionAmt) > 0 && pnlFromBadAssStretch > 5) {
+
+        if (Number(bitcoinPosition.positionAmt) > 0 && pnlFromBadAssStretch > 8) {
 
             console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}%`)
 
@@ -187,10 +187,10 @@ export class Harmony {
 
                     console.log(`amountToBeBought after potential correction: ${amountToBeBought}`)
 
-                        console.log(`Buying ${amountToBeBought} Ether`)
-                        const responseBuyEther = await this.binanceConnector.buyFuture('ETHUSDT', amountToBeBought)
-                        console.log(responseBuyEther)
-                    
+                    console.log(`Buying ${amountToBeBought} Ether`)
+                    const responseBuyEther = await this.binanceConnector.buyFuture('ETHUSDT', amountToBeBought)
+                    console.log(responseBuyEther)
+
                 }
 
             } else if (highestSinceX > 50) {
@@ -205,9 +205,12 @@ export class Harmony {
                     }
 
                     console.log(`amountToBeSold after potential Correction: ${amountToBeSold}`)
+
+                    if (amountToBeSold > 0) {
                         console.log(`Selling ${amountToBeSold} Ether`)
                         const responseSellEther = await this.binanceConnector.sellFuture('ETHUSDT', amountToBeSold)
                         console.log(responseSellEther)
+                    }
                 }
             }
         }
