@@ -1,6 +1,7 @@
 import { BinanceConnector } from "../../binance/binance-connector"
 import { BinanceConnectorDouble } from "../../binance/binance-connector-double"
 import { CryptoMeterConnector } from "../../cryptometer/cryptometer-connector"
+import { Indicator } from "../utilities/indicator"
 
 export class Harmony {
 
@@ -15,11 +16,15 @@ export class Harmony {
     private initialBitcoinPrice = 0
     private initialHedgePrice = 0
     private previousPriceDeltaDifference = 0
+    private indicator: Indicator
+
 
 
     public constructor(binanceConnector: BinanceConnector, private cryptoMeterConnector: CryptoMeterConnector) {
         this.binanceConnector = binanceConnector
         this.cryptoMeterConnector = cryptoMeterConnector
+        this.indicator = new Indicator()
+
     }
 
     public flow() {
@@ -32,7 +37,7 @@ export class Harmony {
 
                 const accountData = await this.binanceConnector.getFuturesAccountData()
                 const currentPrices = await this.binanceConnector.getCurrentPrices()
-
+    
                 if (Number(accountData.availableBalance) > 500) {
                     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - 500)
                 }
@@ -124,7 +129,7 @@ export class Harmony {
 
                 console.log(`previousPriceDeltaDifference: ${this.previousPriceDeltaDifference} vs. priceDeltaDifference: ${priceDeltaDifference}`)
 
-                if (priceDeltaDifference > this.previousPriceDeltaDifference && priceDeltaDifference > 0.02) {
+                if (priceDeltaDifference > this.previousPriceDeltaDifference && priceDeltaDifference > 0.07) {
 
                     const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, this.targetInvestmentAmount)
                     console.log(responseInvestment)
@@ -158,14 +163,25 @@ export class Harmony {
 
         console.log(`current: ${currentEtherPrice} (lowestSinceX: ${lowestSinceX}) - (highestSinceX: ${highestSinceX})`)
 
-        if (this.historicEtherPrices.length > 3 && (lowestSinceX > 50 || highestSinceX > 50)) {
+        if (lowestSinceX > 50 || highestSinceX > 50) {
 
-            const sellPressure = (await this.cryptoMeterConnector.getTrendIndicators()).sell_pressure
+            const sellPressureFromCryptometer = (await this.cryptoMeterConnector.getTrendIndicators()).sell_pressure
+
+            const orderBook = await this.binanceConnector.getOrderbook('ETHBTC')
+
+            const bidsAndAsks = this.indicator.getAmountOfBidsAndAsksFromOrderbook(orderBook)
+            console.log(bidsAndAsks)
+            
+            const currentETHPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price
+
+            const bidsAndAsksDeltaInPercent = this.indicator.getBidsAndAsksDeltaInPercent(bidsAndAsks)
+            console.log(`bidsAndAsksDeltaInPercent: ${bidsAndAsksDeltaInPercent}`)
+
 
             if (lowestSinceX > 50) {
 
                
-                if (sellPressure > 50) { // this might sound counterintuitive - in some respect you need to do the opposite of what 75 % of traders do
+                if (sellPressureFromCryptometer > 50 && bidsAndAsksDeltaInPercent < - 30) { // this might sound counterintuitive - in some respect you need to do the opposite of what 75 % of traders do
 
                     let amountToBeBought = 0.02 * Number((lowestSinceX / 10).toFixed(2))
 
@@ -185,7 +201,7 @@ export class Harmony {
 
             } else if (highestSinceX > 50) {
 
-                if (sellPressure < 50) {
+                if (sellPressureFromCryptometer < 50 && bidsAndAsksDeltaInPercent > 100) {
 
                     let amountToBeSold = 0.02 * Number((highestSinceX / 10).toFixed(2))
 

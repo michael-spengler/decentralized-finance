@@ -30,6 +30,11 @@ export class BinanceConnector {
         //   }, {limit: 500, endTime: 1514764800000});
     }
 
+    public async getOrderbook(symbol: string) {
+        const endpoint = `/api/v3/depth`
+        const url = `https://vapi.binance.com`
+        return this.binance.depth(symbol)
+    }
     public async futuresLeverageBracket() {
         return this.binance.futuresLeverageBracket()
     }

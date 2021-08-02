@@ -3,10 +3,13 @@
 // https://www.npmjs.com/package/node-binance-api
 
 const Binance = require('node-binance-api');
+const axios = require('axios')
 
 export class BinanceConnectorDouble {
 
     private binance: any
+
+
 
     public constructor(apiKey: string, apiSecret: string) {
         this.binance = new Binance().options({
@@ -23,7 +26,7 @@ export class BinanceConnectorDouble {
         //     console.info("candlesticks()", ticks);
         //     let last_tick = ticks[ticks.length - 1];
         //     let [time, open, high, low, close, volume, closeTime, assetVolume, trades, buyBaseVolume, buyAssetVolume, ignored] = last_tick;
-            
+
         //     console.info(symbol+" last close: "+close);
 
         //     if (error){
@@ -36,7 +39,7 @@ export class BinanceConnectorDouble {
         // return this.binance.futuresLeverageBracket()
         return "super from test double"
     }
-    
+
     public async futuresLeverage(symbol: string, amount: number) {
         // return this.binance.futuresLeverage(symbol, amount)
         return "super from test double"
@@ -56,72 +59,78 @@ export class BinanceConnectorDouble {
         }
 
         return currentPrices
-        
+
     }
-    
+
     public async getAccount() {
         return this.binance.accountStatus()
     }
-    
-    
+
+    public async getOrderbook() {
+        const endpoint = `/api/v3/depth`
+        const url = `https://vapi.binance.com`
+
+        return this.binance.depth('ETHUSDT')
+    }
+
     public async cancelAllOrders(pair: string) {
         return "super from test double"
     }
-    
+
     public async placeBuyOrder(pair: string, amount: number): Promise<void> {
-        
+
     }
-    
+
     public async placeSellOrder(pair: string, amount: number): Promise<void> {
     }
-    
+
     public async getFuturesAccountData() {
         return this.binance.futuresAccount()
     }
-    
+
     public async getFuturesBalanceData() {
         return "super from test double"
     }
-    
+
     public async withdraw(symbol: string = 'ETH', targetWallet: string, amount: number) {
         return "super from test double"
     }
-    
+
     public async buyFuture(pair: string, amount: number) {
         return "super from test double"
     }
-    
+
     public async sellFuture(pair: string, amount: number) {
         return "super from test double"
     }
-    
+
     public async cancelPosition(pair: string) {
         return "super from test double"
     }
-    
+
     public async getSpotBalance(symbol: string): Promise<number> {
         return 42
     }
-    
-    
+
+
     public async getBTCBalance(): Promise<number> {
         return 42
     }
-    
+
     public async getUSDTBalance(): Promise<number> {
         return 42
     }
-    
+
     public async placeStopLossOrder(pair: string, amount: any, maxPrice: any, stopLossPrice: any): Promise<void> {
     }
-    
+
     public async placeFuturesBuyOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
     }
-    
+
     public transferFromUSDTFuturesToSpotAccount(amount: number): Promise<any> {
         return Promise.resolve("super from test double")
     }
-    
+
     public transferFromSpotAccountToUSDTFutures(amount: number): Promise<any> {
         return Promise.resolve("super from test double")
     }
