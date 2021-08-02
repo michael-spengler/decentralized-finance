@@ -82,7 +82,7 @@ export class Harmony {
 
         const pnlFromBadAssStretch = pnlFromBitcoinPosition + pnlFromHedgePosition
 
-        console.log(`pnlFromBadAssStretch: ${pnlFromBadAssStretch}`)
+        console.log(`pnlFromBadAssStretch: ${pnlFromBadAssStretch} - unrealizedProfitInPercent: ${unrealizedProfitInPercent} `)
 
         console.log(`initialBitcoinPrice: ${this.initialBitcoinPrice} - currentBitcoinPrice: ${currentBitcoinPrice} --> bitcoinPriceDeltaInPercent: ${bitcoinPriceDeltaInPercent}`)
         console.log(`initialHedgePrice: ${this.initialHedgePrice} - currentHedgePrice: ${currentHedgePrice} --> hedgePriceDeltaInPercent: ${hedgePriceDeltaInPercent}`)
@@ -91,9 +91,7 @@ export class Harmony {
 
         this.targetHedgePositionAmount = Number(((this.targetInvestmentAmount / currentHedgePrice) * currentBitcoinPrice).toFixed(0))
 
-        console.log(`debugging: ${pnlFromBadAssStretch > 8} - ${Number(bitcoinPosition.positionAmt)} - ${this.investmentPair}`)
-        
-        if (pnlFromBadAssStretch > 8) {
+        if (pnlFromBadAssStretch > 10) {
 
             console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}%`)
 
