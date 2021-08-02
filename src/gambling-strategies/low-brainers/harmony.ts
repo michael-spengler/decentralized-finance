@@ -9,6 +9,7 @@ export class Harmony {
     private intervalLengthInSeconds = 9
     private investmentPair = 'BTCUSDT'
     private hedgePair = 'DOGEUSDT'
+    private targetInvestmentAmount = 0.003
     private targetHedgePositionAmount = 0
     private historicEtherPrices: number[] = []
     private historicPricesLength = 100
@@ -88,7 +89,8 @@ export class Harmony {
 
         console.log(`priceDeltaDifference: ${priceDeltaDifference}`)
 
-
+        this.targetHedgePositionAmount = Number(((this.targetInvestmentAmount / currentHedgePrice) * currentBitcoinPrice).toFixed(0))
+        
         if (unrealizedProfitInPercent > sellingAt && Number(bitcoinPosition.positionAmt) > 0 && pnlFromBadAssStretch > 5) {
 
             console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}%`)
@@ -101,17 +103,16 @@ export class Harmony {
 
         } else {
 
-            if (Number(bitcoinPosition.positionAmt) < 0.003) {
+            if (Number(bitcoinPosition.positionAmt) < this.targetInvestmentAmount) {
 
                 console.log(`initializing the bad ass stretch game`)
 
-                const bitcoinDelta = 0.003 - Number(bitcoinPosition.positionAmt)
+                const bitcoinDelta = this.targetInvestmentAmount - Number(bitcoinPosition.positionAmt)
                 console.log(`I buy ${bitcoinDelta} BTC`)
                 const responseInvestment = await this.binanceConnector.buyFuture('BTCUSDT', bitcoinDelta)
                 console.log(responseInvestment)
                 this.initialBitcoinPrice = currentBitcoinPrice
 
-                this.targetHedgePositionAmount = Number(((0.003 / currentHedgePrice) * currentBitcoinPrice).toFixed(0))
                 console.log(`I sell ${this.targetHedgePositionAmount} ${this.hedgePair} to establish the hedge`)
                 const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, this.targetHedgePositionAmount)
                 console.log(responseHedge)
@@ -126,7 +127,7 @@ export class Harmony {
 
                 if (priceDeltaDifference > this.previousPriceDeltaDifference && priceDeltaDifference > 0.027) {
 
-                    const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, 0.003)
+                    const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, this.targetInvestmentAmount)
                     console.log(responseInvestment)
 
                     const responseHedge = await this.binanceConnector.sellFuture(this.hedgePair, this.targetHedgePositionAmount)
