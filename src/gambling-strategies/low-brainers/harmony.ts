@@ -61,8 +61,7 @@ export class Harmony {
         const hedgePosition = accountData.positions.filter((entry: any) => entry.symbol === this.hedgePair)[0]
         const bitcoinProfitInPercent = (bitcoinPosition.unrealizedProfit * 100) / bitcoinPosition.initialMargin
         const hedgeProfitInPercent = (hedgePosition.unrealizedProfit * 100) / hedgePosition.initialMargin
-        const unrealizedProfitInPercent = (Number(accountData.totalunrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
-
+        const unrealizedProfitInPercent = (Number(accountData.totalUnrealizedProfit) * 100) / Number(accountData.totalInitialMargin)
 
         if (this.initialBitcoinPrice === 0) this.initialBitcoinPrice = currentBitcoinPrice
         if (this.initialHedgePrice === 0) this.initialHedgePrice = currentHedgePrice
@@ -77,7 +76,7 @@ export class Harmony {
         const pnlFromBitcoinPosition = Number(bitcoinPosition.unrealizedProfit)
         const pnlFromHedgePosition = Number(hedgePosition.unrealizedProfit)
 
-        console.log(`pnlFromBitcoinPosition: ${pnlFromBitcoinPosition}`)
+        console.log(`****************************************\npnlFromBitcoinPosition: ${pnlFromBitcoinPosition}`)
         console.log(`pnlFromHedgePosition: ${pnlFromHedgePosition}`)
 
         const pnlFromBadAssStretch = pnlFromBitcoinPosition + pnlFromHedgePosition
@@ -157,7 +156,7 @@ export class Harmony {
         const lowestSinceX = this.getIsLowestEtherPriceSinceX(currentEtherPrice)
         const highestSinceX = this.getIsHighestEtherPriceSinceX(currentEtherPrice)
 
-        console.log(`current: ${currentEtherPrice} (lowestSinceX: ${lowestSinceX}) - (highestSinceX: ${highestSinceX})`)
+        console.log(`****************************************\ncurrent: ${currentEtherPrice} (lowestSinceX: ${lowestSinceX}) - (highestSinceX: ${highestSinceX})`)
 
         if (lowestSinceX > 50 || highestSinceX > 50) {
 
