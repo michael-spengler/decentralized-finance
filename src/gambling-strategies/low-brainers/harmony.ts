@@ -56,7 +56,7 @@ export class Harmony {
 
         const currentBitcoinPrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.investmentPair)[0].price
         const currentHedgePrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.hedgePair)[0].price
-        // const sellingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18))
+        const sellingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18))
         const bitcoinPosition = accountData.positions.filter((entry: any) => entry.symbol === this.investmentPair)[0]
         const hedgePosition = accountData.positions.filter((entry: any) => entry.symbol === this.hedgePair)[0]
         const bitcoinProfitInPercent = (bitcoinPosition.unrealizedProfit * 100) / bitcoinPosition.initialMargin
@@ -79,8 +79,10 @@ export class Harmony {
         console.log(`\n****************************************\npnlFromBitcoinPosition: ${pnlFromBitcoinPosition} - pnlFromHedgePosition: ${pnlFromHedgePosition}`)
 
         const pnlFromBadAssStretch = pnlFromBitcoinPosition + pnlFromHedgePosition
+        const investedAmountInBadAssStretch = Number(bitcoinPosition.initialMargin) + Number(hedgePosition.initialMargin)
 
-        console.log(`pnlFromBadAssStretch: ${pnlFromBadAssStretch} - unrealizedProfitInPercent: ${unrealizedProfitInPercent} `)
+        const pnlFromBadAssStretchInPercent = (pnlFromBadAssStretch * 100 / investedAmountInBadAssStretch)
+        console.log(`pnlFromBitcoinPosition: ${pnlFromBitcoinPosition} - pnlFromHedgePosition: ${pnlFromHedgePosition} - pnlFromBadAssStretchInPercent: ${pnlFromBadAssStretchInPercent} - unrealizedProfitInPercent: ${unrealizedProfitInPercent} `)
 
         console.log(`initialBitcoinPrice: ${this.initialBitcoinPrice} - currentBitcoinPrice: ${currentBitcoinPrice} --> bitcoinPriceDeltaInPercent: ${bitcoinPriceDeltaInPercent}`)
         console.log(`initialHedgePrice: ${this.initialHedgePrice} - currentHedgePrice: ${currentHedgePrice} --> hedgePriceDeltaInPercent: ${hedgePriceDeltaInPercent}`)
@@ -89,7 +91,7 @@ export class Harmony {
 
         this.targetHedgePositionAmount = Number(((this.targetInvestmentAmount / currentHedgePrice) * currentBitcoinPrice).toFixed(0))
 
-        if (pnlFromBadAssStretch > 10) {
+        if (pnlFromBadAssStretchInPercent > sellingAt) {
 
             console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}%`)
 
@@ -165,17 +167,22 @@ export class Harmony {
         const bidsAndAsksDeltaInPercent = this.indicator.getBidsAndAsksDeltaInPercent(bidsAndAsks)
         console.log(`bidsAndAsksDeltaInPercent: ${bidsAndAsksDeltaInPercent}`)
 
+        const pnlFromEtherPositionInPercent = Number(etherPosition.unrealizedProfit) * 100 / Number(etherPosition.initialMargin)
+
+        console.log(`pnlFromEtherPositionInPercent: ${pnlFromEtherPositionInPercent}`)
+
         if (lowestSinceX > 50 || highestSinceX > 50) {
 
             // const sellPressureFromCryptometer = (await this.cryptoMeterConnector.getTrendIndicators()).sell_pressure
 
-           
+
             if (lowestSinceX > 50) {
-                
-                if (Number(etherPosition.unrealizedProfit) < -42) {
+
+                if (pnlFromEtherPositionInPercent < -42) {
+
+                    console.log(`things went south. I sell most of my ether position with a pnl of: ${pnlFromEtherPositionInPercent}%`)
                     
-                    console.log(`things went south. I sell my ether position with a pnl of: ${Number(etherPosition.unrealizedProfit)}`)
-                    await this.binanceConnector.sellFuture('ETHUSDT', Number(etherPosition.positionAmt))
+                    await this.binanceConnector.sellFuture('ETHUSDT', Number(etherPosition.positionAmt) - 0.1)
 
                 } else if (bidsAndAsksDeltaInPercent < - 30) { // this might sound counterintuitive - in some respect you need to do the opposite of what 75 % of traders do
 
