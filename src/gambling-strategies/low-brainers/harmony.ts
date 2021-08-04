@@ -244,8 +244,8 @@ export class Harmony {
         const linkPosition = accountData.positions.filter((entry: any) => entry.symbol === 'LINKUSDT')[0]
         const batPosition = accountData.positions.filter((entry: any) => entry.symbol === 'BATUSDT')[0]
         const compPosition = accountData.positions.filter((entry: any) => entry.symbol === 'COMPUSDT')[0]
-        const dotPosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOTUSDT')[0]
         const manaPosition = accountData.positions.filter((entry: any) => entry.symbol === 'MANAUSDT')[0]
+        // const dotPosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOTUSDT')[0]
         // const aavePosition = accountData.positions.filter((entry: any) => entry.symbol === 'AAVEUSDT')[0]
         // const lunaPosition = accountData.positions.filter((entry: any) => entry.symbol === 'LUNAUSDT')[0]
         // const filPosition = accountData.positions.filter((entry: any) => entry.symbol === 'FILUSDT')[0]
@@ -258,8 +258,8 @@ export class Harmony {
         const linkPNLInPercent = (linkPosition.unrealizedProfit * 100) / linkPosition.initialMargin
         const batPNLInPercent = (batPosition.unrealizedProfit * 100) / batPosition.initialMargin
         const compPNLInPercent = (compPosition.unrealizedProfit * 100) / compPosition.initialMargin
-        const dotPNLInPercent = (dotPosition.unrealizedProfit * 100) / dotPosition.initialMargin
         const manaPNLInPercent = (manaPosition.unrealizedProfit * 100) / manaPosition.initialMargin
+        // const dotPNLInPercent = (dotPosition.unrealizedProfit * 100) / dotPosition.initialMargin
         // const aavePNLInPercent = (aavePosition.unrealizedProfit * 100) / aavePosition.initialMargin
         // const lunaPNLInPercent = (lunaPosition.unrealizedProfit * 100) / lunaPosition.initialMargin
         // const filPNLInPercent = (filPosition.unrealizedProfit * 100) / filPosition.initialMargin
@@ -281,10 +281,10 @@ export class Harmony {
                 await this.binanceConnector.buyFuture('BATUSDT', 27)
             } else if (Number(compPosition.positionAmt) < 0.027 || compPNLInPercent > 100) {
                 await this.binanceConnector.buyFuture('COMPUSDT', 0.027)
-            } else if (Number(dotPosition.positionAmt) < 2.7 || dotPNLInPercent > 100) {
-                await this.binanceConnector.buyFuture('DOTUSDT', 2.7)
             } else if (Number(manaPosition.positionAmt) < 27 || manaPNLInPercent > 100) {
                 await this.binanceConnector.buyFuture('MANAUSDT', 27)
+                // } else if (Number(dotPosition.positionAmt) < 2.7 || dotPNLInPercent > 100) {
+                //     await this.binanceConnector.buyFuture('DOTUSDT', 2.7)
                 // } else if (Number(aavePosition.positionAmt) < 2.7 || aavePNLInPercent > 100) {
                 //     await this.binanceConnector.buyFuture('AAVEUSDT', 2.7)
                 // } else if (Number(lunaPosition.positionAmt) < 3 || lunaPNLInPercent > 100) {
@@ -318,12 +318,12 @@ export class Harmony {
         if (compPNLInPercent < 27 && Number(compPosition.positionAmt) > 0.027) {
             await this.binanceConnector.sellFuture('COMPUSDT', Number(compPosition.positionAmt) - 0.027)
         }
-        if (dotPNLInPercent < 27 && Number(dotPosition.positionAmt) > 2.7) {
-            await this.binanceConnector.sellFuture('DOTUSDT', Number(dotPosition.positionAmt) - 2.7)
-        }
         if (manaPNLInPercent < 27 && Number(manaPosition.positionAmt) > 27) {
             await this.binanceConnector.sellFuture('MANAUSDT', Number(manaPosition.positionAmt) - 27)
         }
+        // if (dotPNLInPercent < 27 && Number(dotPosition.positionAmt) > 2.7) {
+        //     await this.binanceConnector.sellFuture('DOTUSDT', Number(dotPosition.positionAmt) - 2.7)
+        // }
         // if (aavePNLInPercent < 27 && Number(aavePosition.positionAmt) > 2.7) {
         //     await this.binanceConnector.sellFuture('AAVEUSDT', Number(aavePosition.positionAmt) - 2.7)
         // }
