@@ -266,36 +266,36 @@ export class Harmony {
         // const uniPNLInPercent = (uniPosition.unrealizedProfit * 100) / uniPosition.initialMargin
         // const egldPNLInPercent = (egldPosition.unrealizedProfit * 100) / egldPosition.initialMargin
 
-        console.log(`\n*********hoddleSavely*************\n`)
+        console.log(`\n*********hoddleSavely*************\n - compPNLInPercent: ${compPNLInPercent}`)
         // console.log(Number(xmrPosition.positionAmt))
         if (this.marginRatio < 27) {
             if (Number(bnbPosition.positionAmt) < 0.27 || bnbPNLInPercent > 100) {
-                await this.binanceConnector.buyFuture('BNBUSDT', 0.27 - ((bnbPosition === undefined) ? 0 : Number(bnbPosition.positionAmt)))
+                await this.binanceConnector.buyFuture('BNBUSDT', 0.27)
             } else if (Number(xmrPosition.positionAmt) < 0.27 || xmrPNLInPercent > 100) {
-                await this.binanceConnector.buyFuture('XMRUSDT', 0.27 - ((xmrPosition === undefined) ? 0 : Number(xmrPosition.positionAmt)))
+                await this.binanceConnector.buyFuture('XMRUSDT', 0.27)
             } else if (Number(adaPosition.positionAmt) < 27 || adaPNLInPercent > 100) {
-                await this.binanceConnector.buyFuture('ADAUSDT', 27 - ((adaPosition === undefined) ? 0 : Number(adaPosition.positionAmt)))
+                await this.binanceConnector.buyFuture('ADAUSDT', 27)
             } else if (Number(linkPosition.positionAmt) < 2.7 || linkPNLInPercent > 100) {
-                await this.binanceConnector.buyFuture('LINKUSDT', 2.7 - ((linkPosition === undefined) ? 0 : Number(linkPosition.positionAmt)))
+                await this.binanceConnector.buyFuture('LINKUSDT', 2.7)
             } else if (Number(batPosition.positionAmt) < 27 || batPNLInPercent > 100) {
-                await this.binanceConnector.buyFuture('BATUSDT', 27 - ((batPosition === undefined) ? 0 : Number(batPosition.positionAmt)))
+                await this.binanceConnector.buyFuture('BATUSDT', 27)
             } else if (Number(compPosition.positionAmt) < 0.027 || compPNLInPercent > 100) {
-                await this.binanceConnector.buyFuture('COMPUSDT', 0.027 - ((compPosition === undefined) ? 0 : Number(compPosition.positionAmt)))
+                await this.binanceConnector.buyFuture('COMPUSDT', 0.027)
             } else if (Number(dotPosition.positionAmt) < 2.7 || dotPNLInPercent > 100) {
-                await this.binanceConnector.buyFuture('DOTUSDT', 2.7 - ((dotPosition === undefined) ? 0 : Number(dotPosition.positionAmt)))
+                await this.binanceConnector.buyFuture('DOTUSDT', 2.7)
             } else if (Number(manaPosition.positionAmt) < 27 || manaPNLInPercent > 100) {
-                await this.binanceConnector.buyFuture('MANAUSDT', 27 - ((manaPosition === undefined) ? 0 : Number(manaPosition.positionAmt)))
+                await this.binanceConnector.buyFuture('MANAUSDT', 27)
                 // } else if (Number(aavePosition.positionAmt) < 2.7 || aavePNLInPercent > 100) {
-                //     await this.binanceConnector.buyFuture('AAVEUSDT', 2.7 - ((aavePosition === undefined) ? 0 : Number(aavePosition.positionAmt)))
+                //     await this.binanceConnector.buyFuture('AAVEUSDT', 2.7)
                 // } else if (Number(lunaPosition.positionAmt) < 3 || lunaPNLInPercent > 100) {
-                //     await this.binanceConnector.buyFuture('LUNAUSDT', 3 - ((lunaPosition === undefined) ? 0 : Number(lunaPosition.positionAmt)))
+                //     await this.binanceConnector.buyFuture('LUNAUSDT', 3)
                 // } else if (Number(filPosition.positionAmt) < 2.7 || filPNLInPercent > 100) {
-                //     await this.binanceConnector.buyFuture('FILUSDT', 2.7 - ((filPosition === undefined) ? 0 : Number(filPosition.positionAmt)))
+                //     await this.binanceConnector.buyFuture('FILUSDT', 2.7)
                 // } else if (Number(egldPosition.positionAmt) < 2.7 || egldPNLInPercent > 100) {
-                //     const r = await this.binanceConnector.buyFuture('EGLDUSDT', 2.7 - ((egldPosition === undefined) ? 0 : Number(egldPosition.positionAmt)))
+                //     const r = await this.binanceConnector.buyFuture('EGLDUSDT', 2.7)
                 //     console.log(r)
                 // } else if (Number(uniPosition.positionAmt) < 2.7 || uniPNLInPercent > 100) {
-                //     const r = await this.binanceConnector.buyFuture('UNIUSDT', 2.7 - ((uniPosition === undefined) ? 0 : Number(uniPosition.positionAmt)))
+                //     const r = await this.binanceConnector.buyFuture('UNIUSDT', 2.7)
                 //     console.log(r)
             }
         }
