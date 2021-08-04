@@ -133,7 +133,7 @@ export class Harmony {
 
                 console.log(`previousPriceDeltaDifference: ${this.previousPriceDeltaDifference} vs. priceDeltaDifference: ${priceDeltaDifference}`)
 
-                if (priceDeltaDifference > this.previousPriceDeltaDifference && priceDeltaDifference > 0.18 && this.marginRatio < 27) {
+                if (priceDeltaDifference > this.previousPriceDeltaDifference && priceDeltaDifference > 0.18 && this.marginRatio < 45) {
 
                     await this.binanceConnector.buyFuture(this.investmentPair, this.targetInvestmentAmount)
 
