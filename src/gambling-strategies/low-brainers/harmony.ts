@@ -12,7 +12,7 @@ export class Harmony {
     private targetInvestmentAmount = 0.003
     private targetHedgePositionAmount = 0
     private historicEtherPrices: number[] = []
-    private historicPricesLength = 100
+    private historicPricesLength = 45000
     private initialBitcoinPrice = 0
     private initialHedgePrice = 0
     private previousPriceDeltaDifference = 0
@@ -49,7 +49,7 @@ export class Harmony {
 
                 await this.exploitTheBadAssStretch(accountData, currentPrices)
 
-                await this.applyBuyLowSellHigh(accountData, currentPrices)
+                await this.exploitEtherManipulators(accountData, currentPrices)
 
                 await this.hoddleSavely(accountData)
 
@@ -99,7 +99,7 @@ export class Harmony {
 
         const sellingBadAssStretchAt = (this.marginRatio > 18) ? this.sellingAt / 3 : this.sellingAt
 
-        if (pnlFromBadAssStretchInPercent > sellingBadAssStretchAt || this.marginRatio > 63) {
+        if (pnlFromBadAssStretchInPercent > sellingBadAssStretchAt || this.marginRatio > 72) {
 
             console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}%`)
 
@@ -150,7 +150,7 @@ export class Harmony {
 
     }
 
-    private async applyBuyLowSellHigh(accountData: any, currentPrices: any[]): Promise<void> {
+    private async exploitEtherManipulators(accountData: any, currentPrices: any[]): Promise<void> {
 
         const etherPosition = accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
         const currentEtherPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price
@@ -177,63 +177,79 @@ export class Harmony {
 
         console.log(`pnlFromEtherPositionInPercent: ${pnlFromEtherPositionInPercent}`)
 
-        if (lowestSinceX > 45 || highestSinceX > 72) {
+        const averageEtherPrice = this.getTheAverage(this.historicEtherPrices)
+        const deltaToAverageInPercent = (currentEtherPrice * 100 / averageEtherPrice) - 100
+        const calculated = averageEtherPrice + (averageEtherPrice * (deltaToAverageInPercent / 100))
 
-            // const sellPressureFromCryptometer = (await this.cryptoMeterConnector.getTrendIndicators()).sell_pressure
+        console.log(`averageEtherPrice2Days: ${averageEtherPrice} - current: ${currentEtherPrice} - deltaToAverageInPercent: ${deltaToAverageInPercent} - calculated: ${calculated}`)
 
+        if (currentEtherPrice > averageEtherPrice) {
 
-            if (lowestSinceX > 45) {
+            console.log(`I need to wait as the averageEtherPrice is ${averageEtherPrice} and the current Ether price is ${currentEtherPrice}`)
+        } else {
+            if (lowestSinceX > 45 || highestSinceX > 72) {
 
-                if (this.marginRatio > 70) {
+                if (lowestSinceX > 45) {
 
-                    console.log(`things went south. I sell most of my ether position with a pnl of: ${pnlFromEtherPositionInPercent}%`)
+                    if ((this.marginRatio > 70 && Number(etherPosition.positionAmt) > 0.01)) {
 
-                    await this.binanceConnector.sellFuture('ETHUSDT', Number(etherPosition.positionAmt) - 0.1)
+                        console.log(`things went south. I sell most of my ether position with a pnl of: ${pnlFromEtherPositionInPercent}%`)
 
-                } else if (this.marginRatio > 55) {
+                        await this.binanceConnector.sellFuture('ETHUSDT', Number(Number(etherPosition.positionAmt).toFixed(2)) - 0.01)
 
-                    console.log(`I need to sell 0.1 of my ether position with a pnl of: ${pnlFromEtherPositionInPercent}%`)
+                    } else if (this.marginRatio > 55 && Number(etherPosition.positionAmt) > 0.01) {
 
-                    await this.binanceConnector.sellFuture('ETHUSDT', 0.1)
+                        console.log(`I need to sell 0.01 of my ether position with a pnl of: ${pnlFromEtherPositionInPercent}%`)
 
-                } else if (this.marginRatio < 27 && bidsAndAsksDeltaInPercent < - 27) {
+                        await this.binanceConnector.sellFuture('ETHUSDT', 0.01)
 
-                    let amountToBeBought = Number((0.01 * Number((lowestSinceX / 100).toFixed(0))).toFixed(2)) + 0.01
+                    } else if (this.marginRatio < 27 && bidsAndAsksDeltaInPercent < - 27) {
 
-                    console.log(`amountToBeBought before potential correction: ${amountToBeBought}`)
+                        let amountToBeBought = Number((0.01 * Number((lowestSinceX / 100).toFixed(0))).toFixed(2)) + 0.01
 
-                    if (amountToBeBought > 3 - Number(etherPosition.positionAmt)) {
-                        amountToBeBought = 3 - Number(etherPosition.positionAmt)
+                        console.log(`amountToBeBought before potential correction: ${amountToBeBought}`)
+
+                        if (amountToBeBought > 3 - Number(etherPosition.positionAmt)) {
+                            amountToBeBought = 3 - Number(etherPosition.positionAmt)
+                        }
+
+                        console.log(`amountToBeBought after potential correction: ${amountToBeBought}`)
+
+                        console.log(`Buying ${amountToBeBought} Ether`)
+                        const responseBuyEther = await this.binanceConnector.buyFuture('ETHUSDT', amountToBeBought)
+                        console.log(responseBuyEther)
+
                     }
 
-                    console.log(`amountToBeBought after potential correction: ${amountToBeBought}`)
+                } else if (highestSinceX > 72 && pnlFromEtherPositionInPercent > this.sellingAt && Number(etherPosition.positionAmt) > 0.01) {
 
-                    console.log(`Buying ${amountToBeBought} Ether`)
-                    const responseBuyEther = await this.binanceConnector.buyFuture('ETHUSDT', amountToBeBought)
-                    console.log(responseBuyEther)
+                    let amountToBeSold = Number((0.02 * Number((highestSinceX / 10).toFixed(0))).toFixed(2))
 
-                }
+                    console.log(`amountToBeSold before potential Correction: ${amountToBeSold}`)
+                    if (amountToBeSold > Number(etherPosition.positionAmt) - 0.01) {
+                        amountToBeSold = Number(etherPosition.positionAmt) - 0.01
+                    }
 
-            } else if (highestSinceX > 72 && pnlFromEtherPositionInPercent > this.sellingAt) {
+                    console.log(`amountToBeSold after potential Correction: ${amountToBeSold}`)
 
-                let amountToBeSold = Number((0.02 * Number((highestSinceX / 10).toFixed(0))).toFixed(2))
-
-                console.log(`amountToBeSold before potential Correction: ${amountToBeSold}`)
-                if (amountToBeSold > Number(etherPosition.positionAmt) - 0.1) {
-                    amountToBeSold = Number(etherPosition.positionAmt) - 0.1
-                }
-
-                console.log(`amountToBeSold after potential Correction: ${amountToBeSold}`)
-
-                if (amountToBeSold > 0) {
                     console.log(`Selling ${amountToBeSold} Ether`)
                     const responseSellEther = await this.binanceConnector.sellFuture('ETHUSDT', amountToBeSold)
                     console.log(responseSellEther)
                 }
-
             }
+
         }
 
+    }
+
+    private getTheAverage(list: number[]): number {
+
+        let sum = 0
+        for (const e of list) {
+            sum = sum + Number(e)
+        }
+
+        return sum / list.length
     }
 
     private async hoddleSavely(accountData: any) {
@@ -316,7 +332,8 @@ export class Harmony {
             await this.binanceConnector.sellFuture('BATUSDT', Number(batPosition.positionAmt) - 27)
         }
         if (compPNLInPercent < 27 && Number(compPosition.positionAmt) > 0.027) {
-            await this.binanceConnector.sellFuture('COMPUSDT', Number(compPosition.positionAmt) - 0.027)
+            const a = Number((Number(compPosition.positionAmt) - 0.027).toFixed(3))
+            await this.binanceConnector.sellFuture('COMPUSDT', a)
         }
         if (manaPNLInPercent < 27 && Number(manaPosition.positionAmt) > 27) {
             await this.binanceConnector.sellFuture('MANAUSDT', Number(manaPosition.positionAmt) - 27)
