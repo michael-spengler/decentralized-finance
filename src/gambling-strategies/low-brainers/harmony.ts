@@ -49,11 +49,32 @@ export class Harmony {
                     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - this.transferStartAmount)
                 }
 
-                await this.exploitTheBadAssStretch(accountData, currentPrices)
+                if (Number(accountData.totalWalletBalance) < this.transferStartAmount) {
 
-                await this.exploitEtherManipulators(accountData, currentPrices)
+                    console.log(`start small`)
 
-                await this.hustleAndHoddle(accountData)
+                    const bitcoinPosition = accountData.positions.filter((entry: any) => entry.symbol === this.investmentPair)[0]
+                    const bitcoinPNLInPercent = (bitcoinPosition.unrealizedProfit * 100) / bitcoinPosition.initialMargin
+                    console.log(`bitcoinPNLInPercent: ${bitcoinPNLInPercent}`)
+                    // const hedgePosition = accountData.positions.filter((entry: any) => entry.symbol === this.hedgePair)[0]
+                    // const hedgePNLInPercent = (hedgePosition.unrealizedProfit * 100) / hedgePosition.initialMargin
+
+                    if (bitcoinPNLInPercent > 100 || Number(bitcoinPosition.positionAmt) < 0.001) {
+                        const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, 0.001)
+                        console.log(responseInvestment)
+                    } else if (bitcoinPNLInPercent < 45 && Number(bitcoinPosition.positionAmt) > 0.001) {
+                        const responseInvestment = await this.binanceConnector.sellFuture(this.investmentPair, Number(bitcoinPosition.positionAmt) - 0.001)
+                        console.log(responseInvestment)            
+                    } 
+
+                } else {
+                    console.log(`hustle`)
+                    await this.exploitTheBadAssStretch(accountData, currentPrices)
+                    
+                    await this.exploitEtherManipulators(accountData, currentPrices)
+                    
+                    await this.hustleAndHoddle(accountData)
+                }
 
             }, 1000 * randomDelayInSeconds)
 
@@ -272,6 +293,7 @@ export class Harmony {
         // const filPosition = accountData.positions.filter((entry: any) => entry.symbol === 'FILUSDT')[0]
         // const uniPosition = accountData.positions.filter((entry: any) => entry.symbol === 'UNIUSDT')[0]
         // const egldPosition = accountData.positions.filter((entry: any) => entry.symbol === 'EGLDUSDT')[0]
+
 
         const bnbPNLInPercent = (bnbPosition.unrealizedProfit * 100) / bnbPosition.initialMargin
         const xmrPNLInPercent = (xmrPosition.unrealizedProfit * 100) / xmrPosition.initialMargin
