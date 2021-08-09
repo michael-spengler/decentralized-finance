@@ -63,7 +63,7 @@ export class Harmony {
                         const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, 0.001)
                         console.log(responseInvestment)
                     } else if (bitcoinPNLInPercent < 45 && Number(bitcoinPosition.positionAmt) > 0.001) {
-                        const responseInvestment = await this.binanceConnector.sellFuture(this.investmentPair, Number(bitcoinPosition.positionAmt) - 0.001)
+                        const responseInvestment = await this.binanceConnector.sellFuture(this.investmentPair, 0.001)
                         console.log(responseInvestment)            
                     } 
 
@@ -122,7 +122,7 @@ export class Harmony {
         const investedAmountInBadAssStretch = Number(bitcoinPosition.initialMargin) + Number(hedgePosition.initialMargin)
 
         const pnlFromBadAssStretchInPercent = (pnlFromBadAssStretch * 100 / investedAmountInBadAssStretch)
-        console.log(`pnlFromBitcoinPosition: ${pnlFromBitcoinPosition} - pnlFromHedgePosition: ${pnlFromHedgePosition} - pnlFromBadAssStretchInPercent: ${pnlFromBadAssStretchInPercent} - unrealizedProfitInPercent: ${unrealizedProfitInPercent} `)
+        console.log(`pnlFromBadAssStretchInPercent: ${pnlFromBadAssStretchInPercent} - unrealizedProfitInPercent: ${unrealizedProfitInPercent} `)
 
         console.log(`initialBitcoinPrice: ${this.initialBitcoinPrice} - currentBitcoinPrice: ${currentBitcoinPrice} --> bitcoinPriceDeltaInPercent: ${bitcoinPriceDeltaInPercent}`)
         console.log(`initialHedgePrice: ${this.initialHedgePrice} - currentHedgePrice: ${currentHedgePrice} --> hedgePriceDeltaInPercent: ${hedgePriceDeltaInPercent}`)
@@ -230,7 +230,8 @@ export class Harmony {
 
                 await this.binanceConnector.sellFuture('ETHUSDT', 0.01)
 
-            } else if (this.marginRatio < 27 && bidsAndAsksDeltaInPercent < - 27 && currentEtherPrice < averageEtherPrice) {
+            // } else if (this.marginRatio < 27 && bidsAndAsksDeltaInPercent < - 27 && currentEtherPrice < averageEtherPrice) {
+            } else if (this.marginRatio < 27 && bidsAndAsksDeltaInPercent < - 27 && deltaToAverageInPercent <= 1.8) {
 
                 let amountToBeBought = Number((0.01 * Number((lowestSinceX / 100).toFixed(0))).toFixed(2)) + 0.01
 
