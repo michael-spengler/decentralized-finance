@@ -72,25 +72,16 @@ export class Harmony {
         console.log(`\n\n*******exploitTheAverageVolatility**********\n`)
 
         const currentUNIPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'UNIUSDT')[0].price
-
         if (this.historicUNIPrices.length === this.historicPricesLength) {
             this.historicUNIPrices.splice(this.historicUNIPrices.length - 1, 1)
         }
         this.historicUNIPrices.unshift(currentUNIPrice)
-
         const averageUNIPrice = this.getTheAverage(this.historicUNIPrices)
-
         const deltaUNIPrice = (currentUNIPrice * 100 / averageUNIPrice) - 100
-
-
         const uniPosition = accountData.positions.filter((entry: any) => entry.symbol === 'UNIUSDT')[0]
-
         const uniPNLInPercent = (uniPosition.unrealizedProfit * 100) / uniPosition.initialMargin
-
         const maxNotionalInUNI = Number((Number(uniPosition.maxNotional) / currentUNIPrice).toFixed(0))
-
         console.log(`averageUNIPrice: ${averageUNIPrice} - currentUNIPrice: ${currentUNIPrice} - deltaUNIPrice: ${deltaUNIPrice} - uniPNLInPercent: ${uniPNLInPercent} - maxNotionalInUNI: ${maxNotionalInUNI}`)
-
 
         if (maxNotionalInUNI > Number(uniPosition.positionAmt) && (Number(uniPosition.positionAmt) < 1 || deltaUNIPrice < -0.01 || uniPNLInPercent < 0)) {
             console.log(`buying UNI`)
@@ -101,7 +92,6 @@ export class Harmony {
         } else if (uniPNLInPercent < - 45) {
             console.log(`things went south selling all UNI`)
             await this.binanceConnector.sellFuture('UNIUSDT', Number(uniPosition.positionAmt))
-
         }
     }
 
@@ -357,7 +347,6 @@ export class Harmony {
         const batPosition = accountData.positions.filter((entry: any) => entry.symbol === 'BATUSDT')[0]
         const compPosition = accountData.positions.filter((entry: any) => entry.symbol === 'COMPUSDT')[0]
         const manaPosition = accountData.positions.filter((entry: any) => entry.symbol === 'MANAUSDT')[0]
-        const xrpPosition = accountData.positions.filter((entry: any) => entry.symbol === 'XRPUSDT')[0]
         // const dotPosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOTUSDT')[0]
         // const aavePosition = accountData.positions.filter((entry: any) => entry.symbol === 'AAVEUSDT')[0]
         // const lunaPosition = accountData.positions.filter((entry: any) => entry.symbol === 'LUNAUSDT')[0]
@@ -373,7 +362,6 @@ export class Harmony {
         const batPNLInPercent = (batPosition.unrealizedProfit * 100) / batPosition.initialMargin
         const compPNLInPercent = (compPosition.unrealizedProfit * 100) / compPosition.initialMargin
         const manaPNLInPercent = (manaPosition.unrealizedProfit * 100) / manaPosition.initialMargin
-        const xrpPNLInPercent = (xrpPosition.unrealizedProfit * 100) / xrpPosition.initialMargin
         // const dotPNLInPercent = (dotPosition.unrealizedProfit * 100) / dotPosition.initialMargin
         // const aavePNLInPercent = (aavePosition.unrealizedProfit * 100) / aavePosition.initialMargin
         // const lunaPNLInPercent = (lunaPosition.unrealizedProfit * 100) / lunaPosition.initialMargin
@@ -399,8 +387,6 @@ export class Harmony {
                 await this.binanceConnector.buyFuture('COMPUSDT', 0.027)
             } else if (Number(manaPosition.positionAmt) < 27 || manaPNLInPercent > 100) {
                 await this.binanceConnector.buyFuture('MANAUSDT', 27)
-            } else if (xrpPosition === undefined || Number(xrpPosition.positionAmt) > - 27 || xrpPNLInPercent > 100) {
-                await this.binanceConnector.sellFuture('XRPUSDT', 27)
                 // } else if (Number(dotPosition.positionAmt) < 2.7 || dotPNLInPercent > 100) {
                 //     await this.binanceConnector.buyFuture('DOTUSDT', 2.7)
                 // } else if (Number(aavePosition.positionAmt) < 2.7 || aavePNLInPercent > 100) {
@@ -439,9 +425,6 @@ export class Harmony {
         }
         if (manaPNLInPercent < 27 && Number(manaPosition.positionAmt) > 27) {
             await this.binanceConnector.sellFuture('MANAUSDT', Number(manaPosition.positionAmt))
-        }
-        if (xrpPNLInPercent < 27 && Number(xrpPosition.positionAmt) < - 27) {
-            await this.binanceConnector.buyFuture('XRPUSDT', Number(manaPosition.positionAmt) * -1)
         }
         // if (dotPNLInPercent < 27 && Number(dotPosition.positionAmt) > 2.7) {
         //     await this.binanceConnector.sellFuture('DOTUSDT', Number(dotPosition.positionAmt) - 2.7)
