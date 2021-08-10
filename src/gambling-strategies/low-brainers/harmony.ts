@@ -99,6 +99,7 @@ export class Harmony {
 
         console.log(`\n\n*******exploitCentralizedShitCoinScams**********\n`)
         const currentXRPInBTCPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'XRPBTC')[0].price
+        const currentXRPInUSDTPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'XRPUSDT')[0].price
         const xrpPosition = accountData.positions.filter((entry: any) => entry.symbol === 'XRPUSDT')[0]
         const currentBitcoinPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price
 
@@ -121,8 +122,11 @@ export class Harmony {
         const deltaBitcoin = (currentBitcoinPrice * 100 / averageBTCPrice) - 100
 
         const xrpPNLInPercent = (xrpPosition.unrealizedProfit * 100) / xrpPosition.initialMargin
+        
+        const maxNotionalInXRP = Number((Number(xrpPosition.maxNotional) / currentXRPInUSDTPrice).toFixed(0))
+        
+        console.log(`xrpPNLInPercent: ${xrpPNLInPercent} - averageXRPInBTCPrice: ${averageXRPInBTCPrice} - currentXRPInBTCPrice: ${currentXRPInBTCPrice} - deltaXRPInBTC ${deltaXRPInBTC} - deltaBitcoin: ${deltaBitcoin} - maxNotionalInXRP: ${maxNotionalInXRP}`)
 
-        console.log(`xrpPNLInPercent: ${xrpPNLInPercent} - averageXRPInBTCPrice: ${averageXRPInBTCPrice} - currentXRPInBTCPrice: ${currentXRPInBTCPrice} - deltaXRPInBTC ${deltaXRPInBTC} - deltaBitcoin: ${deltaBitcoin}`)
 
         if ((xrpPNLInPercent > 18 || xrpPNLInPercent < -90) && Number(xrpPosition.positionAmt) < - 27) {
 
@@ -130,7 +134,7 @@ export class Harmony {
 
             await this.binanceConnector.buyFuture('XRPUSDT', Number(((Number(xrpPosition.positionAmt) * -1) / 2).toFixed(0)))
 
-        } else if (Number(xrpPosition.maxNotional) > (Number(xrpPosition.positionAmt) * -1) && deltaXRPInBTC > 0.01 && this.marginRatio < 45 && deltaBitcoin > 0) {
+        } else if (maxNotionalInXRP > ((Number(xrpPosition.positionAmt) * -1) + 27) && deltaXRPInBTC > 0.01 && this.marginRatio < 45 && deltaBitcoin > 0) {
 
             console.log(`short sell xrp`)
             await this.binanceConnector.sellFuture('XRPUSDT', 27)
