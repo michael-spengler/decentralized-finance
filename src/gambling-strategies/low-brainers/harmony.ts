@@ -124,7 +124,7 @@ export class Harmony {
         const xrpPNLInPercent = (xrpPosition.unrealizedProfit * 100) / xrpPosition.initialMargin
         
         const maxNotionalInXRP = Number((Number(xrpPosition.maxNotional) / currentXRPInUSDTPrice).toFixed(0))
-        
+
         console.log(`xrpPNLInPercent: ${xrpPNLInPercent} - averageXRPInBTCPrice: ${averageXRPInBTCPrice} - currentXRPInBTCPrice: ${currentXRPInBTCPrice} - deltaXRPInBTC ${deltaXRPInBTC} - deltaBitcoin: ${deltaBitcoin} - maxNotionalInXRP: ${maxNotionalInXRP}`)
 
 
@@ -200,7 +200,7 @@ export class Harmony {
 
         } else {
 
-            if (Number(bitcoinPosition.positionAmt) < this.targetInvestmentAmount) {
+            if (Number(bitcoinPosition.positionAmt) < this.targetInvestmentAmount && this.marginRatio < 36) {
 
                 console.log(`initializing the bad ass stretch game`)
 
@@ -355,7 +355,6 @@ export class Harmony {
         // const aavePosition = accountData.positions.filter((entry: any) => entry.symbol === 'AAVEUSDT')[0]
         // const lunaPosition = accountData.positions.filter((entry: any) => entry.symbol === 'LUNAUSDT')[0]
         // const filPosition = accountData.positions.filter((entry: any) => entry.symbol === 'FILUSDT')[0]
-        // const uniPosition = accountData.positions.filter((entry: any) => entry.symbol === 'UNIUSDT')[0]
         // const egldPosition = accountData.positions.filter((entry: any) => entry.symbol === 'EGLDUSDT')[0]
 
 
@@ -370,7 +369,6 @@ export class Harmony {
         // const aavePNLInPercent = (aavePosition.unrealizedProfit * 100) / aavePosition.initialMargin
         // const lunaPNLInPercent = (lunaPosition.unrealizedProfit * 100) / lunaPosition.initialMargin
         // const filPNLInPercent = (filPosition.unrealizedProfit * 100) / filPosition.initialMargin
-        // const uniPNLInPercent = (uniPosition.unrealizedProfit * 100) / uniPosition.initialMargin
         // const egldPNLInPercent = (egldPosition.unrealizedProfit * 100) / egldPosition.initialMargin
 
         console.log(`\n\n*********hustleAndHoddle*************\n`)
@@ -401,9 +399,6 @@ export class Harmony {
                 //     await this.binanceConnector.buyFuture('FILUSDT', 2.7)
                 // } else if (Number(egldPosition.positionAmt) < 2.7 || egldPNLInPercent > 100) {
                 //     const r = await this.binanceConnector.buyFuture('EGLDUSDT', 2.7)
-                //     console.log(r)
-                // } else if (Number(uniPosition.positionAmt) < 2.7 || uniPNLInPercent > 100) {
-                //     const r = await this.binanceConnector.buyFuture('UNIUSDT', 2.7)
                 //     console.log(r)
             }
         }
@@ -438,9 +433,6 @@ export class Harmony {
         // }
         // if (lunaPNLInPercent < 27 && Number(lunaPosition.positionAmt) > 3) {
         //     await this.binanceConnector.sellFuture('LUNAUSDT', Number(lunaPosition.positionAmt) - 3)
-        // }
-        // if (uniPNLInPercent < 27 && Number(uniPosition.positionAmt) > 2.7) {
-        //     await this.binanceConnector.sellFuture('UNIUSDT', Number(uniPosition.positionAmt) - 2.7)
         // }
         // if (filPNLInPercent < 27 && Number(filPosition.positionAmt) > 2.7) {
         //     await this.binanceConnector.sellFuture('FILUSDT', Number(filPosition.positionAmt) - 2.7)
