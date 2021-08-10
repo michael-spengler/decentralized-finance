@@ -12,7 +12,9 @@ export class Harmony {
     private targetInvestmentAmount = 0.003
     private targetHedgePositionAmount = 0
     private historicEtherPrices: number[] = []
+    private historicBitcoinPrices: number[] = []
     private historicDogeInBTCPrices: number[] = []
+    private historicXRPInBTCPrices: number[] = []
     private historicPricesLength = 45000
     private initialBitcoinPrice = 0
     private initialHedgePrice = 0
@@ -49,32 +51,13 @@ export class Harmony {
                     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - this.transferStartAmount)
                 }
 
-                if (Number(accountData.totalWalletBalance) < this.transferStartAmount) {
+                await this.exploitStupidity(accountData, currentPrices)
 
-                    console.log(`start small`)
+                await this.exploitEtherManipulators(accountData, currentPrices)
 
-                    const bitcoinPosition = accountData.positions.filter((entry: any) => entry.symbol === this.investmentPair)[0]
-                    const bitcoinPNLInPercent = (bitcoinPosition.unrealizedProfit * 100) / bitcoinPosition.initialMargin
-                    console.log(`bitcoinPNLInPercent: ${bitcoinPNLInPercent}`)
-                    // const hedgePosition = accountData.positions.filter((entry: any) => entry.symbol === this.hedgePair)[0]
-                    // const hedgePNLInPercent = (hedgePosition.unrealizedProfit * 100) / hedgePosition.initialMargin
-
-                    if (bitcoinPNLInPercent > 100 || Number(bitcoinPosition.positionAmt) < 0.001) {
-                        const responseInvestment = await this.binanceConnector.buyFuture(this.investmentPair, 0.001)
-                        console.log(responseInvestment)
-                    } else if (bitcoinPNLInPercent < 45 && Number(bitcoinPosition.positionAmt) > 0.001) {
-                        const responseInvestment = await this.binanceConnector.sellFuture(this.investmentPair, 0.001)
-                        console.log(responseInvestment)            
-                    } 
-
-                } else {
-                    console.log(`hustle`)
-                    await this.exploitTheBadAssStretch(accountData, currentPrices)
-                    
-                    await this.exploitEtherManipulators(accountData, currentPrices)
-                    
-                    await this.hustleAndHoddle(accountData)
-                }
+                await this.exploitCentralizedShitCoinScams(accountData, currentPrices)
+                
+                await this.hustleAndHoddle(accountData)
 
             }, 1000 * randomDelayInSeconds)
 
@@ -82,7 +65,51 @@ export class Harmony {
 
     }
 
-    private async exploitTheBadAssStretch(accountData: any, currentPrices: any[]) {
+    private async exploitCentralizedShitCoinScams(accountData: any, currentPrices: any[]): Promise<void> {
+
+        console.log(`\n*******exploitCentralizedShitCoinScams**********\n`)
+        const currentXRPInBTCPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'XRPBTC')[0].price
+        const xrpPosition = accountData.positions.filter((entry: any) => entry.symbol === 'XRPUSDT')[0]
+        const currentBitcoinPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price
+        
+        if (this.historicXRPInBTCPrices.length === this.historicPricesLength) {
+            this.historicXRPInBTCPrices.splice(this.historicXRPInBTCPrices.length - 1, 1)
+        }
+        this.historicXRPInBTCPrices.unshift(currentXRPInBTCPrice)
+        
+        const averageXRPInBTCPrice = this.getTheAverage(this.historicXRPInBTCPrices)
+        
+        const deltaXRPInBTC = (currentXRPInBTCPrice * 100 / averageXRPInBTCPrice) - 100 
+
+        if (this.historicBitcoinPrices.length === this.historicPricesLength) {
+            this.historicBitcoinPrices.splice(this.historicBitcoinPrices.length - 1, 1)
+        }
+        this.historicBitcoinPrices.unshift(currentBitcoinPrice)
+        
+        const averageBTCPrice = this.getTheAverage(this.historicBitcoinPrices)
+        
+        const deltaBitcoin = (currentBitcoinPrice * 100 / averageBTCPrice) - 100 
+
+        const xrpPNLInPercent = (xrpPosition.unrealizedProfit * 100) / xrpPosition.initialMargin
+
+        console.log(`xrpPNLInPercent: ${xrpPNLInPercent} - averageXRPInBTCPrice: ${averageXRPInBTCPrice} - currentXRPInBTCPrice: ${currentXRPInBTCPrice} - deltaXRPInBTC ${deltaXRPInBTC} - deltaBitcoin: ${deltaBitcoin}`)
+
+        if ((xrpPNLInPercent > 18 || xrpPNLInPercent < -90) && Number(xrpPosition.positionAmt) < - 27 ) {
+
+            console.log(`buy back short sold xrp with xrpPNLInPercent being ${xrpPNLInPercent}`)
+
+            const response = await this.binanceConnector.buyFuture('XRPUSDT', Number(((Number(xrpPosition.positionAmt) * -1) / 2).toFixed(0)))
+            console.log(response)
+
+        } else if (deltaXRPInBTC > 0.01 && this.marginRatio < 45 && deltaBitcoin > 0) {
+
+            console.log(`short sell xrp`)
+            const response = await this.binanceConnector.sellFuture('XRPUSDT', 27)
+            console.log(response)
+        }
+    }
+
+    private async exploitStupidity(accountData: any, currentPrices: any[]) {
 
         const currentBitcoinPrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.investmentPair)[0].price
         const currentHedgePrice: number = currentPrices.filter((e: any) => e.coinSymbol === this.hedgePair)[0].price
@@ -105,24 +132,22 @@ export class Harmony {
         const pnlFromBitcoinPosition = Number(bitcoinPosition.unrealizedProfit)
         const pnlFromHedgePosition = Number(hedgePosition.unrealizedProfit)
 
-        console.log(`\n*******exploitTheBadAssStretch**********\npnlFromBitcoinPosition: ${pnlFromBitcoinPosition} - pnlFromHedgePosition: ${pnlFromHedgePosition}`)
+        console.log(`\n*******exploitStupidity**********\npnlFromBitcoinPosition: ${pnlFromBitcoinPosition} - pnlFromHedgePosition: ${pnlFromHedgePosition}`)
 
         const currentdogeInBTCPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'DOGEBTC')[0].price
-
+        
         if (this.historicDogeInBTCPrices.length === this.historicPricesLength) {
             this.historicDogeInBTCPrices.splice(this.historicDogeInBTCPrices.length - 1, 1)
         }
         this.historicDogeInBTCPrices.unshift(currentdogeInBTCPrice)
-
-
         const averageDogeInBTCPrice = this.getTheAverage(this.historicDogeInBTCPrices)
         console.log(`averageDogeInBTCPrice: ${averageDogeInBTCPrice} - currentdogePriceInBTC: ${currentdogeInBTCPrice}`)
-
+        
         const pnlFromBadAssStretch = pnlFromBitcoinPosition + pnlFromHedgePosition
-        const investedAmountInBadAssStretch = Number(bitcoinPosition.initialMargin) + Number(hedgePosition.initialMargin)
+        const investedAmountInstupidityExploit = Number(bitcoinPosition.initialMargin) + Number(hedgePosition.initialMargin)
 
-        const pnlFromBadAssStretchInPercent = (pnlFromBadAssStretch * 100 / investedAmountInBadAssStretch)
-        console.log(`pnlFromBadAssStretchInPercent: ${pnlFromBadAssStretchInPercent} - unrealizedProfitInPercent: ${unrealizedProfitInPercent} `)
+        const pnlFromstupidityInPercent = (pnlFromBadAssStretch * 100 / investedAmountInstupidityExploit)
+        console.log(`pnlFromstupidityInPercent: ${pnlFromstupidityInPercent} - unrealizedProfitInPercent: ${unrealizedProfitInPercent} `)
 
         console.log(`initialBitcoinPrice: ${this.initialBitcoinPrice} - currentBitcoinPrice: ${currentBitcoinPrice} --> bitcoinPriceDeltaInPercent: ${bitcoinPriceDeltaInPercent}`)
         console.log(`initialHedgePrice: ${this.initialHedgePrice} - currentHedgePrice: ${currentHedgePrice} --> hedgePriceDeltaInPercent: ${hedgePriceDeltaInPercent}`)
@@ -131,9 +156,9 @@ export class Harmony {
 
         this.targetHedgePositionAmount = Number(((this.targetInvestmentAmount / currentHedgePrice) * currentBitcoinPrice).toFixed(0))
 
-        const sellingBadAssStretchAt = (this.marginRatio > 18) ? this.sellingAt / 3 : this.sellingAt
+        const sellingstupidityAt = (this.marginRatio > 27) ? this.sellingAt / 3 : this.sellingAt
 
-        if (pnlFromBadAssStretchInPercent > sellingBadAssStretchAt || this.marginRatio > 72) {
+        if (pnlFromstupidityInPercent > sellingstupidityAt || this.marginRatio > 72) {
 
             console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}%`)
 
@@ -230,8 +255,7 @@ export class Harmony {
 
                 await this.binanceConnector.sellFuture('ETHUSDT', 0.01)
 
-            // } else if (this.marginRatio < 27 && bidsAndAsksDeltaInPercent < - 27 && currentEtherPrice < averageEtherPrice) {
-            } else if (this.marginRatio < 27 && bidsAndAsksDeltaInPercent < - 27 && deltaToAverageInPercent <= 1.8) {
+            } else if (this.marginRatio < 36 && bidsAndAsksDeltaInPercent < - 27 && deltaToAverageInPercent <= 1.8) {
 
                 let amountToBeBought = Number((0.01 * Number((lowestSinceX / 100).toFixed(0))).toFixed(2)) + 0.01
 
@@ -288,6 +312,7 @@ export class Harmony {
         const batPosition = accountData.positions.filter((entry: any) => entry.symbol === 'BATUSDT')[0]
         const compPosition = accountData.positions.filter((entry: any) => entry.symbol === 'COMPUSDT')[0]
         const manaPosition = accountData.positions.filter((entry: any) => entry.symbol === 'MANAUSDT')[0]
+        const xrpPosition = accountData.positions.filter((entry: any) => entry.symbol === 'XRPUSDT')[0]
         // const dotPosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOTUSDT')[0]
         // const aavePosition = accountData.positions.filter((entry: any) => entry.symbol === 'AAVEUSDT')[0]
         // const lunaPosition = accountData.positions.filter((entry: any) => entry.symbol === 'LUNAUSDT')[0]
@@ -303,6 +328,7 @@ export class Harmony {
         const batPNLInPercent = (batPosition.unrealizedProfit * 100) / batPosition.initialMargin
         const compPNLInPercent = (compPosition.unrealizedProfit * 100) / compPosition.initialMargin
         const manaPNLInPercent = (manaPosition.unrealizedProfit * 100) / manaPosition.initialMargin
+        const xrpPNLInPercent = (xrpPosition.unrealizedProfit * 100) / xrpPosition.initialMargin
         // const dotPNLInPercent = (dotPosition.unrealizedProfit * 100) / dotPosition.initialMargin
         // const aavePNLInPercent = (aavePosition.unrealizedProfit * 100) / aavePosition.initialMargin
         // const lunaPNLInPercent = (lunaPosition.unrealizedProfit * 100) / lunaPosition.initialMargin
@@ -312,7 +338,7 @@ export class Harmony {
 
         console.log(`\n*********hustleAndHoddle*************\n`)
         // console.log(Number(xmrPosition.positionAmt))
-        if (this.marginRatio < 27) {
+        if (this.marginRatio < 36) {
             if (Number(bnbPosition.positionAmt) < 0.27 || bnbPNLInPercent > 100) {
                 await this.binanceConnector.buyFuture('BNBUSDT', 0.27)
             } else if (Number(xmrPosition.positionAmt) < 0.27 || xmrPNLInPercent > 100) {
@@ -327,6 +353,8 @@ export class Harmony {
                 await this.binanceConnector.buyFuture('COMPUSDT', 0.027)
             } else if (Number(manaPosition.positionAmt) < 27 || manaPNLInPercent > 100) {
                 await this.binanceConnector.buyFuture('MANAUSDT', 27)
+            } else if (xrpPosition === undefined || Number(xrpPosition.positionAmt) > - 27 || xrpPNLInPercent > 100) {
+                await this.binanceConnector.sellFuture('XRPUSDT', 27)
                 // } else if (Number(dotPosition.positionAmt) < 2.7 || dotPNLInPercent > 100) {
                 //     await this.binanceConnector.buyFuture('DOTUSDT', 2.7)
                 // } else if (Number(aavePosition.positionAmt) < 2.7 || aavePNLInPercent > 100) {
@@ -365,6 +393,9 @@ export class Harmony {
         }
         if (manaPNLInPercent < 27 && Number(manaPosition.positionAmt) > 27) {
             await this.binanceConnector.sellFuture('MANAUSDT', Number(manaPosition.positionAmt) - 27)
+        }
+        if (xrpPNLInPercent < 27 && Number(xrpPosition.positionAmt) < - 27) {
+            await this.binanceConnector.buyFuture('XRPUSDT', (Number(manaPosition.positionAmt) + 27) * -1)
         }
         // if (dotPNLInPercent < 27 && Number(dotPosition.positionAmt) > 2.7) {
         //     await this.binanceConnector.sellFuture('DOTUSDT', Number(dotPosition.positionAmt) - 2.7)
