@@ -85,7 +85,21 @@ export class Harmony {
 
         if (maxNotionalInUNI > Number(uniPosition.positionAmt) && (Number(uniPosition.positionAmt) < 1 || deltaUNIPrice < -0.01 || uniPNLInPercent < 0)) {
             console.log(`buying UNI`)
-            await this.binanceConnector.buyFuture('UNIUSDT', 1)
+            if (uniPNLInPercent < -45) {
+                await this.binanceConnector.buyFuture('UNIUSDT', 45)
+            } else if (uniPNLInPercent < - 36) {
+                await this.binanceConnector.buyFuture('UNIUSDT', 36)
+            } else if (uniPNLInPercent < - 27) {
+                await this.binanceConnector.buyFuture('UNIUSDT', 27)
+            } else if (uniPNLInPercent < - 18) {
+                await this.binanceConnector.buyFuture('UNIUSDT', 18)
+            } else if (uniPNLInPercent < - 9) {
+                await this.binanceConnector.buyFuture('UNIUSDT', 9)
+            } else if (uniPNLInPercent < - 3) {
+                await this.binanceConnector.buyFuture('UNIUSDT', 3)
+            } else {
+                await this.binanceConnector.buyFuture('UNIUSDT', 1)
+            }
         } else if (uniPNLInPercent > 9 && Number(uniPosition.positionAmt) > 1) {
             console.log(`selling UNI`)
             await this.binanceConnector.sellFuture('UNIUSDT', 1)
@@ -122,7 +136,7 @@ export class Harmony {
         const deltaBitcoin = (currentBitcoinPrice * 100 / averageBTCPrice) - 100
 
         const xrpPNLInPercent = (xrpPosition.unrealizedProfit * 100) / xrpPosition.initialMargin
-        
+
         const maxNotionalInXRP = Number((Number(xrpPosition.maxNotional) / currentXRPInUSDTPrice).toFixed(0))
 
         console.log(`xrpPNLInPercent: ${xrpPNLInPercent} - averageXRPInBTCPrice: ${averageXRPInBTCPrice} - currentXRPInBTCPrice: ${currentXRPInBTCPrice} - deltaXRPInBTC ${deltaXRPInBTC} - deltaBitcoin: ${deltaBitcoin} - maxNotionalInXRP: ${maxNotionalInXRP}`)
@@ -280,9 +294,9 @@ export class Harmony {
                 console.log(`I need to sell 0.01 of my ether position with a pnl of: ${pnlFromEtherPositionInPercent}%`)
 
                 await this.binanceConnector.sellFuture('ETHUSDT', 0.01)
-                
+
             } else if (this.marginRatio < 45 && deltaToAverageInPercent < 0) {
-                
+
                 console.log(`exciting times for ether`)
                 // const orderBook = await this.binanceConnector.getOrderbook('ETHBTC')
 
