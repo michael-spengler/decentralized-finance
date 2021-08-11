@@ -307,7 +307,7 @@ export class Harmony {
                 // console.log(`bidsAndAsksDeltaInPercent: ${bidsAndAsksDeltaInPercent}`)
 
                 // if (Number(etherPosition.maxNotional) > Number(etherPosition.positionAmt) && bidsAndAsksDeltaInPercent < - 27) {
-                if (maxNotionalInEther > Number(etherPosition.positionAmt)) {
+                if (maxNotionalInEther > Number(etherPosition.positionAmt) + 0.01) {
 
                     // let amountToBeBought = Number((0.01 * Number((lowestSinceX / 100).toFixed(0))).toFixed(2)) + 0.01
 
