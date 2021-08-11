@@ -83,7 +83,7 @@ export class Harmony {
         const maxNotionalInUNI = Number((Number(uniPosition.maxNotional) / currentUNIPrice).toFixed(0))
         console.log(`averageUNIPrice: ${averageUNIPrice} - currentUNIPrice: ${currentUNIPrice} - deltaUNIPrice: ${deltaUNIPrice} - uniPNLInPercent: ${uniPNLInPercent} - maxNotionalInUNI: ${maxNotionalInUNI}`)
 
-        if (maxNotionalInUNI > Number(uniPosition.positionAmt) && (Number(uniPosition.positionAmt) < 1 || deltaUNIPrice < -0.01 || uniPNLInPercent < 0)) {
+        if (maxNotionalInUNI > Number(uniPosition.positionAmt) + 1 && (Number(uniPosition.positionAmt) < 1 || deltaUNIPrice < 1 || uniPNLInPercent < 0)) {
             console.log(`buying UNI`)
             if (uniPNLInPercent < -45) {
                 await this.binanceConnector.buyFuture('UNIUSDT', 45)
@@ -202,7 +202,7 @@ export class Harmony {
 
         const sellingstupidityAt = (this.marginRatio > 27) ? this.sellingAt / 3 : this.sellingAt
 
-        if (pnlFromstupidityInPercent > sellingstupidityAt || this.marginRatio > 72) {
+        if (pnlFromstupidityInPercent > sellingstupidityAt) {
 
             console.log(`closing the deal with an unrealizedProfitInPercent of ${unrealizedProfitInPercent}%`)
 
@@ -295,7 +295,7 @@ export class Harmony {
 
                 await this.binanceConnector.sellFuture('ETHUSDT', 0.01)
 
-            } else if (this.marginRatio < 45 && deltaToAverageInPercent < 0) {
+            } else if (maxNotionalInEther > Number(etherPosition.positionAmt) + 0.01 && this.marginRatio < 45 && (deltaToAverageInPercent < 1)) {
 
                 console.log(`exciting times for ether`)
                 // const orderBook = await this.binanceConnector.getOrderbook('ETHBTC')
@@ -306,23 +306,8 @@ export class Harmony {
                 // const bidsAndAsksDeltaInPercent = this.indicator.getBidsAndAsksDeltaInPercent(bidsAndAsks)
                 // console.log(`bidsAndAsksDeltaInPercent: ${bidsAndAsksDeltaInPercent}`)
 
-                // if (Number(etherPosition.maxNotional) > Number(etherPosition.positionAmt) && bidsAndAsksDeltaInPercent < - 27) {
-                if (maxNotionalInEther > Number(etherPosition.positionAmt) + 0.01) {
-
-                    // let amountToBeBought = Number((0.01 * Number((lowestSinceX / 100).toFixed(0))).toFixed(2)) + 0.01
-
-                    // console.log(`amountToBeBought before potential correction: ${amountToBeBought} as maxNotional for Ether is ${Number(etherPosition.maxNotional)}`)
-
-                    // if (amountToBeBought > Number(maxNotionalInEther.toFixed(3)) - Number(etherPosition.positionAmt)) {
-                    //     amountToBeBought = Number(maxNotionalInEther.toFixed(3)) - Number(etherPosition.positionAmt)
-                    // }
-
-                    // console.log(`amountToBeBought after potential correction: ${amountToBeBought}`)
-
-                    // console.log(`Buying ${amountToBeBought} Ether`)
-                    const responseBuyEther = await this.binanceConnector.buyFuture('ETHUSDT', 0.01)
-                    console.log(responseBuyEther)
-                }
+                const responseBuyEther = await this.binanceConnector.buyFuture('ETHUSDT', 0.01)
+                console.log(responseBuyEther)
 
             } else {
                 console.log(`boring times`)
@@ -426,11 +411,11 @@ export class Harmony {
         if (adaPNLInPercent < 27 && Number(adaPosition.positionAmt) > 27) {
             await this.binanceConnector.sellFuture('ADAUSDT', Number(adaPosition.positionAmt))
         }
-        if (linkPNLInPercent < - 27 && Number(linkPosition.positionAmt) > 2.7) {
+        if (linkPNLInPercent < 27 && Number(linkPosition.positionAmt) > 2.7) {
             const r = await this.binanceConnector.sellFuture('LINKUSDT', Number(linkPosition.positionAmt))
             console.log(r)
         }
-        if (batPNLInPercent < - 27 && Number(batPosition.positionAmt) > 27) {
+        if (batPNLInPercent < 27 && Number(batPosition.positionAmt) > 27) {
             await this.binanceConnector.sellFuture('BATUSDT', Number(batPosition.positionAmt))
         }
         if (compPNLInPercent < 27 && Number(compPosition.positionAmt) > 0.027) {
