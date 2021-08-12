@@ -22,6 +22,7 @@ export class Harmony {
     private previousPriceDeltaDifference = 0
     private indicator: Indicator
     private sellingAt = 0
+    private beastMode = false
     private marginRatio = 0
     private transferStartAmount = 100
 
@@ -52,15 +53,26 @@ export class Harmony {
                     await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(accountData.availableBalance) - this.transferStartAmount)
                 }
 
-                await this.exploitTimeWasters(accountData, currentPrices)
-
-                await this.exploitEtherManipulators(accountData, currentPrices)
-
-                await this.exploitCentralizedShitCoinScams(accountData, currentPrices)
-
-                await this.exploitTheAverageVolatility(accountData, currentPrices)
-
-                await this.hustleAndHoddle(accountData)
+                const currentdogeInBTCPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'DOGEBTC')[0].price
+                if (this.historicDogeInBTCPrices.length === this.historicPricesLength) {
+                    this.historicDogeInBTCPrices.splice(this.historicDogeInBTCPrices.length - 1, 1)
+                }
+                this.historicDogeInBTCPrices.unshift(currentdogeInBTCPrice)
+        
+                if (this.isBeastModeTime(accountData, currentPrices)) { // beast mode indicator will come from Sentiment Analyzer... - only reacting to extremes
+                    console.log('hä')
+                    await this.exploitBeastMode(accountData, currentPrices)
+                } else {
+                    await this.exploitTimeWasters(accountData, currentPrices)
+                    
+                    await this.exploitEtherManipulators(accountData, currentPrices)
+                    
+                    await this.exploitCentralizedShitCoinScams(accountData, currentPrices)
+                    
+                    await this.exploitTheAverageVolatility(accountData, currentPrices)
+                    
+                    await this.hustleAndHoddle(accountData)
+                }
 
             }, 1000 * randomDelayInSeconds)
 
@@ -68,6 +80,45 @@ export class Harmony {
 
     }
 
+    private isBeastModeTime(accountData: any, currentPrices: any[]): boolean {
+
+        const currentdogeInBTCPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'DOGEBTC')[0].price
+        const averageDogeInBTCPrice = this.getTheAverage(this.historicDogeInBTCPrices)
+        const deltaDogePrice = (currentdogeInBTCPrice * 100 / averageDogeInBTCPrice) - 100
+        // if (deltaDogePrice > 3 )
+
+        console.log('wtf')
+        return false // for now
+    }
+
+    private async exploitBeastMode(accountData: any, currentPrices: any[]) {
+
+        console.log(`\n\n*******exploitBeastMode**********\n`)
+        const currentDOGEPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'DOGEUSDT')[0].price
+        const dogePosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
+
+        const howMuchCanIShortSell = Number(((Number(accountData.availableBalance) / currentDOGEPrice) * Number(dogePosition.leverage)).toFixed(0)) - 18
+
+        console.log(`I can short sell ${howMuchCanIShortSell} DOGE `)
+        if (howMuchCanIShortSell > 18) {
+            const r = await this.binanceConnector.sellFuture('DOGEUSDT', howMuchCanIShortSell)
+            console.log(r)
+        } else if (this.marginRatio > 82) {
+            console.log(`buying back wrongly shorted shitcoin`)
+            const r = await this.binanceConnector.buyFuture('DOGEUSDT', Number(dogePosition.positionAmt))
+            console.log(r)
+        }
+
+        const orderBook = await this.binanceConnector.getOrderbook('DOGEUSDT')
+
+        const bidsAndAsks = this.indicator.getAmountOfBidsAndAsksFromOrderbook(orderBook)
+        console.log(bidsAndAsks)
+
+        const bidsAndAsksDeltaInPercent = this.indicator.getBidsAndAsksDeltaInPercent(bidsAndAsks)
+        console.log(`bidsAndAsksDeltaInPercent: ${bidsAndAsksDeltaInPercent}`)
+
+
+    }
     private async exploitTheAverageVolatility(accountData: any, currentPrices: any[]): Promise<void> {
         console.log(`\n\n*******exploitTheAverageVolatility**********\n`)
 
@@ -179,11 +230,6 @@ export class Harmony {
         console.log(`\n\n*******exploitTimeWasters**********\npnlFromBitcoinPosition: ${pnlFromBitcoinPosition} - pnlFromHedgePosition: ${pnlFromHedgePosition}`)
 
         const currentdogeInBTCPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'DOGEBTC')[0].price
-
-        if (this.historicDogeInBTCPrices.length === this.historicPricesLength) {
-            this.historicDogeInBTCPrices.splice(this.historicDogeInBTCPrices.length - 1, 1)
-        }
-        this.historicDogeInBTCPrices.unshift(currentdogeInBTCPrice)
         const averageDogeInBTCPrice = this.getTheAverage(this.historicDogeInBTCPrices)
         console.log(`averageDogeInBTCPrice: ${averageDogeInBTCPrice} - currentdogePriceInBTC: ${currentdogeInBTCPrice}`)
 
