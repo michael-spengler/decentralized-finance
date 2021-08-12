@@ -154,7 +154,9 @@ export class Harmony {
         } else if (uniPNLInPercent > 9 && Number(uniPosition.positionAmt) > 1) {
             console.log(`selling UNI`)
             await this.binanceConnector.sellFuture('UNIUSDT', 1)
-        } else if (uniPNLInPercent < - 45) {
+        } 
+        
+        if (uniPNLInPercent < - 45 || this.marginRatio > 72) {
             console.log(`things went south selling all UNI`)
             await this.binanceConnector.sellFuture('UNIUSDT', Number(uniPosition.positionAmt))
         }
