@@ -134,11 +134,9 @@ export class Harmony {
         const maxNotionalInUNI = Number((Number(uniPosition.maxNotional) / currentUNIPrice).toFixed(0))
         console.log(`averageUNIPrice: ${averageUNIPrice} - currentUNIPrice: ${currentUNIPrice} - deltaUNIPrice: ${deltaUNIPrice} - uniPNLInPercent: ${uniPNLInPercent} - maxNotionalInUNI: ${maxNotionalInUNI}`)
 
-        if (maxNotionalInUNI > Number(uniPosition.positionAmt) + 1 && (Number(uniPosition.positionAmt) < 1 || deltaUNIPrice < 1 || uniPNLInPercent < 0)) {
+        if (uniPNLInPercent < 18 && maxNotionalInUNI > Number(uniPosition.positionAmt) + 1 && (Number(uniPosition.positionAmt) < 1 || deltaUNIPrice < 1 || uniPNLInPercent < 0)) {
             console.log(`buying UNI`)
-            if (uniPNLInPercent < -45) {
-                await this.binanceConnector.buyFuture('UNIUSDT', 45)
-            } else if (uniPNLInPercent < - 36) {
+            if (uniPNLInPercent < - 36 && uniPNLInPercent >= - 45) {
                 await this.binanceConnector.buyFuture('UNIUSDT', 36)
             } else if (uniPNLInPercent < - 27) {
                 await this.binanceConnector.buyFuture('UNIUSDT', 27)
@@ -151,7 +149,7 @@ export class Harmony {
             } else {
                 await this.binanceConnector.buyFuture('UNIUSDT', 1)
             }
-        } else if (uniPNLInPercent > 9 && Number(uniPosition.positionAmt) > 1) {
+        } else if (uniPNLInPercent > 27 && Number(uniPosition.positionAmt) > 1) {
             console.log(`selling UNI`)
             await this.binanceConnector.sellFuture('UNIUSDT', 1)
         } 
