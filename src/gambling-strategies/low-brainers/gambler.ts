@@ -92,6 +92,16 @@ export class Gambler {
 
                 await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
 
+                console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
+
+                if (maximumHedgeMargin <= Number(hedgePosition.initialMargin)) {
+                    console.log(`hedgeposition is strong enough`)
+                } else {
+                    console.log(`short selling doge as hedgeposition`)
+                    await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
+                }
+
+
             } else if (this.marginRatio > 63) {
 
                 console.log(`things went south`)
@@ -117,15 +127,6 @@ export class Gambler {
                 }
             } else {
                 console.log(`ready for some action`)
-            }
-
-            console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
-
-            if (maximumHedgeMargin <= Number(hedgePosition.initialMargin)) {
-                console.log(`hedgeposition is strong enough`)
-            } else {
-                console.log(`short selling doge as hedgeposition`)
-                await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
             }
         }
 
