@@ -53,7 +53,7 @@ export class Gambler {
                 console.log(`you can improve something: ${error.message}`)
             }
 
-        }, 9 * 1000)
+        }, 3 * 1000)
 
     }
 
@@ -78,29 +78,29 @@ export class Gambler {
             await this.investWisely()
         } else if (this.mode === 'extremelyShort') {
             await this.sellAllLongPositions()
+            await this.rattleDown()
         } else if (this.mode === 'extremelyLong') {
             await this.sellAllShortPositions()
             await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
         } else if (this.mode === 'safeAPICallsMode') {
 
             let maximumHedgeMargin = this.getInitialMarginOfAllLongPositionsAccumulated(this.accountData) / 3
-            let minimumimumHedgeMargin = maximumHedgeMargin / 3
+            let minimumimumHedgeMargin = maximumHedgeMargin / 3 // todo: based on deltaToAverageInPercent
 
             console.log(`aha: ${this.marginRatio}`)
+
+            console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
+
+            if (Number(hedgePosition.initialMargin) >= maximumHedgeMargin) {
+                console.log(`hedgeposition is strong enough`)
+            } else {
+                console.log(`short selling doge as hedgeposition`)
+                await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
+            }
 
             if (this.marginRatio < 18 || (this.marginRatio > 27 && this.marginRatio < 36)) { // using momentum + buy low / sell high
 
                 await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
-
-                console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
-
-                if (maximumHedgeMargin <= Number(hedgePosition.initialMargin)) {
-                    console.log(`hedgeposition is strong enough`)
-                } else {
-                    console.log(`short selling doge as hedgeposition`)
-                    await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
-                }
-
 
             } else if (this.marginRatio > 63) {
 
@@ -128,6 +128,26 @@ export class Gambler {
             } else {
                 console.log(`ready for some action`)
             }
+        }
+
+    }
+
+    private async rattleDown() {
+        const currentBitcoinPrice = this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price 
+        const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
+        
+        if (this.marginRatio < 36) {
+            
+            const howMuchShallIShortSell = Number((((Number(this.accountData.availableBalance) / currentBitcoinPrice) * Number(bitcoinPosition.leverage)) / 9).toFixed(3))
+
+            console.log(`howMuchShallIShortSell: ${howMuchShallIShortSell}`)
+            
+            await this.binanceConnector.sellFuture('BTCUSDT', howMuchShallIShortSell)
+        } else if (this.marginRatio > 45) {
+
+            const howMuchShallIBuyBack = Number((Number(bitcoinPosition.positionAmt) / 2).toFixed(3))
+            console.log(`howMuchShallIBuyBack: ${howMuchShallIBuyBack}`)
+            await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuyBack)
         }
 
     }
@@ -172,7 +192,7 @@ export class Gambler {
         //     this.mode = 'investWisely'
         // }
 
-        this.mode = 'safeAPICallsMode' // binance upgrade ... 
+        this.mode = 'extremelyShort' // for now
 
         if (this.deltaToAverageInPercent > 0) {
             this.couldBuyWouldBuyFactor = 0.03
