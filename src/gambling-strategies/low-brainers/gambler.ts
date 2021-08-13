@@ -17,6 +17,10 @@ export class Gambler {
     private accountData: any
     private couldBuyWouldBuyFactor = 0.1
     private marginRatio = 0
+    private historicPortfolioPrices: any[] = []
+    private historicPricesLength = 45000
+    private cPP = 0
+    private averageCPP = 0
 
     public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
         this.liquidityRatioToBuy = lrToBuy
@@ -44,7 +48,10 @@ export class Gambler {
                 i.accountData = await i.binanceConnector.getFuturesAccountData()
                 i.currentPrices = await i.binanceConnector.getCurrentPrices()
                 i.marginRatio = Number(i.accountData.totalMaintMargin) * 100 / Number(i.accountData.totalMarginBalance)
+                i.cPP = i.portfolioProvider.getCurrentPortfolioAveragePrice(i.currentPrices)
+                i.averageCPP = i.getTheAverage(i.historicPortfolioPrices)
 
+                i.addToPriceHistory()
                 i.determineMode()
 
                 if (i.mode === 'investWisely') {
@@ -53,6 +60,7 @@ export class Gambler {
                     await i.sellAllLongPositions()
                 } else if (i.mode === 'extremelyLong') {
                     await i.sellAllShortPositions() 
+                    await i.buy(i.currentPrices, i.accountData, i.couldBuyWouldBuyFactor)
                 } 
             } catch (error) {
                 console.log(`you can improve something: ${error.message}`)
@@ -62,9 +70,24 @@ export class Gambler {
 
     }
 
+    private addToPriceHistory() {
+        if (this.historicPortfolioPrices.length === this.historicPricesLength) {
+            this.historicPortfolioPrices.splice(this.historicPortfolioPrices.length - 1, 1)
+        }
+        this.historicPortfolioPrices.unshift(this.cPP)
+
+    }
+
     private determineMode() {
-        if (this.marginRatio > 63) {
-            this.mode = 'extremelyShort'
+        const lowestSinceX = this.getIsLowestPriceSinceX(this.cPP, this.historicPortfolioPrices)
+        const highestSinceX = this.getIsHighestPriceSinceX(this.cPP, this.historicPortfolioPrices)
+        console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX}`)
+
+        if (this.marginRatio > 63 || (this.cPP > this.averageCPP * 1.27 && lowestSinceX > 1829)) {
+            this.mode = 'extremelyShort' 
+
+        } else if (this.cPP * 1.27 < this.averageCPP && highestSinceX > 1829) {
+            this.mode = 'extremelyLong' 
 
         } else {
             this.mode = 'investWisely'
@@ -75,7 +98,6 @@ export class Gambler {
 
     private async investWisely(): Promise<void> {
 
-        const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(this.currentPrices)
         const liquidityRatio = Number(this.accountData.availableBalance) / Number(this.accountData.totalWalletBalance)
         const lowestPrice10_5000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 5000)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
@@ -86,7 +108,7 @@ export class Gambler {
             // await this.adjustLeverageEffect(this.accountData)
         }
 
-        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP10_5000: ${lowestPrice10_5000.toFixed(2)}; nyrPNL: ${this.accountData.totalUnrealizedProfit}`)
+        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${this.cPP.toFixed(2)}; lP10_5000: ${lowestPrice10_5000.toFixed(2)}; nyrPNL: ${this.accountData.totalUnrealizedProfit}`)
 
         if (Number(this.accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
 
@@ -111,7 +133,7 @@ export class Gambler {
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
 
             if (this.intervalCounter > 10) {
-                if (cPP === lowestPrice10_5000) {
+                if (this.cPP === lowestPrice10_5000) {
                     await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
                     console.log(`I bought with factor ${this.couldBuyWouldBuyFactor}`)
                     await this.saveSomething(this.accountData)
@@ -127,7 +149,7 @@ export class Gambler {
             console.log(`unfortunately it seems time to realize some losses. I'm selling 10 Percent of my assets.`)
             await this.sell(0.07)
 
-        } else if (cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
+        } else if (this.cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
 
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a long term low.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
@@ -140,7 +162,7 @@ export class Gambler {
 
         }
 
-        await this.hedgeWisely(highestPrice10_30, cPP)
+        await this.hedgeWisely(highestPrice10_30, this.cPP)
     }
 
     private async hedgeWisely(highestPrice10_30: number, cPP: number): Promise<void> {
