@@ -21,6 +21,7 @@ export class Gambler {
     private historicPricesLength = 45000
     private cPP = 0
     private averageCPP = 0
+    private deltaToAverageInPercent = 0
 
     public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
         this.liquidityRatioToBuy = lrToBuy
@@ -42,6 +43,7 @@ export class Gambler {
 
         setInterval(async () => {
             i.intervalCounter++
+            console.log(`\n******************************* interval ${i.intervalCounter} *******************************`)
 
             try {
 
@@ -56,14 +58,14 @@ export class Gambler {
     }
 
     private async enjoyIt() {
-        const accountData = await this.binanceConnector.getFuturesAccountData()
-        const currentPrices = await this.binanceConnector.getCurrentPrices()
         this.accountData = await this.binanceConnector.getFuturesAccountData()
         this.currentPrices = await this.binanceConnector.getCurrentPrices()
         this.marginRatio = Number(this.accountData.totalMaintMargin) * 100 / Number(this.accountData.totalMarginBalance)
         this.cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(this.currentPrices)
         this.averageCPP = this.getTheAverage(this.historicPortfolioPrices)
 
+        this.deltaToAverageInPercent = (this.cPP * 100 / this.averageCPP) - 100
+       
         this.addToPriceHistory()
         this.determineMode()
 
@@ -81,7 +83,7 @@ export class Gambler {
             await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
         } else if (this.mode === 'safeAPICallsMode') {
 
-            let maximumHedgeMargin = this.getInitialMarginOfAllLongPositionsAccumulated(accountData) / 3
+            let maximumHedgeMargin = this.getInitialMarginOfAllLongPositionsAccumulated(this.accountData) / 3
 
             console.log(`aha: ${this.marginRatio}`)
 
@@ -93,23 +95,30 @@ export class Gambler {
 
                 console.log(`things went south`)
                 await this.sellAllLongPositions()
-                
-            } else if (this.marginRatio > 54 && Number(hedgePosition.initialMargin) > maximumHedgeMargin / 3) {
-                
+
+                if (this.deltaToAverageInPercent < 0) { 
+                    console.log(`we take the profit of the hedge as we are below average`)
+                    await this.binanceConnector.buyFuture('DOGEUSDT', Number(hedgePosition.positionAmt * -1))
+                }else {
+                    console.log(`we keep our hedge as we are above average`)
+                }
+
+            } else if (this.marginRatio > 54) {
+
                 console.log(`take some profits from the hedge position`)
-                await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 2).toFixed(3)) * -1)
+                await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
 
             } else if (this.marginRatio > 36 && this.marginRatio < 45) {
 
                 console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
-        
+
                 if (maximumHedgeMargin < Number(hedgePosition.initialMargin)) {
                     console.log(`hedgeposition is strong enough`)
                 } else {
                     console.log(`short selling doge as hedgeposition`)
                     await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
                 }
-        
+
 
             } else {
                 console.log(`ready for some action`)
@@ -160,7 +169,13 @@ export class Gambler {
 
         this.mode = 'safeAPICallsMode' // binance upgrade ... 
 
-        console.log(`The mode is ${this.mode}`)
+        if (this.deltaToAverageInPercent > 0) {
+            this.couldBuyWouldBuyFactor = 0.03
+        } else {
+            this.couldBuyWouldBuyFactor = 0.09
+
+        }
+        console.log(`The mode is ${this.mode} with a couldBuyWouldByFactor of: ${this.couldBuyWouldBuyFactor} as the deltaToAverageInPercent is ${this.deltaToAverageInPercent}`)
     }
 
     private async investWisely(): Promise<void> {
