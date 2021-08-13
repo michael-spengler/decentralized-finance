@@ -45,23 +45,8 @@ export class Gambler {
 
             try {
 
-                i.accountData = await i.binanceConnector.getFuturesAccountData()
-                i.currentPrices = await i.binanceConnector.getCurrentPrices()
-                i.marginRatio = Number(i.accountData.totalMaintMargin) * 100 / Number(i.accountData.totalMarginBalance)
-                i.cPP = i.portfolioProvider.getCurrentPortfolioAveragePrice(i.currentPrices)
-                i.averageCPP = i.getTheAverage(i.historicPortfolioPrices)
+                await i.enjoyIt()
 
-                i.addToPriceHistory()
-                i.determineMode()
-
-                if (i.mode === 'investWisely') {
-                    await i.investWisely()
-                } else if (i.mode === 'extremelyShort') {
-                    await i.sellAllLongPositions()
-                } else if (i.mode === 'extremelyLong') {
-                    await i.sellAllShortPositions() 
-                    await i.buy(i.currentPrices, i.accountData, i.couldBuyWouldBuyFactor)
-                } 
             } catch (error) {
                 console.log(`you can improve something: ${error.message}`)
             }
@@ -70,6 +55,38 @@ export class Gambler {
 
     }
 
+    private async enjoyIt() {
+        const accountData = await this.binanceConnector.getFuturesAccountData()
+        const currentPrices = await this.binanceConnector.getCurrentPrices()
+        console.log(currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0])
+        this.accountData = await this.binanceConnector.getFuturesAccountData()
+        this.currentPrices = await this.binanceConnector.getCurrentPrices()
+        this.marginRatio = Number(this.accountData.totalMaintMargin) * 100 / Number(this.accountData.totalMarginBalance)
+        this.cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(this.currentPrices)
+        this.averageCPP = this.getTheAverage(this.historicPortfolioPrices)
+
+        this.addToPriceHistory()
+        this.determineMode()
+
+        if (this.mode === 'investWisely') {
+            await this.investWisely()
+        } else if (this.mode === 'extremelyShort') {
+            await this.sellAllLongPositions()
+        } else if (this.mode === 'extremelyLong') {
+            await this.sellAllShortPositions()
+            await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
+        } else if (this.mode === 'pricesAPINotWorking') {
+            console.log(`aha: ${this.marginRatio}`)
+            if (this.marginRatio < 18){
+                await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
+            } else if (this.marginRatio > 43) {
+                await this.sellAllLongPositions()
+            } else {
+                console.log(`ready for some action`)
+            }
+        }
+
+    }
     private addToPriceHistory() {
         if (this.historicPortfolioPrices.length === this.historicPricesLength) {
             this.historicPortfolioPrices.splice(this.historicPortfolioPrices.length - 1, 1)
@@ -84,10 +101,13 @@ export class Gambler {
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX}`)
 
         if (this.marginRatio > 63 || (this.cPP > this.averageCPP * 1.27 && lowestSinceX > 1829)) {
-            this.mode = 'extremelyShort' 
+            this.mode = 'extremelyShort'
 
         } else if (this.cPP * 1.27 < this.averageCPP && highestSinceX > 1829) {
-            this.mode = 'extremelyLong' 
+            this.mode = 'extremelyLong'
+
+        } else if (lowestSinceX > 1 && lowestSinceX === highestSinceX) {
+            this.mode = 'pricesAPINotWorking'
 
         } else {
             this.mode = 'investWisely'
@@ -180,22 +200,22 @@ export class Gambler {
         //     } else if ((Number(currentHedgePosition.positionAmt) * -1) < 9000) { // optimize
 
         //         const amountToBeShortSold = Number(currentHedgePosition.positionAmt) * -1 * 2
-            
+
         //         const currentEtherPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
         //         const currentEtherPrice: number = this.currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price
         //         const etherPositionValue = Number(currentEtherPosition.positionAmt) * currentEtherPrice
-                
+
         //         const valueToBeShortSold = amountToBeShortSold * this.currentPrices.filter((e: any) => e.coinSymbol === 'DOGEUSDT')[0].price
-                
+
         //         console.log(`valueToBeShortSold: ${valueToBeShortSold}`)
 
         //         console.log(`etherPositionValue: ${etherPositionValue}`)
 
-               
+
         //         if (etherPositionValue > valueToBeShortSold) {
         //             await this.binanceConnector.sellFuture('DOGEUSDT', amountToBeShortSold)
         //         }
-                
+
         //     }
 
         // } else {
