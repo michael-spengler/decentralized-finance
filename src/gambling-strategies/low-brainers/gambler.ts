@@ -68,6 +68,8 @@ export class Gambler {
         this.addToPriceHistory()
         this.determineMode()
 
+        const hedgePosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
+
         if (this.mode === 'investWisely') {
             await this.investWisely()
         } else if (this.mode === 'extremelyShort') {
@@ -76,12 +78,26 @@ export class Gambler {
             await this.sellAllShortPositions()
             await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
         } else if (this.mode === 'pricesAPINotWorking') {
+
             console.log(`aha: ${this.marginRatio}`)
+
             if (this.marginRatio < 18 || (this.marginRatio > 27 && this.marginRatio < 36)) { // using momentum + buy low / sell high
+
                 await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
+                
             } else if (this.marginRatio > 45) {
+
                 console.log(`things went south`)
                 await this.sellAllLongPositions()
+
+                if (hedgePosition.positionAmt < 0) {
+                    await this.binanceConnector.buyFuture('DOGEUSDT', Number(hedgePosition.positionAmt) * -1)
+                }
+
+            } else if (this.marginRatio > 36 && Number(hedgePosition.positionAmt) > -1000) {
+
+                await this.binanceConnector.sellFuture('DOGEUSDT', 3000)
+
             } else {
                 console.log(`ready for some action`)
             }
