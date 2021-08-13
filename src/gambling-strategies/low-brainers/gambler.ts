@@ -70,6 +70,9 @@ export class Gambler {
 
         const hedgePosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
 
+        // console.log(JSON.stringify(hedgePosition))
+
+
         if (this.mode === 'investWisely') {
             await this.investWisely()
         } else if (this.mode === 'extremelyShort') {
@@ -77,26 +80,37 @@ export class Gambler {
         } else if (this.mode === 'extremelyLong') {
             await this.sellAllShortPositions()
             await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
-        } else if (this.mode === 'pricesAPINotWorking') {
+        } else if (this.mode === 'safeAPICallsMode') {
+
+            let maximumHedgeMargin = this.getInitialMarginOfAllLongPositionsAccumulated(accountData) / 3
 
             console.log(`aha: ${this.marginRatio}`)
 
             if (this.marginRatio < 18 || (this.marginRatio > 27 && this.marginRatio < 36)) { // using momentum + buy low / sell high
 
                 await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
-                
-            } else if (this.marginRatio > 45) {
+
+            } else if (this.marginRatio > 54) {
 
                 console.log(`things went south`)
                 await this.sellAllLongPositions()
+                
+            } else if (this.marginRatio > 45 && Number(hedgePosition.initialMargin) > maximumHedgeMargin / 9) {
+                
+                console.log(`time to take some profits from the hedge position`)
+                await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 2).toFixed(3)) * -1)
 
-                if (hedgePosition.positionAmt < 0) {
-                    await this.binanceConnector.buyFuture('DOGEUSDT', Number(hedgePosition.positionAmt) * -1)
+            } else if (this.marginRatio > 36) {
+
+                console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
+        
+                if (Number(hedgePosition.initialMargin) < maximumHedgeMargin * -1) {
+                    console.log(`hedgeposition is strong enough`)
+                } else {
+                    console.log(`short selling doge as hedgeposition`)
+                    await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
                 }
-
-            } else if (this.marginRatio > 36 && Number(hedgePosition.positionAmt) > -1000) {
-
-                await this.binanceConnector.sellFuture('DOGEUSDT', 3000)
+        
 
             } else {
                 console.log(`ready for some action`)
@@ -104,6 +118,22 @@ export class Gambler {
         }
 
     }
+
+    private getInitialMarginOfAllLongPositionsAccumulated(accountData: any): number {
+
+        let sum = 0
+        for (const position of accountData.positions) {
+            if (Number(position.positionAmt) > 0) {
+                // console.log(position.initialMargin)
+                sum = sum + Number(position.initialMargin)
+            }
+        }
+
+        console.log(sum)
+        return sum
+
+    }
+
     private addToPriceHistory() {
         if (this.historicPortfolioPrices.length === this.historicPricesLength) {
             this.historicPortfolioPrices.splice(this.historicPortfolioPrices.length - 1, 1)
@@ -124,13 +154,13 @@ export class Gambler {
         //     this.mode = 'extremelyLong'
 
         // } else if (lowestSinceX > 1 && lowestSinceX === highestSinceX) {
-        //     this.mode = 'pricesAPINotWorking'
+        //     this.mode = 'safeAPICallsMode'
 
         // } else {
         //     this.mode = 'investWisely'
         // }
 
-        this.mode = 'pricesAPINotWorking' // binance upgrade 
+        this.mode = 'safeAPICallsMode' // binance upgrade ... 
 
         console.log(`The mode is ${this.mode}`)
     }
