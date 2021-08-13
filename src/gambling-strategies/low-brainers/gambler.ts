@@ -65,7 +65,7 @@ export class Gambler {
         this.averageCPP = this.getTheAverage(this.historicPortfolioPrices)
 
         this.deltaToAverageInPercent = (this.cPP * 100 / this.averageCPP) - 100
-       
+
         this.addToPriceHistory()
         this.determineMode()
 
@@ -97,16 +97,16 @@ export class Gambler {
                 console.log(`things went south`)
                 await this.sellAllLongPositions()
 
-                if (this.deltaToAverageInPercent < 0) { 
+                if (this.deltaToAverageInPercent < 0) {
                     console.log(`we take the profit of the hedge as we are below average`)
                     await this.binanceConnector.buyFuture('DOGEUSDT', Number(hedgePosition.positionAmt * -1))
-                }else {
+                } else {
                     console.log(`we keep our hedge as we are above average`)
                 }
 
             } else if (this.marginRatio > 54) {
 
-                if (this.deltaToAverageInPercent < 0) { 
+                if (this.deltaToAverageInPercent < 0) {
                     console.log(`take some profits from the hedge position - being below the average`)
                     await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
                 } else if (Number(hedgePosition.initialMargin) > minimumimumHedgeMargin) {
@@ -115,21 +115,17 @@ export class Gambler {
                 } else {
                     console.log(`we shall keep some of the hedge as we are above average`)
                 }
-
-            } else if (this.marginRatio > 36 && this.marginRatio < 45) {
-
-                console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
-
-                if (maximumHedgeMargin < Number(hedgePosition.initialMargin)) {
-                    console.log(`hedgeposition is strong enough`)
-                } else {
-                    console.log(`short selling doge as hedgeposition`)
-                    await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
-                }
-
-
             } else {
                 console.log(`ready for some action`)
+            }
+
+            console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
+
+            if (maximumHedgeMargin <= Number(hedgePosition.initialMargin)) {
+                console.log(`hedgeposition is strong enough`)
+            } else {
+                console.log(`short selling doge as hedgeposition`)
+                await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
             }
         }
 
