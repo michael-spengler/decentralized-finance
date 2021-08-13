@@ -143,9 +143,9 @@ export class Gambler {
             console.log(`howMuchShallIShortSell: ${howMuchShallIShortSell}`)
             
             await this.binanceConnector.sellFuture('BTCUSDT', howMuchShallIShortSell)
-        } else if (this.marginRatio > 45) {
+        } else if (this.marginRatio > 54) {
 
-            const howMuchShallIBuyBack = Number((Number(bitcoinPosition.positionAmt) / 2).toFixed(3))
+            const howMuchShallIBuyBack = (Number((Number(bitcoinPosition.positionAmt) / 2).toFixed(3))) * -1
             console.log(`howMuchShallIBuyBack: ${howMuchShallIBuyBack}`)
             await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuyBack)
         }
