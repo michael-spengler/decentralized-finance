@@ -84,7 +84,7 @@ export class Gambler {
 
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
 
-            if (this.intervalCounter > 1000) {
+            if (this.intervalCounter > 10) {
                 if (cPP === lowestPrice10_5000) {
                     const couldBuyWouldBuyFactor = 0.1
                     await this.buy(this.currentPrices, accountData, couldBuyWouldBuyFactor)
