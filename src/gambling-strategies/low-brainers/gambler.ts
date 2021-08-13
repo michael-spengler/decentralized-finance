@@ -77,9 +77,10 @@ export class Gambler {
             await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
         } else if (this.mode === 'pricesAPINotWorking') {
             console.log(`aha: ${this.marginRatio}`)
-            if (this.marginRatio < 18){
+            if (this.marginRatio < 18 || (this.marginRatio > 27 && this.marginRatio < 36)) { // using momentum + buy low / sell high
                 await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
-            } else if (this.marginRatio > 43) {
+            } else if (this.marginRatio > 45) {
+                console.log(`things went south`)
                 await this.sellAllLongPositions()
             } else {
                 console.log(`ready for some action`)
@@ -100,18 +101,20 @@ export class Gambler {
         const highestSinceX = this.getIsHighestPriceSinceX(this.cPP, this.historicPortfolioPrices)
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX}`)
 
-        if (this.marginRatio > 63 || (this.cPP > this.averageCPP * 1.27 && lowestSinceX > 1829)) {
-            this.mode = 'extremelyShort'
+        // if (this.marginRatio > 63 || (this.cPP > this.averageCPP * 1.27 && lowestSinceX > 1829)) {
+        //     this.mode = 'extremelyShort'
 
-        } else if (this.cPP * 1.27 < this.averageCPP && highestSinceX > 1829) {
-            this.mode = 'extremelyLong'
+        // } else if (this.cPP * 1.27 < this.averageCPP && highestSinceX > 1829) {
+        //     this.mode = 'extremelyLong'
 
-        } else if (lowestSinceX > 1 && lowestSinceX === highestSinceX) {
-            this.mode = 'pricesAPINotWorking'
+        // } else if (lowestSinceX > 1 && lowestSinceX === highestSinceX) {
+        //     this.mode = 'pricesAPINotWorking'
 
-        } else {
-            this.mode = 'investWisely'
-        }
+        // } else {
+        //     this.mode = 'investWisely'
+        // }
+
+        this.mode = 'pricesAPINotWorking' // binance upgrade 
 
         console.log(`The mode is ${this.mode}`)
     }
