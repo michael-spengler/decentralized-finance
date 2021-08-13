@@ -84,6 +84,7 @@ export class Gambler {
         } else if (this.mode === 'safeAPICallsMode') {
 
             let maximumHedgeMargin = this.getInitialMarginOfAllLongPositionsAccumulated(this.accountData) / 3
+            let minimumimumHedgeMargin = maximumHedgeMargin / 3
 
             console.log(`aha: ${this.marginRatio}`)
 
@@ -105,8 +106,15 @@ export class Gambler {
 
             } else if (this.marginRatio > 54) {
 
-                console.log(`take some profits from the hedge position`)
-                await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
+                if (this.deltaToAverageInPercent < 0) { 
+                    console.log(`take some profits from the hedge position - being below the average`)
+                    await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
+                } else if (Number(hedgePosition.initialMargin) > minimumimumHedgeMargin) {
+                    console.log(`take some profits from the hedge position - being above the average`)
+                    await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
+                } else {
+                    console.log(`we shall keep some of the hedge as we are above average`)
+                }
 
             } else if (this.marginRatio > 36 && this.marginRatio < 45) {
 
