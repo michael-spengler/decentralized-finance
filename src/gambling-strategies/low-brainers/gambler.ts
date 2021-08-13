@@ -13,6 +13,8 @@ export class Gambler {
     private investmentAmount: number
     private intervalCounter: number
     private currentPrices: any[] = []
+    private mode: string = 'investWisely'
+    private accountData: any
 
     public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
         this.liquidityRatioToBuy = lrToBuy
@@ -36,7 +38,19 @@ export class Gambler {
             i.intervalCounter++
 
             try {
-                await i.investWisely()
+
+                i.accountData = await i.binanceConnector.getFuturesAccountData()
+                i.currentPrices = await i.binanceConnector.getCurrentPrices()
+        
+                i.determineMode()
+
+                if (i.mode === 'investWisely') {
+                    await i.investWisely()
+                } else if (i.mode === 'extremelyShort') {
+                    await i.sellAllLongPositions()
+                } else if (i.mode === 'extremelyLong') {
+                    await i.sellAllShortPositions() 
+                } 
             } catch (error) {
                 console.log(`you can improve something: ${error.message}`)
             }
@@ -45,51 +59,53 @@ export class Gambler {
 
     }
 
+    private determineMode() {
+        this.mode = 'investWisely' // todo
+    }
+
     private async investWisely(): Promise<void> {
 
-        this.currentPrices = await this.binanceConnector.getCurrentPrices()
         const cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(this.currentPrices)
-        const accountData = await this.binanceConnector.getFuturesAccountData()
-        const liquidityRatio = Number(accountData.availableBalance) / Number(accountData.totalWalletBalance)
+        const liquidityRatio = Number(this.accountData.availableBalance) / Number(this.accountData.totalWalletBalance)
         const lowestPrice10_5000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(10, 5000)
         const lowestPrice300000_400000 = this.portfolioProvider.getLowestPriceOfRecentXIntervals(300000, 400000) // about 50 days
         const highestPrice10_30 = this.portfolioProvider.getHighestPriceOfRecentXIntervals(10, 30)
         const usdtBalanceOnSpot = Number(await this.binanceConnector.getUSDTBalance())
 
         if (this.intervalCounter === 2) {
-            // await this.adjustLeverageEffect(accountData)
+            // await this.adjustLeverageEffect(this.accountData)
         }
 
-        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP10_5000: ${lowestPrice10_5000.toFixed(2)}; nyrPNL: ${accountData.totalUnrealizedProfit}`)
+        console.log(`LR: ${liquidityRatio.toFixed(2)}; CPP: ${cPP.toFixed(2)}; lP10_5000: ${lowestPrice10_5000.toFixed(2)}; nyrPNL: ${this.accountData.totalUnrealizedProfit}`)
 
-        if (Number(accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
+        if (Number(this.accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
 
             console.log(`I transfer USDT from Spot Account to Futures Account e.g. after a serious drop which resulted in a low wallet ballance.`)
             await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
 
-        } else if (this.shouldISellSomethingDueToSignificantGains(Number(accountData.totalUnrealizedProfit), Number(accountData.totalWalletBalance))) {
+        } else if (this.shouldISellSomethingDueToSignificantGains(Number(this.accountData.totalUnrealizedProfit), Number(this.accountData.totalWalletBalance))) {
 
             console.log(`Saving something as I made some significant gains and the market seems a bit overhyped atm.`)
-            console.log(`${accountData.totalUnrealizedProfit} vs. ${accountData.totalWalletBalance}`)
+            console.log(`${this.accountData.totalUnrealizedProfit} vs. ${this.accountData.totalWalletBalance}`)
             await this.sell(0.07)
-            await this.saveSomething(accountData)
+            await this.saveSomething(this.accountData)
 
         } else if (liquidityRatio <= this.liquidityRatioToSell) {
 
             await this.sell(0.07)
 
-        } else if (Number(accountData.totalWalletBalance) > (this.reinvestAt * 3)) {
+        } else if (Number(this.accountData.totalWalletBalance) > (this.reinvestAt * 3)) {
 
-            await this.saveSomething(accountData)
+            await this.saveSomething(this.accountData)
 
         } else if (liquidityRatio >= this.liquidityRatioToBuy) {
 
             if (this.intervalCounter > 10) {
                 if (cPP === lowestPrice10_5000) {
                     const couldBuyWouldBuyFactor = 0.1
-                    await this.buy(this.currentPrices, accountData, couldBuyWouldBuyFactor)
+                    await this.buy(this.currentPrices, this.accountData, couldBuyWouldBuyFactor)
                     console.log(`I bought with factor ${couldBuyWouldBuyFactor}`)
-                    await this.saveSomething(accountData)
+                    await this.saveSomething(this.accountData)
                 } else {
                     console.log(`I'll invest some more as soon as I hit the lowest relative price. `)
                 }
@@ -97,7 +113,7 @@ export class Gambler {
                 console.log(`intervalCounter: ${this.intervalCounter}`)
             }
 
-        } else if ((Number(accountData.totalUnrealizedProfit)) < ((Number(accountData.totalWalletBalance) * -1) / 2)) {
+        } else if ((Number(this.accountData.totalUnrealizedProfit)) < ((Number(this.accountData.totalWalletBalance) * -1) / 2)) {
 
             console.log(`unfortunately it seems time to realize some losses. I'm selling 10 Percent of my assets.`)
             await this.sell(0.07)
@@ -109,70 +125,70 @@ export class Gambler {
 
         } else {
 
-            const totalGamblingValue = Number(accountData.totalWalletBalance) + usdtBalanceOnSpot + Number(accountData.totalUnrealizedProfit)
+            const totalGamblingValue = Number(this.accountData.totalWalletBalance) + usdtBalanceOnSpot + Number(this.accountData.totalUnrealizedProfit)
 
             console.log(`I'm reasonably invested. LR: ${liquidityRatio}; TGV: ${totalGamblingValue}`)
 
         }
 
-        await this.hedgeWisely(accountData, highestPrice10_30, cPP)
+        // await this.hedgeWisely(highestPrice10_30, cPP)
     }
 
-    public async hedgeWisely(accountData: any, highestPrice10_30: number, cPP: number): Promise<void> {
+    // private async hedgeWisely(highestPrice10_30: number, cPP: number): Promise<void> {
 
-        const currentHedgePosition = accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
+    //     const currentHedgePosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
 
-        if (cPP === highestPrice10_30) {
-            if (Number(currentHedgePosition.positionAmt) === 0) {
+    //     if (cPP === highestPrice10_30) {
+    //         if (Number(currentHedgePosition.positionAmt) === 0) {
 
-                await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
+    //             await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
 
-            } else if ((Number(currentHedgePosition.positionAmt) * -1) < 24000) {
+    //         } else if ((Number(currentHedgePosition.positionAmt) * -1) < 9000) { // optimize
 
-                const amountToBeShortSold = Number(currentHedgePosition.positionAmt) * -1 * 2
+    //             const amountToBeShortSold = Number(currentHedgePosition.positionAmt) * -1 * 2
             
-                const currentEtherPosition = accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
-                const currentEtherPrice: number = this.currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price
-                const etherPositionValue = Number(currentEtherPosition.positionAmt) * currentEtherPrice
+    //             const currentEtherPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
+    //             const currentEtherPrice: number = this.currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price
+    //             const etherPositionValue = Number(currentEtherPosition.positionAmt) * currentEtherPrice
                 
-                const valueToBeShortSold = amountToBeShortSold * this.currentPrices.filter((e: any) => e.coinSymbol === 'DOGEUSDT')[0].price
+    //             const valueToBeShortSold = amountToBeShortSold * this.currentPrices.filter((e: any) => e.coinSymbol === 'DOGEUSDT')[0].price
                 
-                console.log(`valueToBeShortSold: ${valueToBeShortSold}`)
+    //             console.log(`valueToBeShortSold: ${valueToBeShortSold}`)
 
-                console.log(`etherPositionValue: ${etherPositionValue}`)
+    //             console.log(`etherPositionValue: ${etherPositionValue}`)
 
                
-                if (etherPositionValue > valueToBeShortSold) {
-                    await this.binanceConnector.sellFuture('DOGEUSDT', amountToBeShortSold)
-                }
+    //             if (etherPositionValue > valueToBeShortSold) {
+    //                 await this.binanceConnector.sellFuture('DOGEUSDT', amountToBeShortSold)
+    //             }
                 
-            }
+    //         }
 
-        } else {
+    //     } else {
 
-            console.log(`highestPrice10_30 ok: ${highestPrice10_30}`)
+    //         console.log(`highestPrice10_30 ok: ${highestPrice10_30}`)
 
-        }
-
-
-        const hedgeProfitInPercent = (currentHedgePosition.unrealizedProfit * 100) / currentHedgePosition.initialMargin
-
-        const sellAtHedgeProfitOf = Math.floor(Math.random() * (50 - 17 + 1) + 17);
-
-        if (hedgeProfitInPercent > sellAtHedgeProfitOf) {
-
-            console.log(`selling with a minimum of ${sellAtHedgeProfitOf}% plus`)
-
-            await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
-
-        } else if (hedgeProfitInPercent < -200) {
-
-            console.log(`I need to restart the hedge as the hedgeProfitInPercent is: ${hedgeProfitInPercent}`)
-            await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
-        }
+    //     }
 
 
-    }
+    //     const hedgeProfitInPercent = (currentHedgePosition.unrealizedProfit * 100) / currentHedgePosition.initialMargin
+
+    //     const sellAtHedgeProfitOf = Math.floor(Math.random() * (27 - 18 + 1) + 18);
+
+    //     if (hedgeProfitInPercent > sellAtHedgeProfitOf) {
+
+    //         console.log(`selling with a minimum of ${sellAtHedgeProfitOf}% plus`)
+
+    //         await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
+
+    //     } else if (hedgeProfitInPercent < -200) {
+
+    //         console.log(`I need to restart the hedge as the hedgeProfitInPercent is: ${hedgeProfitInPercent}`)
+    //         await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
+    //     }
+
+
+    // }
 
     // public getTheAverage(list: number[]): number {
 
@@ -265,8 +281,8 @@ export class Gambler {
 
     private async sell(positionSellFactor: number = 0.3): Promise<void> {
         try {
-            const accountData = await this.binanceConnector.getFuturesAccountData()
-            for (const position of accountData.positions) {
+            await this.binanceConnector.getFuturesAccountData()
+            for (const position of this.accountData.positions) {
                 if (position.positionAmt > 0 && position.symbol !== 'DOGEUSDT') { // the hedge is handled separately
                     const howMuchToSell = Number((position.positionAmt * positionSellFactor).toFixed(this.portfolioProvider.getDecimalPlaces(position.symbol)))
                     console.log(`I'll sell ${howMuchToSell} ${position.symbol}`)
@@ -281,4 +297,95 @@ export class Gambler {
         }
     }
 
+    private getIsLowestPriceSinceX(price: number, arrayOfPrices: number[]) {
+        let counter = 0
+
+        for (const e of arrayOfPrices) {
+            if (price > e) {
+                return counter
+            }
+            counter++
+        }
+        return counter
+    }
+
+    private getIsHighestPriceSinceX(price: number, arrayOfPrices: number[]) {
+        let counter = 0
+
+        for (const e of arrayOfPrices) {
+            if (price < e) {
+                return counter
+            }
+            counter++
+        }
+        return counter
+    }
+
+    private async sellAllLongPositions() {
+        for (let position of this.accountData.positions) {
+            if (position.positionAmt > 0) {
+                console.log(`selling ${position.symbol}`)
+                await this.binanceConnector.sellFuture(position.symbol, Number(position.positionAmt))
+            }
+        }
+    }
+
+    private async sellAllShortPositions() {
+        for (let position of this.accountData.positions) {
+            if (position.positionAmt < 0) {
+                console.log(`buying ${position.symbol}`)
+                await this.binanceConnector.buyFuture(position.symbol, Number(position.positionAmt))
+            }
+        }
+    }
+
+    // private determineMode(accountData: any, currentPrices: any[]): void {
+    //     console.log(`\n\n*******isBeastModeTime**********\n`)
+
+    //     const currentdogeInBTCPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'DOGEBTC')[0].price
+    //     const averageDogeInBTCPrice = this.getTheAverage(this.historicDogeInBTCPrices)
+    //     const deltaDogePrice = (currentdogeInBTCPrice * 100 / averageDogeInBTCPrice) - 100
+    //     // if (deltaDogePrice > 3 )
+
+    //     // const btcCandles = await this.binanceConnector.candlesticks('BTCUSDT', '1m')
+
+    //     // console.log(`currentBitcoinPrice: ${currentBitcoinPrice} - \nhist: ${JSON.stringify(this.historicBitcoinPrices)}`)
+
+    //     const nextLowestBitcoinBait = Math.floor(this.currentBitcoinPrice / 1000) * 1000
+    //     const nextHighestBitcoinBait = Math.ceil(this.currentBitcoinPrice / 1000) * 1000
+    //     const averageBTCPrice = this.getTheAverage(this.historicBitcoinPrices)
+
+    //     const deltaToAverageInPercent = (this.currentBitcoinPrice * 100 / averageBTCPrice) - 100
+
+    //     console.log(`currentBitcoinPrice: ${this.currentBitcoinPrice} - deltaToAverageInPercent: ${deltaToAverageInPercent} - averageBTCPrice: ${averageBTCPrice} - currentBTCPrice: ${this.currentBitcoinPrice} - nextLowestBitcoinBait: ${nextLowestBitcoinBait} - nextHighestBitcoinBait: ${nextHighestBitcoinBait} `)
+
+    //     console.log(`magic: ${this.currentBitcoinPrice - nextLowestBitcoinBait}`)
+
+    //     const deltaTo10IntervalsAgoInPercent = (this.currentBitcoinPrice * 100 / this.historicBitcoinPrices[10]) - 100
+
+
+    //     if (this.historicBitcoinPrices[10] === undefined) {
+
+    //         console.log("I'm not yet ready for the fancy shit to happen")
+
+    //     } else {
+
+    //         if ((this.currentBitcoinPrice - nextLowestBitcoinBait) < 500 && deltaToAverageInPercent > 0 && this.getIsLowestPriceSinceX(this.currentBitcoinPrice, this.historicBitcoinPrices) > 27) {
+    //             console.log("I will go short because \n1. There is a significant downtrend \n2. The Bitcoin Price is far above average \n3. It's the lowest price in 1000 intervals... \n4. The close stop loss bait might be exploited")
+
+    //             this.mode = 'extremelyShort'
+
+    //         } else if (this.getIsHighestPriceSinceX(this.currentBitcoinPrice, this.historicBitcoinPrices) > 27 && (this.currentBitcoinPrice - nextLowestBitcoinBait) > 500 && deltaToAverageInPercent < -0.1) {
+    //             console.log("I will go long because \n1. There is a significant uptrend \n2. The Bitcoin Price is far below average \n3. It's the highest price since 1000 intervals... \n4. The close take profit bait might be exploited")
+
+    //             this.mode = 'extremelyLong'
+    //         } else {
+    //             this.mode = 'standard'
+    //         }
+
+
+    //     }
+
+    //     console.log(`The mode is ${this.mode}`)
+    // }
 }
