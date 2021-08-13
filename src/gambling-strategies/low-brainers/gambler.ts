@@ -22,8 +22,10 @@ export class Gambler {
     private cPP = 0
     private averageCPP = 0
     private deltaToAverageInPercent = 0
+    private theRattleWentWrongCounter = 0
+    private defaultMode = ''
 
-    public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
+    public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, defaultMode: string) {
         this.liquidityRatioToBuy = lrToBuy
         this.liquidityRatioToSell = lrToSell
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
@@ -32,15 +34,18 @@ export class Gambler {
         this.reinvestAt = reinvestAt
         this.investmentAmount = investmentAmount
         this.intervalCounter = 0
+        this.defaultMode = defaultMode
     }
 
-    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string): void {
+    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, defaultMode: string = 'short'): void {
 
-        const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret)
+        const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret, defaultMode)
         if (lrToBuy < 0.6 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
         }
 
+        console.log(`The gambler gambles is default mode: ${defaultMode}`)
+        
         setInterval(async () => {
             i.intervalCounter++
             console.log(`\n******************************* interval ${i.intervalCounter} *******************************`)
@@ -76,13 +81,10 @@ export class Gambler {
 
         if (this.mode === 'investWisely') {
             await this.investWisely()
-        } else if (this.mode === 'extremelyShort') {
+        } else if (this.mode === 'short') {
             await this.sellAllLongPositions()
             await this.rattleDown()
-        } else if (this.mode === 'extremelyLong') {
-            await this.sellAllShortPositions()
-            await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
-        } else if (this.mode === 'safeAPICallsMode') {
+        } else if (this.mode === 'long') {
 
             let maximumHedgeMargin = this.getInitialMarginOfAllLongPositionsAccumulated(this.accountData) / 3
             let minimumimumHedgeMargin = maximumHedgeMargin / 3 // todo: based on deltaToAverageInPercent
@@ -143,8 +145,9 @@ export class Gambler {
             console.log(`howMuchShallIShortSell: ${howMuchShallIShortSell}`)
             
             await this.binanceConnector.sellFuture('BTCUSDT', howMuchShallIShortSell)
-        } else if (this.marginRatio > 54) {
+        } else if (this.marginRatio > 63) {
 
+            this.theRattleWentWrongCounter++
             const howMuchShallIBuyBack = (Number((Number(bitcoinPosition.positionAmt) / 2).toFixed(3))) * -1
             console.log(`howMuchShallIBuyBack: ${howMuchShallIBuyBack}`)
             await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuyBack)
@@ -179,20 +182,20 @@ export class Gambler {
         const highestSinceX = this.getIsHighestPriceSinceX(this.cPP, this.historicPortfolioPrices)
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX}`)
 
-        // if (this.marginRatio > 63 || (this.cPP > this.averageCPP * 1.27 && lowestSinceX > 1829)) {
-        //     this.mode = 'extremelyShort'
+        
+        if (this.theRattleWentWrongCounter >= 2) {
+            console.log(`choosing the default mode after at least two short rattles went wrong`)
+            this.mode = this.defaultMode 
+        } else if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -0.1){
+            this.mode = 'long' 
+        } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 0.1){
+            this.theRattleWentWrongCounter = 0
+            this.mode = 'short' 
+        } else {
+            console.log(`regularly choosing the default mode`)
+            this.mode = this.defaultMode
+        }
 
-        // } else if (this.cPP * 1.27 < this.averageCPP && highestSinceX > 1829) {
-        //     this.mode = 'extremelyLong'
-
-        // } else if (lowestSinceX > 1 && lowestSinceX === highestSinceX) {
-        //     this.mode = 'safeAPICallsMode'
-
-        // } else {
-        //     this.mode = 'investWisely'
-        // }
-
-        this.mode = 'extremelyShort' // for now
 
         if (this.deltaToAverageInPercent > 0) {
             this.couldBuyWouldBuyFactor = 0.03
@@ -200,7 +203,7 @@ export class Gambler {
             this.couldBuyWouldBuyFactor = 0.09
 
         }
-        console.log(`The mode is ${this.mode} with a couldBuyWouldByFactor of: ${this.couldBuyWouldBuyFactor} as the deltaToAverageInPercent is ${this.deltaToAverageInPercent}`)
+        console.log(`mode: ${this.mode} - couldBuyWouldByFactor: ${this.couldBuyWouldBuyFactor} deltaToAverageInPercent: ${this.deltaToAverageInPercent} - theRattleWentWrongCounter: ${this.theRattleWentWrongCounter}`)
     }
 
     private async investWisely(): Promise<void> {
