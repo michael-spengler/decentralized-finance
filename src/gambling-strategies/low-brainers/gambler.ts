@@ -15,7 +15,7 @@ export class Gambler {
     private currentPrices: any[] = []
     private mode: string = 'investWisely'
     private accountData: any
-    private couldBuyWouldBuyFactor = 0.1
+    private couldBuyWouldBuyFactor = 0.09
     private marginRatio = 0
     private historicPortfolioPrices: any[] = []
     private historicPricesLength = 45000
@@ -51,14 +51,13 @@ export class Gambler {
                 console.log(`you can improve something: ${error.message}`)
             }
 
-        }, 11 * 1000)
+        }, 9 * 1000)
 
     }
 
     private async enjoyIt() {
         const accountData = await this.binanceConnector.getFuturesAccountData()
         const currentPrices = await this.binanceConnector.getCurrentPrices()
-        console.log(currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0])
         this.accountData = await this.binanceConnector.getFuturesAccountData()
         this.currentPrices = await this.binanceConnector.getCurrentPrices()
         this.marginRatio = Number(this.accountData.totalMaintMargin) * 100 / Number(this.accountData.totalMarginBalance)
@@ -90,21 +89,21 @@ export class Gambler {
 
                 await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
 
-            } else if (this.marginRatio > 54) {
+            } else if (this.marginRatio > 63) {
 
                 console.log(`things went south`)
                 await this.sellAllLongPositions()
                 
-            } else if (this.marginRatio > 45 && Number(hedgePosition.initialMargin) > maximumHedgeMargin / 9) {
+            } else if (this.marginRatio > 54 && Number(hedgePosition.initialMargin) > maximumHedgeMargin / 3) {
                 
-                console.log(`time to take some profits from the hedge position`)
+                console.log(`take some profits from the hedge position`)
                 await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 2).toFixed(3)) * -1)
 
-            } else if (this.marginRatio > 36) {
+            } else if (this.marginRatio > 36 && this.marginRatio < 45) {
 
                 console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
         
-                if (Number(hedgePosition.initialMargin) < maximumHedgeMargin * -1) {
+                if (maximumHedgeMargin < Number(hedgePosition.initialMargin)) {
                     console.log(`hedgeposition is strong enough`)
                 } else {
                     console.log(`short selling doge as hedgeposition`)
@@ -129,7 +128,6 @@ export class Gambler {
             }
         }
 
-        console.log(sum)
         return sum
 
     }
