@@ -225,8 +225,14 @@ export class Gambler {
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX} - pnlFromBitcoinPositionInPercent: ${pnlFromBitcoinPositionInPercent}`)
 
         if ((highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9) || this.wasThereASignificantUpTick()) {
+            if (this.mode !== 'long'){
+                this.sellAllPositions()
+            }
             this.mode = 'long'
         } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9 || this.wasThereASignificantDownTick()) {
+            if (this.mode !== 'short'){
+                this.sellAllPositions()
+            }
             this.mode = 'short'
         } else {
             console.log(`choosing the default mode which is ${this.defaultMode}`)
@@ -245,7 +251,7 @@ export class Gambler {
         console.log(`\n\ncurrentPortfolioPrice: ${this.cPP} - h: ${this.historicPortfolioPrices[3]} - delta: ${delta} - result: ${result}\n\n`)
 
         return result
-        
+
     }
 
     private wasThereASignificantDownTick(): boolean {
