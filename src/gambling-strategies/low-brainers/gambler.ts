@@ -197,10 +197,15 @@ export class Gambler {
     private determineMode() {
         const lowestSinceX = this.getIsLowestPriceSinceX(this.cPP, this.historicPortfolioPrices)
         const highestSinceX = this.getIsHighestPriceSinceX(this.cPP, this.historicPortfolioPrices)
-        console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX}`)
+
+        const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
+        const pnlFromBitcoinPosition = Number(bitcoinPosition.unrealizedProfit)
+        const pnlFromBitcoinPositionInPercent = (pnlFromBitcoinPosition * 100 / Number(bitcoinPosition.initialMargin))
+
+        console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX} - pnlFromBitcoinPositionInPercent: ${pnlFromBitcoinPositionInPercent}`)
 
         
-        if (this.theRattleWentWrongCounter >= 2 && ((this.deltaToAverageInPercent < 0 && this.mode === 'short') || this.deltaToAverageInPercent > 0 && this.mode === 'long')) {
+        if (pnlFromBitcoinPositionInPercent < -10 && this.theRattleWentWrongCounter >= 3 && ((this.deltaToAverageInPercent < 0 && this.mode === 'short') || this.deltaToAverageInPercent > 0 && this.mode === 'long')) {
             console.log(`ensuring the default mode is set to 'investWisely' because some rattles went wrong and the delta to the average looks accordingly`)
             this.defaultMode = 'investWisely'
             this.mode = this.defaultMode 
