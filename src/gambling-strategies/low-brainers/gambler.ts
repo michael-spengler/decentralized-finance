@@ -22,7 +22,6 @@ export class Gambler {
     private cPP = 0
     private averageCPP = 0
     private deltaToAverageInPercent = 0
-    private theRattleWentWrongCounter = 0
     private defaultMode = ''
 
     public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, defaultMode: string) {
@@ -37,14 +36,14 @@ export class Gambler {
         this.defaultMode = defaultMode
     }
 
-    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, defaultMode: string = 'short'): void {
+    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, defaultMode: string = 'investWisely'): void {
 
         const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret, defaultMode)
         if (lrToBuy < 0.6 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
         }
 
-        console.log(`The gambler gambles is default mode: ${defaultMode}`)
+        console.log(`The gambler gambles in default mode: ${defaultMode}`)
 
         setInterval(async () => {
             i.intervalCounter++
@@ -74,65 +73,21 @@ export class Gambler {
         this.addToPriceHistory()
         this.determineMode()
 
-        const hedgePosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
-
         // console.log(JSON.stringify(hedgePosition))
 
 
         if (this.mode === 'investWisely') {
+
             await this.investWisely()
+
         } else if (this.mode === 'short') {
-            await this.sellAllLongPositions()
+
             await this.rattleDown()
+            
         } else if (this.mode === 'long') {
+            
+            await this.boostUp()
 
-            let maximumHedgeMargin = this.getInitialMarginOfAllLongPositionsAccumulated(this.accountData) / 3
-            let minimumimumHedgeMargin = maximumHedgeMargin / 3 // todo: based on deltaToAverageInPercent
-
-            console.log(`aha: ${this.marginRatio}`)
-
-            console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
-
-            if (Number(hedgePosition.initialMargin) >= maximumHedgeMargin) {
-                console.log(`hedgeposition is strong enough`)
-            } else {
-                console.log(`short selling doge as hedgeposition`)
-                await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
-            }
-
-            if (this.marginRatio < 18 || (this.marginRatio > 27 && this.marginRatio < 36)) { // using momentum + buy low / sell high
-
-                await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
-
-            } else if (this.marginRatio > 63) {
-
-                console.log(`things went south`)
-
-                this.theRattleWentWrongCounter++
-
-                await this.sellAllLongPositions()
-
-                if (this.deltaToAverageInPercent < 0) {
-                    console.log(`we take the profit of the hedge as we are below average`)
-                    await this.binanceConnector.buyFuture('DOGEUSDT', Number(hedgePosition.positionAmt * -1))
-                } else {
-                    console.log(`we keep our hedge as we are above average`)
-                }
-
-            } else if (this.marginRatio > 54) {
-
-                if (this.deltaToAverageInPercent < 0) {
-                    console.log(`take some profits from the hedge position - being below the average`)
-                    await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
-                } else if (Number(hedgePosition.initialMargin) > minimumimumHedgeMargin) {
-                    console.log(`take some profits from the hedge position - being above the average`)
-                    await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
-                } else {
-                    console.log(`we shall keep some of the hedge as we are above average`)
-                }
-            } else {
-                console.log(`ready for some action`)
-            }
         }
 
         if (Number(this.accountData.availableBalance) > this.investmentAmount) {
@@ -142,6 +97,65 @@ export class Gambler {
 
         }
 
+
+    }
+
+
+    private async boostUp() {
+        const hedgePosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
+
+        let maximumHedgeMargin = this.getInitialMarginOfAllLongPositionsAccumulated(this.accountData) / 3
+        let minimumimumHedgeMargin = maximumHedgeMargin / 3 // todo: based on deltaToAverageInPercent
+
+        console.log(`aha: ${this.marginRatio}`)
+
+        console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
+
+        if (Number(hedgePosition.initialMargin) >= maximumHedgeMargin) {
+            console.log(`hedgeposition is strong enough`)
+        } else {
+            console.log(`short selling doge as hedgeposition`)
+            const r = await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
+            console.log(r)
+        }
+
+        if (this.marginRatio < 18 || (this.marginRatio > 27 && this.marginRatio < 36)) { // using momentum + buy low / sell high
+
+            // await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
+            const currentBitcoinPrice = this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price
+            const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
+    
+            const maxNotionalInBitcoin = Number((Number(bitcoinPosition.maxNotional) / currentBitcoinPrice).toFixed(0))
+            const howMuchShallIBuy = Number((((Number(this.accountData.availableBalance) / currentBitcoinPrice) * Number(bitcoinPosition.leverage)) / 9).toFixed(3))
+            console.log(`howMuchShallIBuy: ${howMuchShallIBuy} - maxNotionalInBitcoin: ${maxNotionalInBitcoin}`)
+    
+            if (maxNotionalInBitcoin > Number(bitcoinPosition.positionAmt) + howMuchShallIBuy) {
+                await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuy - 0.001)
+            }else {
+                await this.binanceConnector.buyFuture('BTCUSDT', 0.001)
+            }
+
+        } else if (this.marginRatio > 63) {
+
+            console.log(`things went south`)
+
+            await this.sellAllPositions()
+            this.defaultMode = 'investWisely'
+
+        } else if (this.marginRatio > 54) {
+
+            if (this.deltaToAverageInPercent < 0) {
+                console.log(`take some profits from the hedge position - being below the average`)
+                await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
+            } else if (Number(hedgePosition.initialMargin) > minimumimumHedgeMargin) {
+                console.log(`take some profits from the hedge position - being above the average`)
+                await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
+            } else {
+                console.log(`we shall keep some of the hedge as we are above average`)
+            }
+        } else {
+            console.log(`ready for some action`)
+        }
 
     }
 
@@ -164,10 +178,9 @@ export class Gambler {
 
         } else if (this.marginRatio > 63) {
 
-            this.theRattleWentWrongCounter++
-            const howMuchShallIBuyBack = (Number((Number(bitcoinPosition.positionAmt) / 2).toFixed(3))) * -1
-            console.log(`howMuchShallIBuyBack: ${howMuchShallIBuyBack}`)
-            await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuyBack)
+            await this.sellAllPositions()
+            this.defaultMode = 'investWisely'
+
         }
 
     }
@@ -204,30 +217,17 @@ export class Gambler {
 
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX} - pnlFromBitcoinPositionInPercent: ${pnlFromBitcoinPositionInPercent}`)
 
-
-        if (pnlFromBitcoinPositionInPercent < -10 && this.theRattleWentWrongCounter >= 3 && ((this.deltaToAverageInPercent < 0 && this.mode === 'short') || this.deltaToAverageInPercent > 0 && this.mode === 'long')) {
-            console.log(`ensuring the default mode is set to 'investWisely' because some rattles went wrong and the delta to the average looks accordingly`)
-            this.defaultMode = 'investWisely'
-            this.mode = this.defaultMode
-        } else if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9) {
-            this.theRattleWentWrongCounter = 0
+        if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9) {
             this.mode = 'long'
         } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9) {
-            this.theRattleWentWrongCounter = 0
             this.mode = 'short'
         } else {
-            console.log(`regularly choosing the default mode`)
+            console.log(`choosing the default mode which is ${this.defaultMode}`)
             this.mode = this.defaultMode
         }
 
 
-        if (this.deltaToAverageInPercent > 0) {
-            this.couldBuyWouldBuyFactor = 0.03
-        } else {
-            this.couldBuyWouldBuyFactor = 0.09
-
-        }
-        console.log(`mode: ${this.mode} - couldBuyWouldByFactor: ${this.couldBuyWouldBuyFactor} deltaToAverageInPercent: ${this.deltaToAverageInPercent} - theRattleWentWrongCounter: ${this.theRattleWentWrongCounter}`)
+        console.log(`mode: ${this.mode} - couldBuyWouldByFactor: ${this.couldBuyWouldBuyFactor} deltaToAverageInPercent: ${this.deltaToAverageInPercent}`)
     }
 
     private async investWisely(): Promise<void> {
@@ -443,11 +443,16 @@ export class Gambler {
         for (let position of this.accountData.positions) {
             if (position.positionAmt < 0) {
                 console.log(`buying ${position.symbol}`)
-                await this.binanceConnector.buyFuture(position.symbol, Number(position.positionAmt))
+                await this.binanceConnector.buyFuture(position.symbol, Number(position.positionAmt) * -1)
             }
         }
     }
 
+    private async sellAllPositions() {
+        await this.sellAllLongPositions()
+        await this.sellAllShortPositions()
+
+    }
     // private determineMode(accountData: any, currentPrices: any[]): void {
     //     console.log(`\n\n*******isBeastModeTime**********\n`)
 
