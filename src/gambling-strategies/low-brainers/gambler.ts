@@ -135,19 +135,33 @@ export class Gambler {
             }
         }
 
+        if (Number(this.accountData.availableBalance) > this.investmentAmount) {
+
+            console.log(`I can transfer some gains to the fiat and spot account as the available amount is higher than ${this.investmentAmount}`)
+            await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(this.accountData.availableBalance) - this.investmentAmount)
+            
+        }
+
+
     }
 
     private async rattleDown() {
         const currentBitcoinPrice = this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price 
         const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
-        
+
+        const maxNotionalInBitcoin = Number((Number(bitcoinPosition.maxNotional) / currentBitcoinPrice).toFixed(0))
+        const howMuchShallIShortSell = Number((((Number(this.accountData.availableBalance) / currentBitcoinPrice) * Number(bitcoinPosition.leverage)) / 9).toFixed(3))
+        console.log(`howMuchShallIShortSell: ${howMuchShallIShortSell} - maxNotionalInBitcoin: ${maxNotionalInBitcoin}`)
+
         if (this.marginRatio < 36) {
             
-            const howMuchShallIShortSell = Number((((Number(this.accountData.availableBalance) / currentBitcoinPrice) * Number(bitcoinPosition.leverage)) / 9).toFixed(3))
 
-            console.log(`howMuchShallIShortSell: ${howMuchShallIShortSell}`)
-            
-            await this.binanceConnector.sellFuture('BTCUSDT', howMuchShallIShortSell)
+            if (maxNotionalInBitcoin > Number(bitcoinPosition.positionAmt) * -1 + howMuchShallIShortSell) {
+                await this.binanceConnector.sellFuture('BTCUSDT', howMuchShallIShortSell)
+            } else if (maxNotionalInBitcoin > Number(bitcoinPosition.positionAmt) * -1 + 0.002) {
+                await this.binanceConnector.sellFuture('BTCUSDT', 0.001)
+            }
+
         } else if (this.marginRatio > 63) {
 
             this.theRattleWentWrongCounter++
@@ -187,7 +201,7 @@ export class Gambler {
 
         
         if (this.theRattleWentWrongCounter >= 2 && ((this.deltaToAverageInPercent < 0 && this.mode === 'short') || this.deltaToAverageInPercent > 0 && this.mode === 'long')) {
-            console.log(`changing the default mode after at least two rattles went wrong and the average price suggests to go to investWisely mode`)
+            console.log(`ensuring the default mode is set to 'investWisely' because some rattles went wrong and the delta to the average looks accordingly`)
             this.defaultMode = 'investWisely'
             this.mode = this.defaultMode 
         } else if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9){
