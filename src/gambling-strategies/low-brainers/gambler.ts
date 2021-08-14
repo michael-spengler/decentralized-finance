@@ -45,7 +45,7 @@ export class Gambler {
         }
 
         console.log(`The gambler gambles is default mode: ${defaultMode}`)
-        
+
         setInterval(async () => {
             i.intervalCounter++
             console.log(`\n******************************* interval ${i.intervalCounter} *******************************`)
@@ -183,8 +183,9 @@ export class Gambler {
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX}`)
 
         
-        if (this.theRattleWentWrongCounter >= 2) {
-            console.log(`choosing the default mode after at least two short rattles went wrong`)
+        if (this.theRattleWentWrongCounter >= 2 && ((this.deltaToAverageInPercent < 0 && this.mode === 'short') || this.deltaToAverageInPercent > 0 && this.mode === 'long')) {
+            console.log(`changing the default mode after at least two rattles went wrong and the average price suggests to go to investWisely mode`)
+            this.defaultMode = 'investWisely'
             this.mode = this.defaultMode 
         } else if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -0.1){
             this.mode = 'long' 
