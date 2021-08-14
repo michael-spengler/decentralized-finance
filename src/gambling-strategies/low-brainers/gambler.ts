@@ -134,10 +134,13 @@ export class Gambler {
                 const howMuchShallIBuy = Number((((Number(this.accountData.availableBalance) / currentBitcoinPrice) * Number(bitcoinPosition.leverage)) / 9).toFixed(3))
                 console.log(`howMuchShallIBuy: ${howMuchShallIBuy} - maxNotionalInBitcoin: ${maxNotionalInBitcoin}`)
 
-                if (maxNotionalInBitcoin > Number(bitcoinPosition.positionAmt) + howMuchShallIBuy) {
-                    await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuy - 0.001)
+                console.log(bitcoinPosition.positionAmt)
+                if (Number(bitcoinPosition.positionAmt) <= 0 || maxNotionalInBitcoin > Number(bitcoinPosition.positionAmt) + howMuchShallIBuy) {
+                    const r = await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuy)
+                    console.log(r)
                 } else {
-                    await this.binanceConnector.buyFuture('BTCUSDT', 0.001)
+                    const r = await this.binanceConnector.buyFuture('BTCUSDT', 0.001)
+                    console.log(r)
                 }
 
             }
@@ -225,12 +228,12 @@ export class Gambler {
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX} - pnlFromBitcoinPositionInPercent: ${pnlFromBitcoinPositionInPercent}`)
 
         if ((highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9) || this.wasThereASignificantUpTick()) {
-            if (this.mode !== 'long'){
+            if (this.mode !== 'long') {
                 this.sellAllPositions()
             }
             this.mode = 'long'
         } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9 || this.wasThereASignificantDownTick()) {
-            if (this.mode !== 'short'){
+            if (this.mode !== 'short') {
                 this.sellAllPositions()
             }
             this.mode = 'short'
