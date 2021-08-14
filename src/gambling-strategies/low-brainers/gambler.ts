@@ -107,6 +107,9 @@ export class Gambler {
             } else if (this.marginRatio > 63) {
 
                 console.log(`things went south`)
+
+                this.theRattleWentWrongCounter++
+
                 await this.sellAllLongPositions()
 
                 if (this.deltaToAverageInPercent < 0) {
@@ -187,9 +190,10 @@ export class Gambler {
             console.log(`changing the default mode after at least two rattles went wrong and the average price suggests to go to investWisely mode`)
             this.defaultMode = 'investWisely'
             this.mode = this.defaultMode 
-        } else if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -0.1){
+        } else if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9){
+            this.theRattleWentWrongCounter = 0
             this.mode = 'long' 
-        } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 0.1){
+        } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9){
             this.theRattleWentWrongCounter = 0
             this.mode = 'short' 
         } else {
@@ -273,68 +277,9 @@ export class Gambler {
 
         }
 
-        await this.hedgeWisely(highestPrice10_30, this.cPP)
     }
 
-    private async hedgeWisely(highestPrice10_30: number, cPP: number): Promise<void> {
-
-        // only hedge when the dogecoin price in Bitcoin is above average... double the hedge position whenever it has a 100 % loss until it is worth a maximum of 25 percent of the long positions.
-
-
-        // const currentHedgePosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
-
-        // if (cPP === highestPrice10_30) {
-        //     if (Number(currentHedgePosition.positionAmt) === 0) {
-
-        //         await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
-
-        //     } else if ((Number(currentHedgePosition.positionAmt) * -1) < 9000) { // optimize
-
-        //         const amountToBeShortSold = Number(currentHedgePosition.positionAmt) * -1 * 2
-
-        //         const currentEtherPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'ETHUSDT')[0]
-        //         const currentEtherPrice: number = this.currentPrices.filter((e: any) => e.coinSymbol === 'ETHUSDT')[0].price
-        //         const etherPositionValue = Number(currentEtherPosition.positionAmt) * currentEtherPrice
-
-        //         const valueToBeShortSold = amountToBeShortSold * this.currentPrices.filter((e: any) => e.coinSymbol === 'DOGEUSDT')[0].price
-
-        //         console.log(`valueToBeShortSold: ${valueToBeShortSold}`)
-
-        //         console.log(`etherPositionValue: ${etherPositionValue}`)
-
-
-        //         if (etherPositionValue > valueToBeShortSold) {
-        //             await this.binanceConnector.sellFuture('DOGEUSDT', amountToBeShortSold)
-        //         }
-
-        //     }
-
-        // } else {
-
-        //     console.log(`highestPrice10_30 ok: ${highestPrice10_30}`)
-
-        // }
-
-
-        // const hedgeProfitInPercent = (currentHedgePosition.unrealizedProfit * 100) / currentHedgePosition.initialMargin
-
-        // const sellAtHedgeProfitOf = Math.floor(Math.random() * (27 - 18 + 1) + 18);
-
-        // if (hedgeProfitInPercent > sellAtHedgeProfitOf) {
-
-        //     console.log(`selling with a minimum of ${sellAtHedgeProfitOf}% plus`)
-
-        //     await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
-
-        // } else if (hedgeProfitInPercent < -200) {
-
-        //     console.log(`I need to restart the hedge as the hedgeProfitInPercent is: ${hedgeProfitInPercent}`)
-        //     await this.binanceConnector.buyFuture('DOGEUSDT', Number(currentHedgePosition.positionAmt) * -1)
-        // }
-
-
-    }
-
+   
     public getTheAverage(list: number[]): number {
 
         let sum = 0
