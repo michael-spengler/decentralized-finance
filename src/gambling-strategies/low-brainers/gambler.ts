@@ -83,9 +83,9 @@ export class Gambler {
         } else if (this.mode === 'short') {
 
             await this.rattleDown()
-            
+
         } else if (this.mode === 'long') {
-            
+
             await this.boostUp()
 
         }
@@ -121,18 +121,25 @@ export class Gambler {
 
         if (this.marginRatio < 18 || (this.marginRatio > 27 && this.marginRatio < 36)) { // using momentum + buy low / sell high
 
-            // await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
-            const currentBitcoinPrice = this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price
-            const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
-    
-            const maxNotionalInBitcoin = Number((Number(bitcoinPosition.maxNotional) / currentBitcoinPrice).toFixed(0))
-            const howMuchShallIBuy = Number((((Number(this.accountData.availableBalance) / currentBitcoinPrice) * Number(bitcoinPosition.leverage)) / 9).toFixed(3))
-            console.log(`howMuchShallIBuy: ${howMuchShallIBuy} - maxNotionalInBitcoin: ${maxNotionalInBitcoin}`)
-    
-            if (maxNotionalInBitcoin > Number(bitcoinPosition.positionAmt) + howMuchShallIBuy) {
-                await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuy - 0.001)
-            }else {
-                await this.binanceConnector.buyFuture('BTCUSDT', 0.001)
+            if (Number(this.accountData.availableBalance) > 321) {
+
+                await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
+
+            } else {
+                
+                const currentBitcoinPrice = this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price
+                const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
+
+                const maxNotionalInBitcoin = Number((Number(bitcoinPosition.maxNotional) / currentBitcoinPrice).toFixed(0))
+                const howMuchShallIBuy = Number((((Number(this.accountData.availableBalance) / currentBitcoinPrice) * Number(bitcoinPosition.leverage)) / 9).toFixed(3))
+                console.log(`howMuchShallIBuy: ${howMuchShallIBuy} - maxNotionalInBitcoin: ${maxNotionalInBitcoin}`)
+
+                if (maxNotionalInBitcoin > Number(bitcoinPosition.positionAmt) + howMuchShallIBuy) {
+                    await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuy - 0.001)
+                } else {
+                    await this.binanceConnector.buyFuture('BTCUSDT', 0.001)
+                }
+
             }
 
         } else if (this.marginRatio > 63) {
