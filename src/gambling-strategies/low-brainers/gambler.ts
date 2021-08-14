@@ -58,7 +58,7 @@ export class Gambler {
                 console.log(`you can improve something: ${error.message}`)
             }
 
-        }, 3 * 1000)
+        }, 9 * 1000)
 
     }
 
@@ -139,14 +139,14 @@ export class Gambler {
 
             console.log(`I can transfer some gains to the fiat and spot account as the available amount is higher than ${this.investmentAmount}`)
             await this.binanceConnector.transferFromUSDTFuturesToSpotAccount(Number(this.accountData.availableBalance) - this.investmentAmount)
-            
+
         }
 
 
     }
 
     private async rattleDown() {
-        const currentBitcoinPrice = this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price 
+        const currentBitcoinPrice = this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price
         const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
 
         const maxNotionalInBitcoin = Number((Number(bitcoinPosition.maxNotional) / currentBitcoinPrice).toFixed(0))
@@ -154,7 +154,7 @@ export class Gambler {
         console.log(`howMuchShallIShortSell: ${howMuchShallIShortSell} - maxNotionalInBitcoin: ${maxNotionalInBitcoin}`)
 
         if (this.marginRatio < 36) {
-            
+
 
             if (maxNotionalInBitcoin > Number(bitcoinPosition.positionAmt) * -1 + howMuchShallIShortSell) {
                 await this.binanceConnector.sellFuture('BTCUSDT', howMuchShallIShortSell)
@@ -204,17 +204,17 @@ export class Gambler {
 
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX} - pnlFromBitcoinPositionInPercent: ${pnlFromBitcoinPositionInPercent}`)
 
-        
+
         if (pnlFromBitcoinPositionInPercent < -10 && this.theRattleWentWrongCounter >= 3 && ((this.deltaToAverageInPercent < 0 && this.mode === 'short') || this.deltaToAverageInPercent > 0 && this.mode === 'long')) {
             console.log(`ensuring the default mode is set to 'investWisely' because some rattles went wrong and the delta to the average looks accordingly`)
             this.defaultMode = 'investWisely'
-            this.mode = this.defaultMode 
-        } else if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9){
+            this.mode = this.defaultMode
+        } else if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9) {
             this.theRattleWentWrongCounter = 0
-            this.mode = 'long' 
-        } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9){
+            this.mode = 'long'
+        } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9) {
             this.theRattleWentWrongCounter = 0
-            this.mode = 'short' 
+            this.mode = 'short'
         } else {
             console.log(`regularly choosing the default mode`)
             this.mode = this.defaultMode
@@ -298,7 +298,7 @@ export class Gambler {
 
     }
 
-   
+
     public getTheAverage(list: number[]): number {
 
         let sum = 0
