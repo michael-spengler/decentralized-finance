@@ -126,7 +126,7 @@ export class Gambler {
                 await this.buy(this.currentPrices, this.accountData, this.couldBuyWouldBuyFactor)
 
             } else {
-                
+
                 const currentBitcoinPrice = this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price
                 const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
 
@@ -224,9 +224,9 @@ export class Gambler {
 
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX} - pnlFromBitcoinPositionInPercent: ${pnlFromBitcoinPositionInPercent}`)
 
-        if (highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9) {
+        if ((highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9) || this.wasThereASignificantUpTick()) {
             this.mode = 'long'
-        } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9) {
+        } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9 || this.wasThereASignificantDownTick()) {
             this.mode = 'short'
         } else {
             console.log(`choosing the default mode which is ${this.defaultMode}`)
@@ -235,6 +235,26 @@ export class Gambler {
 
 
         console.log(`mode: ${this.mode} - couldBuyWouldByFactor: ${this.couldBuyWouldBuyFactor} deltaToAverageInPercent: ${this.deltaToAverageInPercent}`)
+    }
+
+    private wasThereASignificantUpTick(): boolean {
+
+        const delta = this.cPP - this.historicPortfolioPrices[1]
+
+        const result = (delta > 3) ? true : false
+        console.log(`\n\ncurrentPortfolioPrice: ${this.cPP} - h: ${this.historicPortfolioPrices[3]} - delta: ${delta} - result: ${result}\n\n`)
+
+        return result
+        
+    }
+
+    private wasThereASignificantDownTick(): boolean {
+        const delta = this.cPP - this.historicPortfolioPrices[1]
+
+        const result = (delta < -3) ? true : false
+
+        return result
+
     }
 
     private async investWisely(): Promise<void> {
