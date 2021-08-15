@@ -6,6 +6,6 @@ const reinvestAt = Number(process.argv[4]) // 10
 const investmentAmount = Number(process.argv[5]) // e.g. 20
 const binanceApiKey = process.argv[6] // check your profile on binance.com --> API Management
 const binanceApiSecret = process.argv[7] // check your profile on binance.com --> API Management
-const defaultMode = process.argv[8] // e.g. "short" | "investWisely" | "long"
+// const defaultMode = process.argv[8] // e.g. "short" | "investWisely" | "long"
 
-Gambler.gamble(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret, defaultMode)
+Gambler.gamble(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret)

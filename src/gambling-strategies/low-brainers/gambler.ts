@@ -13,18 +13,19 @@ export class Gambler {
     private investmentAmount: number
     private intervalCounter: number
     private currentPrices: any[] = []
-    private mode: string = 'investWisely'
+    private mode: string = ''
     private accountData: any
-    private couldBuyWouldBuyFactor = 0.09
+    private couldBuyWouldBuyFactor = 1
     private marginRatio = 0
     private historicPortfolioPrices: any[] = []
     private historicPricesLength = 45000
     private cPP = 0
     private averageCPP = 0
     private deltaToAverageInPercent = 0
-    private defaultMode = ''
+    private theyWantToTakeTheLongBait = false
+    private theyWantToTakeTheShortBait = false
 
-    public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, defaultMode: string) {
+    public constructor(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string) {
         this.liquidityRatioToBuy = lrToBuy
         this.liquidityRatioToSell = lrToSell
         this.binanceConnector = new BinanceConnector(binanceApiKey, binanceApiSecret)
@@ -33,17 +34,16 @@ export class Gambler {
         this.reinvestAt = reinvestAt
         this.investmentAmount = investmentAmount
         this.intervalCounter = 0
-        this.defaultMode = defaultMode
     }
 
-    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string, defaultMode: string = 'investWisely'): void {
+    public static gamble(lrToBuy: number, lrToSell: number, reinvestAt: number, investmentAmount: number, binanceApiKey: string, binanceApiSecret: string): void {
 
-        const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret, defaultMode)
+        const i = new Gambler(lrToBuy, lrToSell, reinvestAt, investmentAmount, binanceApiKey, binanceApiSecret)
         if (lrToBuy < 0.6 || lrToSell > 0.4 || (binanceApiKey === undefined) || binanceApiSecret === undefined) {
             throw new Error(`Strange Parameters`)
         }
 
-        console.log(`The gambler gambles in default mode: ${defaultMode}`)
+        console.log(`The gambler gambles :)`)
 
         setInterval(async () => {
             i.intervalCounter++
@@ -68,12 +68,16 @@ export class Gambler {
         this.cPP = this.portfolioProvider.getCurrentPortfolioAveragePrice(this.currentPrices)
         this.averageCPP = this.getTheAverage(this.historicPortfolioPrices)
 
+
         this.deltaToAverageInPercent = (this.cPP * 100 / this.averageCPP) - 100
 
         this.addToPriceHistory()
-        this.determineMode()
 
-        // console.log(JSON.stringify(hedgePosition))
+        if (this.mode === '') {
+            await this.presentTheBaits()
+        }
+
+        this.determineMode()
 
 
         if (this.mode === 'investWisely') {
@@ -100,6 +104,48 @@ export class Gambler {
 
     }
 
+    private async presentTheBaits() {
+
+        const currentBitcoinPrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price)
+        const theLongBaitOpenOrder = (await this.binanceConnector.getOpenOrders('BTCUSDT'))[0]
+
+        if (theLongBaitOpenOrder === undefined) {
+            await this.binanceConnector.placeFuturesBuyOrder('BTCUSDT', 0.004, currentBitcoinPrice - 200)
+        } else {
+            const cancelLongBaitAt = Number(theLongBaitOpenOrder.price) + 50
+
+            console.log(`currentBitcoinPrice: ${currentBitcoinPrice} - cancelLongBaitAt: ${cancelLongBaitAt}`)
+
+            if (currentBitcoinPrice < cancelLongBaitAt) {
+                await this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
+                await this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
+                console.log(`they would only catch the long bait if they think they could benefit from it --> going short instead`)
+
+                this.theyWantToTakeTheLongBait = true
+            }
+        }
+
+
+        const currentDogePrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === 'DOGEUSDT')[0].price)
+        const theShortBaitOpenOrder = (await this.binanceConnector.getOpenOrders('DOGEUSDT'))[0]
+
+        if (theShortBaitOpenOrder === undefined) {
+            await this.binanceConnector.placeFuturesSellOrder('DOGEUSDT', 100, currentDogePrice + 0.003)
+        } else {
+            const cancelShortBaitAt = Number(theShortBaitOpenOrder.price) - 0.0002
+
+            console.log(`currentDogePrice: ${currentDogePrice} - cancelShortBaitOpenOrderAt: ${cancelShortBaitAt}`)
+
+            if (currentDogePrice > cancelShortBaitAt) {
+                await this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
+                await this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
+                console.log(`${Number(theShortBaitOpenOrder.price)} vs. ${cancelShortBaitAt} --> they would only catch the short bait if they think they could benefit from it --> going long instead`)
+
+                this.theyWantToTakeTheShortBait = true
+            }
+        }
+
+    }
 
     private async boostUp() {
         const hedgePosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
@@ -115,9 +161,10 @@ export class Gambler {
             console.log(`hedgeposition is strong enough`)
         } else {
             console.log(`short selling doge as hedgeposition`)
-            const r = await this.binanceConnector.sellFuture('DOGEUSDT', 90)
-            console.log(r)
+            await this.binanceConnector.sellFuture('DOGEUSDT', 90)
         }
+
+
 
         if (this.marginRatio < 18 || (this.marginRatio > 27 && this.marginRatio < 36)) { // using momentum + buy low / sell high
 
@@ -136,11 +183,9 @@ export class Gambler {
 
                 console.log(bitcoinPosition.positionAmt)
                 if (Number(bitcoinPosition.positionAmt) <= 0 || maxNotionalInBitcoin > Number(bitcoinPosition.positionAmt) + howMuchShallIBuy) {
-                    const r = await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuy)
-                    console.log(r)
+                    await this.binanceConnector.buyFuture('BTCUSDT', howMuchShallIBuy)
                 } else {
-                    const r = await this.binanceConnector.buyFuture('BTCUSDT', 0.001)
-                    console.log(r)
+                    await this.binanceConnector.buyFuture('BTCUSDT', 0.001)
                 }
 
             }
@@ -150,7 +195,6 @@ export class Gambler {
             console.log(`things went south`)
 
             await this.sellAllPositions()
-            this.defaultMode = 'investWisely'
 
         } else if (this.marginRatio > 54) {
 
@@ -189,7 +233,6 @@ export class Gambler {
         } else if (this.marginRatio > 63) {
 
             await this.sellAllPositions()
-            this.defaultMode = 'investWisely'
 
         }
 
@@ -227,19 +270,51 @@ export class Gambler {
 
         console.log(`determining mode - cPP: ${this.cPP} - averageCPP: ${this.averageCPP} - lowestSinceX: ${lowestSinceX} - highestSinceX: ${highestSinceX} - pnlFromBitcoinPositionInPercent: ${pnlFromBitcoinPositionInPercent}`)
 
-        if ((highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9) || this.wasThereASignificantUpTick()) {
-            if (this.mode !== 'long') {
+        let totalUnrealizedProfitInPercent = (Number(this.accountData.totalUnrealizedProfit) * 100 / Number(this.accountData.totalWalletBalance))
+
+        if (totalUnrealizedProfitInPercent === -100) totalUnrealizedProfitInPercent = 0
+        console.log(`totalUnrealizedProfitInPercent: ${totalUnrealizedProfitInPercent}`)
+
+        if (totalUnrealizedProfitInPercent < - 9) {
+            console.log(`${this.mode} was not the right mode to be chosen --> I need to realize some loss of ${Number(this.accountData.totalUnrealizedProfit)}`)
+            this.sellAllPositions()
+            this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
+            this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
+
+            this.mode = ''
+        } else if (totalUnrealizedProfitInPercent > 5) {
+            console.log(`great you win you made ${Number(this.accountData.totalUnrealizedProfit)}`)
+            this.sellAllPositions()
+            this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
+            this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
+            this.mode = ''
+        }
+
+        if (this.mode === '') {
+
+            if ((highestSinceX > 1827 * 9 && this.deltaToAverageInPercent < -9) || this.wasThereASignificantUpTick() || this.theyWantToTakeTheShortBait) {
+
                 this.sellAllPositions()
-            }
-            this.mode = 'long'
-        } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9 || this.wasThereASignificantDownTick()) {
-            if (this.mode !== 'short') {
+                this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
+                this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
+                this.mode = 'long'
+
+            } else if (lowestSinceX > 1827 * 9 && this.deltaToAverageInPercent > 9 || this.wasThereASignificantDownTick() || this.theyWantToTakeTheLongBait) {
+
                 this.sellAllPositions()
+                this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
+                this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
+                this.mode = 'short'
+
+            } else if (this.deltaToAverageInPercent < -9) {
+
+                this.sellAllPositions()
+                this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
+                this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
+
+                this.mode = 'investWisely'
+
             }
-            this.mode = 'short'
-        } else {
-            console.log(`choosing the default mode which is ${this.defaultMode}`)
-            this.mode = this.defaultMode
         }
 
 
@@ -283,7 +358,7 @@ export class Gambler {
         if (Number(this.accountData.totalWalletBalance) <= this.reinvestAt && usdtBalanceOnSpot > 10) {
 
             console.log(`I transfer USDT from Spot Account to Futures Account e.g. after a serious drop which resulted in a low wallet ballance.`)
-            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
+            // await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount)
 
         } else if (this.shouldISellSomethingDueToSignificantGains(Number(this.accountData.totalUnrealizedProfit), Number(this.accountData.totalWalletBalance))) {
 
@@ -322,7 +397,7 @@ export class Gambler {
         } else if (this.cPP === lowestPrice300000_400000 && this.intervalCounter > 400000) {
 
             console.log(`I transfer USDT from Spot Account to Futures Account due to reaching a long term low.`)
-            await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
+            // await this.transferUSDTFromSpotAccountToFuturesAccount(this.investmentAmount * 0.5)
 
         } else {
 
@@ -485,57 +560,10 @@ export class Gambler {
     }
 
     private async sellAllPositions() {
+
         await this.sellAllLongPositions()
         await this.sellAllShortPositions()
 
     }
-    // private determineMode(accountData: any, currentPrices: any[]): void {
-    //     console.log(`\n\n*******isBeastModeTime**********\n`)
 
-    //     const currentdogeInBTCPrice: number = currentPrices.filter((e: any) => e.coinSymbol === 'DOGEBTC')[0].price
-    //     const averageDogeInBTCPrice = this.getTheAverage(this.historicDogeInBTCPrices)
-    //     const deltaDogePrice = (currentdogeInBTCPrice * 100 / averageDogeInBTCPrice) - 100
-    //     // if (deltaDogePrice > 3 )
-
-    //     // const btcCandles = await this.binanceConnector.candlesticks('BTCUSDT', '1m')
-
-    //     // console.log(`currentBitcoinPrice: ${currentBitcoinPrice} - \nhist: ${JSON.stringify(this.historicBitcoinPrices)}`)
-
-    //     const nextLowestBitcoinBait = Math.floor(this.currentBitcoinPrice / 1000) * 1000
-    //     const nextHighestBitcoinBait = Math.ceil(this.currentBitcoinPrice / 1000) * 1000
-    //     const averageBTCPrice = this.getTheAverage(this.historicBitcoinPrices)
-
-    //     const deltaToAverageInPercent = (this.currentBitcoinPrice * 100 / averageBTCPrice) - 100
-
-    //     console.log(`currentBitcoinPrice: ${this.currentBitcoinPrice} - deltaToAverageInPercent: ${deltaToAverageInPercent} - averageBTCPrice: ${averageBTCPrice} - currentBTCPrice: ${this.currentBitcoinPrice} - nextLowestBitcoinBait: ${nextLowestBitcoinBait} - nextHighestBitcoinBait: ${nextHighestBitcoinBait} `)
-
-    //     console.log(`magic: ${this.currentBitcoinPrice - nextLowestBitcoinBait}`)
-
-    //     const deltaTo10IntervalsAgoInPercent = (this.currentBitcoinPrice * 100 / this.historicBitcoinPrices[10]) - 100
-
-
-    //     if (this.historicBitcoinPrices[10] === undefined) {
-
-    //         console.log("I'm not yet ready for the fancy shit to happen")
-
-    //     } else {
-
-    //         if ((this.currentBitcoinPrice - nextLowestBitcoinBait) < 500 && deltaToAverageInPercent > 0 && this.getIsLowestPriceSinceX(this.currentBitcoinPrice, this.historicBitcoinPrices) > 27) {
-    //             console.log("I will go short because \n1. There is a significant downtrend \n2. The Bitcoin Price is far above average \n3. It's the lowest price in 1000 intervals... \n4. The close stop loss bait might be exploited")
-
-    //             this.mode = 'extremelyShort'
-
-    //         } else if (this.getIsHighestPriceSinceX(this.currentBitcoinPrice, this.historicBitcoinPrices) > 27 && (this.currentBitcoinPrice - nextLowestBitcoinBait) > 500 && deltaToAverageInPercent < -0.1) {
-    //             console.log("I will go long because \n1. There is a significant uptrend \n2. The Bitcoin Price is far below average \n3. It's the highest price since 1000 intervals... \n4. The close take profit bait might be exploited")
-
-    //             this.mode = 'extremelyLong'
-    //         } else {
-    //             this.mode = 'standard'
-    //         }
-
-
-    //     }
-
-    //     console.log(`The mode is ${this.mode}`)
-    // }
 }

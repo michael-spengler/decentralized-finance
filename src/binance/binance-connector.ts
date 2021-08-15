@@ -21,7 +21,7 @@ export class BinanceConnector {
         //     console.info("candlesticks()", ticks);
         //     let last_tick = ticks[ticks.length - 1];
         //     let [time, open, high, low, close, volume, closeTime, assetVolume, trades, buyBaseVolume, buyAssetVolume, ignored] = last_tick;
-            
+
         //     console.info(symbol+" last close: "+close);
 
         //     if (error){
@@ -103,6 +103,14 @@ export class BinanceConnector {
         return this.binance.futuresMarketBuy(pair, amount)
     }
 
+    public async getOpenOrders(pair: string) {
+        return this.binance.futuresOpenOrders(pair)
+    }
+
+    public async cancelAllOpenOrders(pair: string) {
+        return this.binance.futuresCancelAll(pair)
+    }
+
     public async sellFuture(pair: string, amount: number) {
         return this.binance.futuresMarketSell(pair, amount)
     }
@@ -138,7 +146,11 @@ export class BinanceConnector {
     }
 
     public async placeFuturesBuyOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
-        console.log(await this.binance.futuresBuy(pair, amount, limitPrice))
+        await this.binance.futuresBuy(pair, amount, limitPrice)
+    }
+
+    public async placeFuturesSellOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
+        await this.binance.futuresSell(pair, amount, limitPrice)
     }
 
     public transferFromUSDTFuturesToSpotAccount(amount: number): Promise<any> {
