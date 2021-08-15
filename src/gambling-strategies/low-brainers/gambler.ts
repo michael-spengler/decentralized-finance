@@ -108,11 +108,17 @@ export class Gambler {
 
         const currentBitcoinPrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price)
         const theLongBaitOpenOrder = (await this.binanceConnector.getOpenOrders('BTCUSDT'))[0]
+        const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
 
         if (theLongBaitOpenOrder === undefined) {
-            await this.binanceConnector.placeFuturesBuyOrder('BTCUSDT', 0.004, currentBitcoinPrice - 200)
+            const howMuchBTCShallIUseAsLongBait = Number((((Number(this.accountData.availableBalance) / currentBitcoinPrice) * Number(bitcoinPosition.leverage)) / 3).toFixed(3))
+            const limit = Number ((currentBitcoinPrice - (currentBitcoinPrice * 0.003)).toFixed(2))
+            console.log(`howMuchBTCShallIUseAsLongBait: ${howMuchBTCShallIUseAsLongBait} - limit: ${limit}`)
+            const r = await this.binanceConnector.placeFuturesBuyOrder('BTCUSDT', howMuchBTCShallIUseAsLongBait, limit)
+            // const r = await this.binanceConnector.placeFuturesBuyOrder('BTCUSDT', 0.001, 40000)
+            console.log(r)
         } else {
-            const cancelLongBaitAt = Number(theLongBaitOpenOrder.price) + 50
+            const cancelLongBaitAt = Number(theLongBaitOpenOrder.price) + Number((currentBitcoinPrice * 0.001).toFixed(3))
 
             console.log(`currentBitcoinPrice: ${currentBitcoinPrice} - cancelLongBaitAt: ${cancelLongBaitAt}`)
 
@@ -128,11 +134,17 @@ export class Gambler {
 
         const currentDogePrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === 'DOGEUSDT')[0].price)
         const theShortBaitOpenOrder = (await this.binanceConnector.getOpenOrders('DOGEUSDT'))[0]
+        const hedgePosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
+
+        const howMuchDogeShallIUseAsShortBait = Number((((Number(this.accountData.availableBalance) / currentDogePrice) * Number(hedgePosition.leverage)) / 3).toFixed(0))
+        const limit = Number((currentDogePrice + (currentDogePrice * 0.003)).toFixed(2))
+        console.log(`howMuchDogeShallIUseAsShortBait: ${howMuchDogeShallIUseAsShortBait} - limit: ${limit}`)
 
         if (theShortBaitOpenOrder === undefined) {
-            await this.binanceConnector.placeFuturesSellOrder('DOGEUSDT', 100, currentDogePrice + 0.003)
+            const r = await this.binanceConnector.placeFuturesSellOrder('DOGEUSDT', howMuchDogeShallIUseAsShortBait, limit)
+            console.log(r)
         } else {
-            const cancelShortBaitAt = Number(theShortBaitOpenOrder.price) - 0.0002
+            const cancelShortBaitAt = Number(theShortBaitOpenOrder.price) - Number((currentDogePrice * 0.001).toFixed(0))
 
             console.log(`currentDogePrice: ${currentDogePrice} - cancelShortBaitOpenOrderAt: ${cancelShortBaitAt}`)
 
@@ -282,7 +294,7 @@ export class Gambler {
             this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
 
             this.mode = ''
-        } 
+        }
         // else if (totalUnrealizedProfitInPercent > 5) {
         //     console.log(`great you win you made ${Number(this.accountData.totalUnrealizedProfit)}`)
         //     this.sellAllPositions()

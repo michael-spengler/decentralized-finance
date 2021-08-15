@@ -146,11 +146,11 @@ export class BinanceConnector {
     }
 
     public async placeFuturesBuyOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
-        await this.binance.futuresBuy(pair, amount, limitPrice)
+        return this.binance.futuresBuy(pair, amount, limitPrice)
     }
 
     public async placeFuturesSellOrder(pair: string, amount: number, limitPrice: number | undefined): Promise<void> {
-        await this.binance.futuresSell(pair, amount, limitPrice)
+        return this.binance.futuresSell(pair, amount, limitPrice)
     }
 
     public transferFromUSDTFuturesToSpotAccount(amount: number): Promise<any> {
