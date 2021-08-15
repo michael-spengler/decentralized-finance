@@ -275,20 +275,21 @@ export class Gambler {
         if (totalUnrealizedProfitInPercent === -100) totalUnrealizedProfitInPercent = 0
         console.log(`totalUnrealizedProfitInPercent: ${totalUnrealizedProfitInPercent}`)
 
-        if (totalUnrealizedProfitInPercent < - 9) {
+        if (totalUnrealizedProfitInPercent < - 3) {
             console.log(`${this.mode} was not the right mode to be chosen --> I need to realize some loss of ${Number(this.accountData.totalUnrealizedProfit)}`)
             this.sellAllPositions()
             this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
             this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
 
             this.mode = ''
-        } else if (totalUnrealizedProfitInPercent > 5) {
-            console.log(`great you win you made ${Number(this.accountData.totalUnrealizedProfit)}`)
-            this.sellAllPositions()
-            this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
-            this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
-            this.mode = ''
-        }
+        } 
+        // else if (totalUnrealizedProfitInPercent > 5) {
+        //     console.log(`great you win you made ${Number(this.accountData.totalUnrealizedProfit)}`)
+        //     this.sellAllPositions()
+        //     this.binanceConnector.cancelAllOpenOrders('BTCUSDT')
+        //     this.binanceConnector.cancelAllOpenOrders('DOGEUSDT')
+        //     this.mode = ''
+        // }
 
         if (this.mode === '') {
 
