@@ -115,7 +115,7 @@ export class Gambler {
             console.log(`hedgeposition is strong enough`)
         } else {
             console.log(`short selling doge as hedgeposition`)
-            const r = await this.binanceConnector.sellFuture('DOGEUSDT', 1000)
+            const r = await this.binanceConnector.sellFuture('DOGEUSDT', 90)
             console.log(r)
         }
 
