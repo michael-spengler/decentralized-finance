@@ -27,7 +27,7 @@ export class TwoAccountsExploit {
 
     private closingAt = 0
 
-    private intervalCounter = 0
+    private iterationCounter = 0
 
 
     public constructor(private readonly binanceConnector1: BinanceConnector, private readonly binanceConnector2: BinanceConnector) {
@@ -40,9 +40,9 @@ export class TwoAccountsExploit {
 
         setInterval(async () => {
 
-            this.intervalCounter++
+            this.iterationCounter++
 
-            console.log(`\n******************************* Iteration ${this.intervalCounter} *******************************`)
+            console.log(`\n******************************* Iteration ${this.iterationCounter} *******************************`)
 
 
             await this.collectDataForThisIteration()
@@ -243,8 +243,9 @@ export class TwoAccountsExploit {
         console.log(`starting the game`)
 
         await this.openOrAddToBTC1()
-        await this.openOrAddToBTC2()
         await this.openOrAddToDOGE1()
+        await this.sleep((Math.floor(Math.random() * (1000 - 100 + 1) + 100))) // staying undercover
+        await this.openOrAddToBTC2()
         await this.openOrAddToDOGE2()
     }
 
@@ -257,6 +258,7 @@ export class TwoAccountsExploit {
 
     private async collectDataForThisIteration(): Promise<void> {
         this.accountData1 = await this.binanceConnector1.getFuturesAccountData()
+        await this.sleep((Math.floor(Math.random() * (1000 - 100 + 1) + 100))) // staying undercover
         this.accountData2 = await this.binanceConnector2.getFuturesAccountData()
 
         this.marginRatio1 = Number(this.accountData1.totalMaintMargin) * 100 / Number(this.accountData1.totalMarginBalance)
@@ -304,6 +306,8 @@ export class TwoAccountsExploit {
             await this.closeDOGE1()
         }
 
+        await this.sleep((Math.floor(Math.random() * (1000 - 100 + 1) + 100))) // staying undercover
+        
         if (Number(this.bitcoinPosition2.positionAmt < 0)) {
             await this.closeBTC2()
         }
@@ -313,6 +317,11 @@ export class TwoAccountsExploit {
         }
     }
 
+    private sleep(ms: number) {
+        return new Promise((resolve) => {
+          setTimeout(resolve, ms);
+        });
+      }   
 }
 
 
