@@ -31,9 +31,10 @@ export class TwoAccountsExploit {
     private iterationCounter = 0
 
     private startBalanceUnderRisk = 0
-    private currentBalanceUnderRisk = 0
-    private securedGains = 0
 
+    private pauseCounter = 0
+
+    private balanceUnderRisk = 0
 
     public constructor(private readonly binanceConnector1: BinanceConnector, private readonly binanceConnector2: BinanceConnector) {
         this.binanceConnector1 = binanceConnector1
@@ -68,9 +69,12 @@ export class TwoAccountsExploit {
 
         } else {
 
-            console.log(`I optimize ${this.getNumberOfOpenPositions()} open positions`)
-
-            await this.optimizePositions()
+            if (this.pauseCounter > 0) {
+                console.log(`I pause as there has been an extreme move by the centralized forces recently - pauseCounter: ${this.pauseCounter}`)
+            } else {
+                console.log(`I optimize ${this.getNumberOfOpenPositions()} open positions`)
+                await this.optimizePositions()
+            }
 
         }
     }
@@ -108,19 +112,19 @@ export class TwoAccountsExploit {
 
     private async accelerate() {
 
-        if (this.isLowestPNL(this.pnlBTC1) && this.pnlBTC1 < this.addingAt && this.marginRatio1 < 36) {
+        if (this.isLowestPNL(this.pnlBTC1) && this.pnlBTC1 < this.addingAt && this.marginRatio1 < 45) {
 
             await this.addToBTC1()
 
-        } else if (this.isLowestPNL(this.pnlDOGE1) && this.pnlDOGE1 < this.addingAt && this.marginRatio1 < 36) {
+        } else if (this.isLowestPNL(this.pnlDOGE1) && this.pnlDOGE1 < this.addingAt && this.marginRatio1 < 45) {
 
             await this.addToDOGE1()
 
-        } else if (this.isLowestPNL(this.pnlBTC2) && this.pnlBTC2 < this.addingAt && this.marginRatio2 < 36) {
+        } else if (this.isLowestPNL(this.pnlBTC2) && this.pnlBTC2 < this.addingAt && this.marginRatio2 < 45) {
 
             await this.addToBTC2()
 
-        } else if (this.isLowestPNL(this.pnlDOGE2) && this.pnlDOGE2 < this.addingAt && this.marginRatio2 < 36) {
+        } else if (this.isLowestPNL(this.pnlDOGE2) && this.pnlDOGE2 < this.addingAt && this.marginRatio2 < 45) {
 
             await this.addToDOGE2()
 
@@ -145,6 +149,7 @@ export class TwoAccountsExploit {
     }
 
     private async addToBTC1(): Promise<void> {
+        console.log(`Adding ${this.bitcoinPosition1.positionAmt} BTC to BTC1.`)
         await this.binanceConnector1.buyFuture('BTCUSDT', this.bitcoinPosition1.positionAmt)
     }
 
@@ -155,7 +160,6 @@ export class TwoAccountsExploit {
         }
 
         await this.binanceConnector1.sellFuture('BTCUSDT', this.bitcoinPosition1.positionAmt)
-        await this.binanceConnector1.transferFromUSDTFuturesToSpotAccount(1)
     }
 
     private async openBTC2(): Promise<void> {
@@ -163,6 +167,7 @@ export class TwoAccountsExploit {
     }
 
     private async addToBTC2(): Promise<void> {
+        console.log(`Adding ${this.bitcoinPosition2.positionAmt} BTC to BTC2.`)
         await this.binanceConnector2.sellFuture('BTCUSDT', this.bitcoinPosition2.positionAmt * -1)
     }
 
@@ -173,7 +178,6 @@ export class TwoAccountsExploit {
         }
 
         await this.binanceConnector2.buyFuture('BTCUSDT', this.bitcoinPosition2.positionAmt * -1)
-        await this.binanceConnector2.transferFromUSDTFuturesToSpotAccount(1)
     }
 
     private async openDOGE1(): Promise<void> {
@@ -181,6 +185,7 @@ export class TwoAccountsExploit {
     }
 
     private async addToDOGE1(): Promise<void> {
+        console.log(`Adding ${this.dogePosition1.positionAmt} DOGE to DOGE1.`)
         await this.binanceConnector1.sellFuture('DOGEUSDT', this.dogePosition1.positionAmt * -1)
     }
 
@@ -198,6 +203,7 @@ export class TwoAccountsExploit {
     }
 
     private async addToDOGE2(): Promise<void> {
+        console.log(`Adding - ${this.dogePosition2.positionAmt} DOGE to DOGE2.`)
         await this.binanceConnector2.buyFuture('DOGEUSDT', this.dogePosition2.positionAmt)
     }
 
@@ -222,17 +228,21 @@ export class TwoAccountsExploit {
 
     private async manageRisk(): Promise<void> {
 
-        const maximumLossInOnePositionIndicatingExtremeManipulation = -200
+        const maximumLossInOnePositionIndicatingExtremeManipulation = -100
 
         if (this.marginRatio1 > 54 || this.marginRatio2 > 54) {
             await this.closeAllOpenPositions()
             console.log(`According to a margin ratio, things went south. I quit in time.`)
+            this.pauseCounter = 100
         } else if (this.pnlBTC1 < maximumLossInOnePositionIndicatingExtremeManipulation ||
             this.pnlBTC2 < maximumLossInOnePositionIndicatingExtremeManipulation ||
             this.pnlDOGE1 < maximumLossInOnePositionIndicatingExtremeManipulation ||
             this.pnlDOGE2 < maximumLossInOnePositionIndicatingExtremeManipulation) {
             await this.closeAllOpenPositions()
             console.log(`According to an extreme loss in one position, things went south. I quit in time.`)
+            this.pauseCounter = 100
+        } else if (this.pauseCounter > 0) {
+            this.pauseCounter--
         }
 
     }
@@ -244,9 +254,9 @@ export class TwoAccountsExploit {
         this.accountData2 = await this.binanceConnector2.getFuturesAccountData()
 
         if (this.iterationCounter === 1) {
-            this.startBalanceUnderRisk = Number(this.accountData1.totalWalletBalance) + Number(this.accountData2.totalWalletBalance)
+            this.startBalanceUnderRisk = Number(this.accountData1.totalWalletBalance) + Number(this.accountData2.totalWalletBalance) + Number(this.accountData2.totalUnrealizedProfit)
         }
-        this.currentBalanceUnderRisk = Number(this.accountData1.totalWalletBalance) + Number(this.accountData2.totalWalletBalance) + Number(this.accountData1.totalUnrealizedProfit) + Number(this.accountData2.totalUnrealizedProfit)
+        this.balanceUnderRisk = Number(this.accountData1.totalWalletBalance) + Number(this.accountData2.totalWalletBalance) + Number(this.accountData1.totalUnrealizedProfit) + Number(this.accountData2.totalUnrealizedProfit)
 
         this.marginRatio1 = Number(this.accountData1.totalMaintMargin) * 100 / Number(this.accountData1.totalMarginBalance)
         this.marginRatio2 = Number(this.accountData2.totalMaintMargin) * 100 / Number(this.accountData2.totalMarginBalance)
@@ -271,16 +281,16 @@ export class TwoAccountsExploit {
         this.closingAt = (Math.floor(Math.random() * (81 - 18 + 1) + 18))
 
         if (this.getNumberOfOpenPositions() > 0) {
-            this.closingAt = (this.closingAt * this.getNumberOfOpenPositions()) / 9
+            this.closingAt = (this.closingAt * this.getNumberOfOpenPositions()) / 3
         }
 
-        this.addingAt = ((Math.floor(Math.random() * (81 - 18 + 1) + 18))) * -1
+        this.addingAt = ((Math.floor(Math.random() * (27 - 18 + 1) + 18))) * -1
 
         if (this.getNumberOfOpenPositions() > 0) {
             this.addingAt = this.addingAt / this.getNumberOfOpenPositions()
         }
 
-        console.log(`startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.currentBalanceUnderRisk} - securedGains: ${this.securedGains} - pnl: ${this.pnlBTC1 + this.pnlBTC2 + this.pnlDOGE1 + this.pnlDOGE2}`)
+        console.log(`startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - pnl: ${this.pnlBTC1 + this.pnlBTC2 + this.pnlDOGE1 + this.pnlDOGE2}`)
 
         console.log(`pnlBTC1: ${this.pnlBTC1} - pnlBTC2: ${this.pnlBTC2} - pnlDOGE1: ${this.pnlDOGE1} - pnlDOGE2: ${this.pnlDOGE2} - addingAt: ${this.addingAt} - closingAt: ${this.closingAt}`)
 
