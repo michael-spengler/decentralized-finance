@@ -77,7 +77,7 @@ export class TwoAccountsExploit {
 
             } else if (this.getNumberOfOpenPositions() === 1) {
 
-                await this.handle1OpenPositions()
+                await this.handle1OpenPosition()
 
             }
 
@@ -86,26 +86,23 @@ export class TwoAccountsExploit {
     }
 
 
-    private async handle1OpenPositions(): Promise<void> {
+    private async handle1OpenPosition(): Promise<void> {
         if (this.pnlBTC1 > 0) {
             await this.closeBTC1()
         } else if (this.pnlBTC1 < - 100) {
             await this.openOrAddToBTC1()
-        }
-        if (this.pnlBTC2 > 0) {
+        } else if (this.pnlBTC2 > 0) {
             await this.closeBTC2()
         } else if (this.pnlBTC2 < - 100) {
             await this.openOrAddToBTC2()
-        }
-        if (this.pnlDOGE1 > 0) {
-            await this.closeDOGE1
+        } else if (this.pnlDOGE1 > 0) {
+            await this.closeDOGE1()
         } else if (this.pnlDOGE1 < - 100) {
-            await this.openOrAddToDOGE1
-        }
-        if (this.pnlDOGE2 > 0) {
-            await this.closeDOGE2
+            await this.openOrAddToDOGE1()
+        } else if (this.pnlDOGE2 > 0) {
+            await this.closeDOGE2()
         } else if (this.pnlDOGE2 < - 100) {
-            await this.openOrAddToDOGE2
+            await this.openOrAddToDOGE2()
         }
     }
 
