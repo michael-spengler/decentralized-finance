@@ -36,6 +36,12 @@ export class TwoAccountsExploit {
 
     private balanceUnderRisk = 0
 
+    private totalUnrealizedProfitInPercent1 = 0
+    private totalUnrealizedProfitInPercent2 = 0
+    private totalUnrealizedProfitInPercent = 0
+
+    private failureCount = 0
+
     public constructor(private readonly binanceConnector1: BinanceConnector, private readonly binanceConnector2: BinanceConnector) {
         this.binanceConnector1 = binanceConnector1
         this.binanceConnector2 = binanceConnector2
@@ -70,9 +76,9 @@ export class TwoAccountsExploit {
         } else {
 
             if (this.pauseCounter > 0) {
-                console.log(`I pause as there has been an extreme move by the centralized forces recently - pauseCounter: ${this.pauseCounter}`)
+                console.log(`\nI pause as there has been an extreme move by the centralized forces recently - pauseCounter: ${this.pauseCounter}`)
             } else {
-                console.log(`I optimize ${this.getNumberOfOpenPositions()} open positions`)
+                console.log(`\nI optimize ${this.getNumberOfOpenPositions()} open positions`)
                 await this.optimizePositions()
             }
 
@@ -82,7 +88,7 @@ export class TwoAccountsExploit {
 
     private async optimizePositions(): Promise<void> {
 
-        if (this.pnlBTC1 + this.pnlBTC2 + this.pnlDOGE1 + this.pnlDOGE2 > this.closingAt) {
+        if (this.totalUnrealizedProfitInPercent > this.closingAt) {
 
             await this.closeAllOpenPositions()
 
@@ -203,7 +209,7 @@ export class TwoAccountsExploit {
     }
 
     private async addToDOGE2(): Promise<void> {
-        console.log(`Adding - ${this.dogePosition2.positionAmt} DOGE to DOGE2.`)
+        console.log(`Adding ${this.dogePosition2.positionAmt} DOGE to DOGE2.`)
         await this.binanceConnector2.buyFuture('DOGEUSDT', this.dogePosition2.positionAmt)
     }
 
@@ -234,6 +240,7 @@ export class TwoAccountsExploit {
             await this.closeAllOpenPositions()
             console.log(`According to a margin ratio, things went south. I quit in time.`)
             this.pauseCounter = 100
+            this.failureCount++
         } else if (this.pnlBTC1 < maximumLossInOnePositionIndicatingExtremeManipulation ||
             this.pnlBTC2 < maximumLossInOnePositionIndicatingExtremeManipulation ||
             this.pnlDOGE1 < maximumLossInOnePositionIndicatingExtremeManipulation ||
@@ -241,6 +248,7 @@ export class TwoAccountsExploit {
             await this.closeAllOpenPositions()
             console.log(`According to an extreme loss in one position, things went south. I quit in time.`)
             this.pauseCounter = 100
+            this.failureCount++
         } else if (this.pauseCounter > 0) {
             this.pauseCounter--
         }
@@ -284,15 +292,19 @@ export class TwoAccountsExploit {
             this.closingAt = (this.closingAt * this.getNumberOfOpenPositions()) / 3
         }
 
-        this.addingAt = ((Math.floor(Math.random() * (27 - 18 + 1) + 18))) * -1
+        this.addingAt = ((Math.floor(Math.random() * (36 - 18 + 1) + 18))) * -1
 
         if (this.getNumberOfOpenPositions() > 0) {
             this.addingAt = this.addingAt / this.getNumberOfOpenPositions()
         }
 
-        console.log(`startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - pnl: ${this.pnlBTC1 + this.pnlBTC2 + this.pnlDOGE1 + this.pnlDOGE2}`)
+        this.totalUnrealizedProfitInPercent1 = (Number(this.accountData1.totalUnrealizedProfit) * 100 / Number(this.accountData1.totalWalletBalance))
+        this.totalUnrealizedProfitInPercent2 = (Number(this.accountData2.totalUnrealizedProfit) * 100 / Number(this.accountData2.totalWalletBalance))
+        this.totalUnrealizedProfitInPercent = this.totalUnrealizedProfitInPercent1 + this.totalUnrealizedProfitInPercent1
 
-        console.log(`pnlBTC1: ${this.pnlBTC1} - pnlBTC2: ${this.pnlBTC2} - pnlDOGE1: ${this.pnlDOGE1} - pnlDOGE2: ${this.pnlDOGE2} - addingAt: ${this.addingAt} - closingAt: ${this.closingAt}`)
+        console.log(`startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - addingAt: ${this.addingAt} - closingAt: ${this.closingAt} - failureCount: ${this.failureCount}`)
+
+        console.log(`\nPNL1: ${this.totalUnrealizedProfitInPercent1} - PNL2: ${this.totalUnrealizedProfitInPercent2} - PNL: ${this.totalUnrealizedProfitInPercent} - pnlBTC1: ${this.pnlBTC1} - pnlBTC2: ${this.pnlBTC2} - pnlDOGE1: ${this.pnlDOGE1} - pnlDOGE2: ${this.pnlDOGE2}`)
 
     }
 
