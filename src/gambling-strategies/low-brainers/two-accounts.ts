@@ -108,19 +108,19 @@ export class TwoAccountsExploit {
 
     private async accelerate() {
 
-        if (this.isLowestPNL(this.pnlBTC1) && this.pnlBTC1 < this.addingAt) {
+        if (this.isLowestPNL(this.pnlBTC1) && this.pnlBTC1 < this.addingAt && this.marginRatio1 < 36) {
 
             await this.addToBTC1()
 
-        } else if (this.isLowestPNL(this.pnlDOGE1) && this.pnlDOGE1 < this.addingAt) {
+        } else if (this.isLowestPNL(this.pnlDOGE1) && this.pnlDOGE1 < this.addingAt && this.marginRatio1 < 36) {
 
             await this.addToDOGE1()
 
-        } else if (this.isLowestPNL(this.pnlBTC2) && this.pnlBTC2 < this.addingAt) {
+        } else if (this.isLowestPNL(this.pnlBTC2) && this.pnlBTC2 < this.addingAt && this.marginRatio2 < 36) {
 
             await this.addToBTC2()
 
-        } else if (this.isLowestPNL(this.pnlDOGE2) && this.pnlDOGE2 < this.addingAt) {
+        } else if (this.isLowestPNL(this.pnlDOGE2) && this.pnlDOGE2 < this.addingAt && this.marginRatio2 < 36) {
 
             await this.addToDOGE2()
 
@@ -221,10 +221,20 @@ export class TwoAccountsExploit {
     }
 
     private async manageRisk(): Promise<void> {
+
+        const maximumLossInOnePositionIndicatingExtremeManipulation = -200
+
         if (this.marginRatio1 > 54 || this.marginRatio2 > 54) {
             await this.closeAllOpenPositions()
-            console.log(`Things went south. I quit in time.`)
+            console.log(`According to a margin ratio, things went south. I quit in time.`)
+        } else if (this.pnlBTC1 < maximumLossInOnePositionIndicatingExtremeManipulation ||
+            this.pnlBTC2 < maximumLossInOnePositionIndicatingExtremeManipulation ||
+            this.pnlDOGE1 < maximumLossInOnePositionIndicatingExtremeManipulation ||
+            this.pnlDOGE2 < maximumLossInOnePositionIndicatingExtremeManipulation) {
+            await this.closeAllOpenPositions()
+            console.log(`According to an extreme loss in one position, things went south. I quit in time.`)
         }
+
     }
 
     private async collectData(): Promise<void> {
@@ -267,7 +277,7 @@ export class TwoAccountsExploit {
         this.addingAt = ((Math.floor(Math.random() * (81 - 18 + 1) + 18))) * -1
 
         if (this.getNumberOfOpenPositions() > 0) {
-            this.addingAt = this.addingAt / this.getNumberOfOpenPositions() 
+            this.addingAt = this.addingAt / this.getNumberOfOpenPositions()
         }
 
         console.log(`startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.currentBalanceUnderRisk} - securedGains: ${this.securedGains} - pnl: ${this.pnlBTC1 + this.pnlBTC2 + this.pnlDOGE1 + this.pnlDOGE2}`)
