@@ -25,7 +25,7 @@ export class TwoAccountsExploit {
     private bitcoinInvestmentAmount = 0.1
     private dogeInvestmentAmount = 1000
 
-    private sellingAt = 0
+    private closingAt = 0
 
     private intervalCounter = 0
 
@@ -44,9 +44,11 @@ export class TwoAccountsExploit {
 
             console.log(`\n******************************* Iteration ${this.intervalCounter} *******************************`)
 
+
             await this.collectDataForThisIteration()
 
             console.log(`pnlBTC1: ${this.pnlBTC1} - pnlBTC2: ${this.pnlBTC2} - pnlDOGE1: ${this.pnlDOGE1} - pnlDOGE2: ${this.pnlDOGE2}`)
+
 
             await this.manageRisk()
 
@@ -61,41 +63,109 @@ export class TwoAccountsExploit {
 
             }
 
-            if (this.getNumberOfOpenPositions() < 4 && this.pnlBTC1 + this.pnlBTC2 + this.pnlDOGE1 + this.pnlDOGE2 > 0) {
+            if (this.getNumberOfOpenPositions() < 4 && this.pnlBTC1 + this.pnlBTC2 + this.pnlDOGE1 + this.pnlDOGE2 > this.closingAt / 2) {
+
                 await this.closeAllOpenPositions()
+
             } else if (this.getNumberOfOpenPositions() === 3) {
 
-                if (this.isHighestPNL(this.pnlBTC1) && this.pnlBTC1 > this.sellingAt) {
-
-                    await this.binanceConnector1.sellFuture('BTCUSDT', this.bitcoinInvestmentAmount)
-
-                } else if (this.isHighestPNL(this.pnlDOGE1) && this.pnlDOGE1 > this.sellingAt) {
-
-                    await this.binanceConnector1.buyFuture('DOGEUSDT', this.dogeInvestmentAmount)
-
-                } else if (this.isHighestPNL(this.pnlBTC2) && this.pnlBTC2 > this.sellingAt) {
-
-                    await this.binanceConnector2.buyFuture('BTCUSDT', this.bitcoinInvestmentAmount)
-
-                } else if (this.isHighestPNL(this.pnlDOGE2) && this.pnlDOGE2 > this.sellingAt) {
-
-                    await this.binanceConnector2.sellFuture('DOGEUSDT', this.dogeInvestmentAmount)
-                }
+                await this.handle3OpenPositions()
 
             } else if (this.getNumberOfOpenPositions() === 2) {
 
-                if (this.isLowestPNL(this.pnlBTC1)) {
+                await this.handle2OpenPositions()
 
-                }
+            } else if (this.getNumberOfOpenPositions() === 1) {
+
+                await this.handle1OpenPositions()
 
             }
-
-            console.log(this.accountData1.availableBalance)
 
         }, 11 * 1000)
 
     }
 
+
+    private async handle1OpenPositions(): Promise<void> {
+        if (this.pnlBTC1 > 0) {
+            await this.closeBTC1()
+        } else if (this.pnlBTC1 < - 100) {
+            await this.openOrAddToBTC1()
+        }
+        if (this.pnlBTC2 > 0) {
+            await this.closeBTC2()
+        } else if (this.pnlBTC2 < - 100) {
+            await this.openOrAddToBTC2()
+        }
+        if (this.pnlDOGE1 > 0) {
+            await this.closeDOGE1
+        } else if (this.pnlDOGE1 < - 100) {
+            await this.openOrAddToDOGE1
+        }
+        if (this.pnlDOGE2 > 0) {
+            await this.closeDOGE2
+        } else if (this.pnlDOGE2 < - 100) {
+            await this.openOrAddToDOGE2
+        }
+    }
+
+    private async handle2OpenPositions(): Promise<void> {
+
+        if (this.pnlBTC1 > this.closingAt / 3) {
+
+            await this.closeBTC1()
+
+        } else if (this.isLowestPNL(this.pnlBTC1) && this.pnlBTC1 < - 100) {
+
+            await this.openOrAddToBTC1()
+
+        } else if (this.pnlDOGE1 > this.closingAt / 3) {
+
+            await this.closeDOGE1()
+
+        } else if (this.isLowestPNL(this.pnlDOGE1) && this.pnlDOGE1 < - 100) {
+
+            await this.openOrAddToDOGE1()
+
+        } else if (this.pnlBTC2 > this.closingAt / 3) {
+
+            await this.closeBTC2()
+
+        } else if (this.isLowestPNL(this.pnlBTC2) && this.pnlBTC2 < - 100) {
+
+            await this.openOrAddToBTC2()
+
+        } else if (this.pnlDOGE2 > this.closingAt / 3) {
+
+            await this.closeDOGE2()
+
+        } else if (this.isLowestPNL(this.pnlDOGE2) && this.pnlDOGE2 < - 100) {
+
+            await this.openOrAddToDOGE2()
+
+        }
+
+    }
+    private async handle3OpenPositions(): Promise<void> {
+
+        if (this.isHighestPNL(this.pnlBTC1) && this.pnlBTC1 > this.closingAt / 2) {
+
+            await this.closeBTC1()
+
+        } else if (this.isHighestPNL(this.pnlDOGE1) && this.pnlDOGE1 > this.closingAt / 2) {
+
+            await this.closeDOGE1()
+
+        } else if (this.isHighestPNL(this.pnlBTC2) && this.pnlBTC2 > this.closingAt / 2) {
+
+            await this.closeBTC2()
+
+        } else if (this.isHighestPNL(this.pnlDOGE2) && this.pnlDOGE2 > this.closingAt / 2) {
+
+            await this.closeDOGE2()
+        }
+
+    }
     private isLowestPNL(pnlUnderObservation: number): boolean {
 
         if (pnlUnderObservation <= this.pnlBTC1 &&
@@ -121,25 +191,25 @@ export class TwoAccountsExploit {
     }
 
     private async takeProfitsIfItIsWorthWhile(): Promise<void> {
-        if (this.pnlBTC1 + this.pnlBTC2 + this.pnlDOGE1 + this.pnlDOGE2 > this.sellingAt) {
-            console.log(`Yay you just made more than ${this.sellingAt}% profit. I'll sell them all.`)
+        if (this.pnlBTC1 + this.pnlBTC2 + this.pnlDOGE1 + this.pnlDOGE2 > this.closingAt) {
+            console.log(`Yay you just made more than ${this.closingAt}% profit. I'll sell them all.`)
             await this.closeAllOpenPositions()
-        } else if (this.pnlBTC1 > this.sellingAt) {
-            await this.binanceConnector1.sellFuture('BTCUSDT', this.bitcoinInvestmentAmount)
-            console.log(`Yay you just made more than ${this.sellingAt}% profit from BTC1. I'll sell it`)
-        } else if (this.pnlBTC2 > this.sellingAt) {
-            console.log(`Yay you just made more than ${this.sellingAt}% profit from BTC2. I'll buy back its short sold BTC`)
-            await this.binanceConnector2.buyFuture('BTCUSDT', this.bitcoinInvestmentAmount)
-        } else if (this.pnlDOGE1 > this.sellingAt) {
-            console.log(`Yay you just made more than ${this.sellingAt}% profit from DOGE1. I'll buy back its short sold DOGE`)
-            await this.binanceConnector1.buyFuture('DOGEUSDT', this.dogeInvestmentAmount)
-        } else if (this.pnlDOGE2 > this.sellingAt) {
-            console.log(`Yay you just made more than ${this.sellingAt}% profit from DOGE2. I'll sell it`)
-            await this.binanceConnector2.sellFuture('DOGEUSDT', this.dogeInvestmentAmount)
+        } else if (this.pnlBTC1 > this.closingAt) {
+            await this.closeBTC1()
+            console.log(`Yay you just made more than ${this.closingAt}% profit from BTC1. I'll sell it`)
+        } else if (this.pnlBTC2 > this.closingAt) {
+            await this.closeBTC2()
+            console.log(`Yay you just made more than ${this.closingAt}% profit from BTC2. I'll buy back its short sold BTC`)
+        } else if (this.pnlDOGE1 > this.closingAt) {
+            console.log(`Yay you just made more than ${this.closingAt}% profit from DOGE1. I'll buy back its short sold DOGE`)
+            await this.closeDOGE1()
+        } else if (this.pnlDOGE2 > this.closingAt) {
+            console.log(`Yay you just made more than ${this.closingAt}% profit from DOGE2. I'll sell it`)
+            await this.closeDOGE2()
         }
     }
 
-    private async openBTC1(): Promise<void> {
+    private async openOrAddToBTC1(): Promise<void> {
         await this.binanceConnector1.buyFuture('BTCUSDT', this.bitcoinInvestmentAmount)
     }
 
@@ -147,7 +217,7 @@ export class TwoAccountsExploit {
         await this.binanceConnector1.sellFuture('BTCUSDT', this.bitcoinPosition1.positionAmt)
     }
 
-    private async openBTC2(): Promise<void> {
+    private async openOrAddToBTC2(): Promise<void> {
         await this.binanceConnector2.sellFuture('BTCUSDT', this.bitcoinInvestmentAmount)
     }
 
@@ -155,7 +225,7 @@ export class TwoAccountsExploit {
         await this.binanceConnector2.buyFuture('BTCUSDT', this.bitcoinPosition2.positionAmt * -1)
     }
 
-    private async openDOGE1(): Promise<void> {
+    private async openOrAddToDOGE1(): Promise<void> {
         await this.binanceConnector1.sellFuture('DOGEUSDT', this.dogeInvestmentAmount)
 
     }
@@ -163,22 +233,22 @@ export class TwoAccountsExploit {
         await this.binanceConnector1.buyFuture('DOGEUSDT', this.dogePosition1.positionAmt * -1)
     }
 
-    private async openDOGE2(): Promise<void> {
+    private async openOrAddToDOGE2(): Promise<void> {
         await this.binanceConnector2.buyFuture('DOGEUSDT', this.dogeInvestmentAmount)
 
     }
 
-    private async closeDOGE22(): Promise<void> {
+    private async closeDOGE2(): Promise<void> {
         await this.binanceConnector2.sellFuture('DOGEUSDT', this.dogePosition2.positionAmt)
     }
 
     private async startTheGame(): Promise<void> {
         console.log(`starting the game`)
 
-        await this.openBTC1()
-        await this.openBTC2()
-        await this.openDOGE1()
-        await this.openDOGE2()
+        await this.openOrAddToBTC1()
+        await this.openOrAddToBTC2()
+        await this.openOrAddToDOGE1()
+        await this.openOrAddToDOGE2()
     }
 
     private async manageRisk(): Promise<void> {
@@ -195,7 +265,7 @@ export class TwoAccountsExploit {
         this.marginRatio1 = Number(this.accountData1.totalMaintMargin) * 100 / Number(this.accountData1.totalMarginBalance)
         this.marginRatio2 = Number(this.accountData2.totalMaintMargin) * 100 / Number(this.accountData2.totalMarginBalance)
 
-        this.sellingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18))
+        this.closingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18))
 
         this.bitcoinPosition1 = this.accountData1.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
         this.bitcoinPosition2 = this.accountData2.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
@@ -242,7 +312,7 @@ export class TwoAccountsExploit {
         }
 
         if (Number(this.dogePosition2.positionAmt > 0)) {
-            await this.closeDOGE22
+            await this.closeDOGE2()
         }
     }
 
