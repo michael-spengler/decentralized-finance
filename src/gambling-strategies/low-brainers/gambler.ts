@@ -1,3 +1,10 @@
+// as about 80 percent of all short term retail traders loose about 80 percent of their investments within less than 80 days, 
+// it seems to be a good idea to understand what the actors on the other side of those retail trades are doing:
+// 1. they want to keep them out of potentially successful positions --> therefore the entrance baiting being equivalent to l/s testing
+// 2. they want to kick you out of potentially successful positions --> therefore the temporary exit orders 
+// 3. they want to 
+
+
 import { BinanceConnector } from "../../binance/binance-connector"
 import { Player } from "../utilities/player"
 import { IPortfolio, PortfolioProvider } from "../utilities/portfolio-provider"
@@ -106,13 +113,32 @@ export class Gambler {
 
     private async presentTheBaits() {
 
+        if (this.mode === '') {
+            await this.presentTheMarketEntranceBaits()
+        } else {
+            // await this.presentTheMarketExitBaits()
+        }
+
+
+
+    }
+
+    // private async presentTheMarketExitBaits() {
+    //     if (this.mode === 'long') {
+    //         await this.binanceConnector.placeFuturesSellOrder('BTCUSDT', 0.001, curr)
+    //     } else if (this.mode === 'short'){
+
+    //     }
+    // }
+
+    private async presentTheMarketEntranceBaits() {
         const currentBitcoinPrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price)
         const theLongBaitOpenOrder = (await this.binanceConnector.getOpenOrders('BTCUSDT'))[0]
         const bitcoinPosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'BTCUSDT')[0]
 
         if (theLongBaitOpenOrder === undefined) {
             const howMuchBTCShallIUseAsLongBait = Number((((Number(this.accountData.availableBalance) / currentBitcoinPrice) * Number(bitcoinPosition.leverage)) / 3).toFixed(3))
-            const limit = Number ((currentBitcoinPrice - (currentBitcoinPrice * 0.003)).toFixed(2))
+            const limit = Number((currentBitcoinPrice - (currentBitcoinPrice * 0.003)).toFixed(2))
             console.log(`howMuchBTCShallIUseAsLongBait: ${howMuchBTCShallIUseAsLongBait} - limit: ${limit}`)
             const r = await this.binanceConnector.placeFuturesBuyOrder('BTCUSDT', howMuchBTCShallIUseAsLongBait, limit)
             // const r = await this.binanceConnector.placeFuturesBuyOrder('BTCUSDT', 0.001, 40000)
@@ -156,27 +182,13 @@ export class Gambler {
                 this.theyWantToTakeTheShortBait = true
             }
         }
-
     }
+
 
     private async boostUp() {
         const hedgePosition = this.accountData.positions.filter((entry: any) => entry.symbol === 'DOGEUSDT')[0]
 
-        let maximumHedgeMargin = this.getInitialMarginOfAllLongPositionsAccumulated(this.accountData) / 3
-        let minimumimumHedgeMargin = maximumHedgeMargin / 3 // todo: based on deltaToAverageInPercent
-
         console.log(`aha: ${this.marginRatio}`)
-
-        console.log(`maximumHedgeMargin: ${maximumHedgeMargin} vs. hedgePosition.initialMargin: ${hedgePosition.initialMargin}`)
-
-        if (Number(hedgePosition.initialMargin) >= maximumHedgeMargin) {
-            console.log(`hedgeposition is strong enough`)
-        } else {
-            console.log(`short selling doge as hedgeposition`)
-            await this.binanceConnector.sellFuture('DOGEUSDT', 90)
-        }
-
-
 
         if (this.marginRatio < 18 || (this.marginRatio > 27 && this.marginRatio < 36)) { // using momentum + buy low / sell high
 
@@ -208,19 +220,8 @@ export class Gambler {
 
             await this.sellAllPositions()
 
-        } else if (this.marginRatio > 54) {
-
-            if (this.deltaToAverageInPercent < 0) {
-                console.log(`take some profits from the hedge position - being below the average`)
-                await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
-            } else if (Number(hedgePosition.initialMargin) > minimumimumHedgeMargin) {
-                console.log(`take some profits from the hedge position - being above the average`)
-                await this.binanceConnector.buyFuture('DOGEUSDT', Number((Number(hedgePosition.positionAmt) / 9).toFixed(3)) * -1)
-            } else {
-                console.log(`we shall keep some of the hedge as we are above average`)
-            }
         } else {
-            console.log(`ready for some action`)
+            console.log(`ready for some action to boost up even further`)
         }
 
     }
