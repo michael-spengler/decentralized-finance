@@ -116,19 +116,26 @@ export class TwoAccountsExploit {
             pnlInPercent = 0
         }
 
+        let limit = 100
+        switch(pair) {
+            case 'LINKUSDT': limit = 200
+            case 'BATUSDT': limit = 1200
+            default: 100
+        }
+
         // console.log(`pair: ${pair} - marginRatio: ${marginRatio} - mdA: ${marginDelta} - vs. iMPosition: ${iMPosition}`)
 
         if (accountMode === 'long') {
-            if (((Number(position.positionAmt) < 9 || marginDelta > (iMPosition / 3))) && (marginRatio < 45 && Number(position.positionAmt) > - 200)) {
-                console.log(`short selling ${pair} to protect a long account`)
+            if (((Number(position.positionAmt) < 9 || marginDelta > (iMPosition / 3))) && (marginRatio < 45 && Number(position.positionAmt) > limit * -1)) {
+                console.log(`short selling ${pair} to protect a long account - limit would be: ${limit}`)
                 await binanceConnector.sellFuture(pair, 9)
             } else if (pnlInPercent > this.closingAt && Number(position.positionAmt < - 9)) {
                 console.log(`buying back some short sold ${pair} to realize some of the profits (${position.unrealizedProfit})`)
                 await binanceConnector.buyFuture(pair, 9)
             }
         } else if (accountMode === 'short') {
-            if (((Number(position.positionAmt) < 9 || marginDelta > (iMPosition / 3))) && marginRatio < 45 && Number(position.positionAmt) < 200) {
-                console.log(`buying ${pair} to protect a short account`)
+            if (((Number(position.positionAmt) < 9 || marginDelta > (iMPosition / 3))) && marginRatio < 45 && Number(position.positionAmt) < limit) {
+                console.log(`buying ${pair} to protect a short account - limit would be: ${limit}`)
                 await binanceConnector.buyFuture(pair, 9)
             } else if (pnlInPercent > this.closingAt && Number(position.positionAmt > 9)) {
                 console.log(`selling some ${pair} to realize some of the profits (${position.unrealizedProfit})`)
