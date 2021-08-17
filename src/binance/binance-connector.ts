@@ -60,8 +60,12 @@ export class BinanceConnector {
         return currentPrices
     }
 
-    public async getAccount() {
-        return this.binance.accountStatus()
+    // public async getAccount() {
+    //     return this.binance.accountStatus()
+    // }
+
+    public async getTotalAccount() {
+        return this.binance.account()
     }
 
     // public async getOverallBalance() {
@@ -79,7 +83,8 @@ export class BinanceConnector {
     }
 
     public async placeSellOrder(pair: string, amount: number): Promise<void> {
-        await this.binance.marketSell(pair, amount)
+        this.binance.marketSell(pair, amount)
+            .then((resp: any) => console.log(resp)).catch((err: any) => console.log(err.body))
     }
 
     public async getFuturesAccountData() {

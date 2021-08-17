@@ -347,7 +347,7 @@ export class TwoAccountsExploit {
 
         await this.openBTC1()
         await this.openDOGE1()
-        await this.sleep((Math.floor(Math.random() * (1000 - 100 + 1) + 100))) // staying undercover
+        await this.sleep((Math.floor(Math.random() * (200 - 10 + 1) + 10))) // staying undercover
         await this.openBTC2()
         await this.openDOGE2()
     }
@@ -378,7 +378,7 @@ export class TwoAccountsExploit {
     private async collectData(): Promise<void> {
 
         this.accountData1 = await this.binanceConnector1.getFuturesAccountData()
-        await this.sleep((Math.floor(Math.random() * (1000 - 100 + 1) + 100))) // staying undercover
+        await this.sleep((Math.floor(Math.random() * (200 - 10 + 1) + 10))) // staying undercover
         this.accountData2 = await this.binanceConnector2.getFuturesAccountData()
 
         if (this.iterationCounter === 1) {
@@ -421,7 +421,7 @@ export class TwoAccountsExploit {
 
         this.totalUnrealizedProfitInPercent1 = (Number(this.accountData1.totalUnrealizedProfit) * 100 / Number(this.accountData1.totalWalletBalance))
         this.totalUnrealizedProfitInPercent2 = (Number(this.accountData2.totalUnrealizedProfit) * 100 / Number(this.accountData2.totalWalletBalance))
-        this.totalUnrealizedProfitInPercent = this.totalUnrealizedProfitInPercent1 + this.totalUnrealizedProfitInPercent1
+        this.totalUnrealizedProfitInPercent = this.totalUnrealizedProfitInPercent1 + this.totalUnrealizedProfitInPercent2
 
         console.log(`startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - failureCount: ${this.failureCount} - addingAt: ${this.addingAt} - closingAt: ${this.closingAt} - profitInCurrent4To0Session: ${this.profitInCurrent4To0Session}`)
 
