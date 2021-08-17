@@ -65,18 +65,15 @@ export class TwoAccountsExploit {
     private async playTheGame(): Promise<void> {
 
 
-
         if (this.iterationCounter === 1) {
 
             await this.cleanTheDeskIfNecessary(true)
 
+        } else if (this.iterationCounter === 2) {
+
+            await this.startTheGame()
+
         } else {
-
-            if (this.marginRatio1 === 0 || this.marginRatio2 === 0) {
-
-                await this.startTheGame()
-    
-            }
 
             await this.cleanTheDeskIfNecessary()
 
@@ -86,8 +83,7 @@ export class TwoAccountsExploit {
             await this.optimizeBTC1()
             await this.optimizeBTC2()
 
-            await this.enjoyThePerfectHedge()
-
+            await this.enjoyThePerfectHedges()
         }
 
     }
@@ -214,7 +210,7 @@ export class TwoAccountsExploit {
         }
     }
 
-    private async enjoyThePerfectHedge(): Promise<void> {
+    private async enjoyThePerfectHedges(): Promise<void> {
 
         await this.adjustTheEtherHedge()
 
@@ -397,7 +393,8 @@ export class TwoAccountsExploit {
         this.accountData2 = await this.binanceConnector2.getFuturesAccountData()
 
         if (this.iterationCounter === 1) {
-            this.startBalanceUnderRisk = Number(this.accountData1.totalWalletBalance) + Number(this.accountData2.totalWalletBalance) + Number(this.accountData2.totalUnrealizedProfit)
+            this.startBalanceUnderRisk =
+                Number(this.accountData1.totalWalletBalance) + Number(this.accountData2.totalWalletBalance) + Number(this.accountData1.totalUnrealizedProfit) + Number(this.accountData2.totalUnrealizedProfit)
         }
 
         this.balanceUnderRisk = Number(this.accountData1.totalWalletBalance) + Number(this.accountData2.totalWalletBalance) + Number(this.accountData1.totalUnrealizedProfit) + Number(this.accountData2.totalUnrealizedProfit)
@@ -502,10 +499,10 @@ export class TwoAccountsExploit {
     private isItAGoodTimeToReduceBTC1(): boolean {
 
         if (this.pnlBTC1 > this.previousReducepnlBTC1 || (this.pnlBTC1 > this.closingAt && this.pauseCounter === 0)) {
-            if (this.minimumBTCAtRisk > this.bitcoinPosition1.positionAmt) {
+            if (this.minimumBTCAtRisk < this.bitcoinPosition1.positionAmt) {
                 return true
             } else {
-                console.log(`the minimum BTC at risk (${this.minimumBTCAtRisk}) has been reached on account 1 - positionAmt BTC1 being: ${this.bitcoinPosition1.positionAmt}`)
+                // console.log(`the minimum BTC at risk (${this.minimumBTCAtRisk}) has been reached on account 1 - positionAmt BTC1 being: ${this.bitcoinPosition1.positionAmt}`)
                 return false
             }
 
