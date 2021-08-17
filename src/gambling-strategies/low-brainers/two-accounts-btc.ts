@@ -124,9 +124,10 @@ export class TwoAccountsExploit {
         }
 
         // console.log(`pair: ${pair} - marginRatio: ${marginRatio} - mdA: ${marginDelta} - vs. iMPosition: ${iMPosition}`)
+        console.log(`md: ${marginDelta} - iMPosition: ${iMPosition}`)
 
         if (accountMode === 'long') {
-            if (((Number(position.positionAmt) < 9 || marginDelta > (iMPosition / 3))) && (marginRatio < 45 && Number(position.positionAmt) > limit * -1)) {
+            if (((Number(position.positionAmt) < 9 || (marginDelta / 3) > iMPosition)) && (marginRatio < 45 && Number(position.positionAmt) > limit * -1)) {
                 console.log(`short selling ${pair} to protect a long account - limit would be: ${limit}`)
                 await binanceConnector.sellFuture(pair, 9)
             } else if (pnlInPercent > this.closingAt && Number(position.positionAmt < - 9)) {
@@ -134,7 +135,7 @@ export class TwoAccountsExploit {
                 await binanceConnector.buyFuture(pair, 9)
             }
         } else if (accountMode === 'short') {
-            if (((Number(position.positionAmt) < 9 || marginDelta > (iMPosition / 3))) && marginRatio < 45 && Number(position.positionAmt) < limit) {
+            if (((Number(position.positionAmt) < 9 || (marginDelta / 3) > iMPosition)) && marginRatio < 45 && Number(position.positionAmt) < limit) {
                 console.log(`buying ${pair} to protect a short account - limit would be: ${limit}`)
                 await binanceConnector.buyFuture(pair, 9)
             } else if (pnlInPercent > this.closingAt && Number(position.positionAmt > 9)) {
@@ -173,7 +174,7 @@ export class TwoAccountsExploit {
             console.log(`I transfer ${Number(this.accountData1.totalWalletBalance)} USDT to the USDT Account 1 due to a margin ratio of ${this.marginRatio1}`)
             await this.binanceConnector1.transferFromSpotAccountToUSDTFutures(10)
             this.pauseCounter = 100
-        } else if (usdtSpot < Number(this.accountData1.totalWalletBalance) && bnbSpot > 0.07) {
+        } else if (usdtSpot < Number(this.accountData1.totalWalletBalance) / 5 && bnbSpot > 0.02) {
             const currentPrices = await this.binanceConnector1.getCurrentPrices()
 
             const currentBNBPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === 'BNBUSDT')[0].price)
@@ -209,7 +210,7 @@ export class TwoAccountsExploit {
             console.log(`I transfer ${Number(this.accountData1.totalWalletBalance)} USDT to the USDT Account 1 due to a margin ratio of ${this.marginRatio2}`)
             await this.binanceConnector2.transferFromSpotAccountToUSDTFutures(10)
             this.pauseCounter = 100
-        } else if (usdtSpot < Number(this.accountData2.totalWalletBalance) && bnbSpot > 0.07) {
+        } else if (usdtSpot < Number(this.accountData2.totalWalletBalance) && bnbSpot > 0.02) {
             const currentPrices = await this.binanceConnector2.getCurrentPrices()
 
             const currentBNBPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === 'BNBUSDT')[0].price)
