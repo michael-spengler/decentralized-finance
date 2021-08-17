@@ -138,11 +138,12 @@ export class TwoAccountsExploit {
             if (((Number(position.positionAmt) < 9 || (marginDelta / 3) > iMPosition)) && marginRatio < 45 && Number(position.positionAmt) < limit) {
                 console.log(`buying ${pair} to protect a short account - limit would be: ${limit}`)
                 await binanceConnector.buyFuture(pair, 9)
-            } else if (pnlInPercent > this.closingAt && Number(position.positionAmt > 9)) {
-                console.log(`selling some ${pair} to realize some of the profits (${position.unrealizedProfit})`)
-                await binanceConnector.sellFuture(pair, 9)
-            }
+            } 
+        }
 
+        if (pnlInPercent > this.closingAt && Number(position.positionAmt > 9)) {
+            console.log(`selling some ${pair} to realize some of the profits (${position.unrealizedProfit})`)
+            await binanceConnector.sellFuture(pair, 9)
         }
     }
 
