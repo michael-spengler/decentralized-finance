@@ -117,7 +117,7 @@ export class TwoAccountsExploit {
         }
 
         let limit = 100
-        switch(pair) {
+        switch (pair) {
             case 'LINKUSDT': limit = 200
             case 'BATUSDT': limit = 1200
             default: 100
@@ -126,24 +126,31 @@ export class TwoAccountsExploit {
         // console.log(`pair: ${pair} - marginRatio: ${marginRatio} - mdA: ${marginDelta} - vs. iMPosition: ${iMPosition}`)
         console.log(`md: ${marginDelta} - iMPosition: ${iMPosition}`)
 
-        if (accountMode === 'long') {
-            if (((Number(position.positionAmt) < 9 || (marginDelta / 3) > iMPosition)) && (marginRatio < 45 && Number(position.positionAmt) > limit * -1)) {
-                console.log(`short selling ${pair} to protect a long account - limit would be: ${limit}`)
+        if (pnlInPercent > this.closingAt) {
+            if (Number(position.positionAmt > 9)) {
+
+                console.log(`selling some ${pair} to realize some of the profits (${position.unrealizedProfit})`)
                 await binanceConnector.sellFuture(pair, 9)
-            } else if (pnlInPercent > this.closingAt && Number(position.positionAmt < - 9)) {
+            }
+
+            if (pnlInPercent > this.closingAt && Number(position.positionAmt < - 9)) {
                 console.log(`buying back some short sold ${pair} to realize some of the profits (${position.unrealizedProfit})`)
                 await binanceConnector.buyFuture(pair, 9)
             }
-        } else if (accountMode === 'short') {
-            if (((Number(position.positionAmt) < 9 || (marginDelta / 3) > iMPosition)) && marginRatio < 45 && Number(position.positionAmt) < limit) {
-                console.log(`buying ${pair} to protect a short account - limit would be: ${limit}`)
-                await binanceConnector.buyFuture(pair, 9)
-            } 
-        }
+        } else {
 
-        if (pnlInPercent > this.closingAt && Number(position.positionAmt > 9)) {
-            console.log(`selling some ${pair} to realize some of the profits (${position.unrealizedProfit})`)
-            await binanceConnector.sellFuture(pair, 9)
+            if (accountMode === 'long') {
+                if (((Number(position.positionAmt) < 9 || (marginDelta / 3) > iMPosition)) && (marginRatio < 45 && Number(position.positionAmt) > limit * -1)) {
+                    console.log(`short selling ${pair} to protect a long account - limit would be: ${limit}`)
+                    await binanceConnector.sellFuture(pair, 9)
+                }
+            } else if (accountMode === 'short') {
+                if (((Number(position.positionAmt) < 9 || (marginDelta / 3) > iMPosition)) && marginRatio < 45 && Number(position.positionAmt) < limit) {
+                    console.log(`buying ${pair} to protect a short account - limit would be: ${limit}`)
+                    await binanceConnector.buyFuture(pair, 9)
+                }
+            }
+
         }
     }
 
@@ -153,14 +160,15 @@ export class TwoAccountsExploit {
 
         const batPosition1 = this.accountData1.positions.filter((entry: any) => entry.symbol === 'BATUSDT')[0]
         const batPosition2 = this.accountData2.positions.filter((entry: any) => entry.symbol === 'BATUSDT')[0]
-
-        await this.adjustTheAltHedge(this.accountData1, this.binanceConnector1, batPosition1, this.accountMode1, this.marginRatio1, 'BATUSDT')
-        await this.adjustTheAltHedge(this.accountData2, this.binanceConnector2, batPosition2, this.accountMode2, this.marginRatio2, 'BATUSDT')
-
         const linkPosition1 = this.accountData1.positions.filter((entry: any) => entry.symbol === 'LINKUSDT')[0]
         const linkPosition2 = this.accountData2.positions.filter((entry: any) => entry.symbol === 'LINKUSDT')[0]
 
+        await this.adjustTheAltHedge(this.accountData1, this.binanceConnector1, batPosition1, this.accountMode1, this.marginRatio1, 'BATUSDT')
         await this.adjustTheAltHedge(this.accountData1, this.binanceConnector1, linkPosition1, this.accountMode1, this.marginRatio1, 'LINKUSDT')
+
+        await this.sleep((Math.floor(Math.random() * (200 - 10 + 1) + 10))) // staying undercover
+
+        await this.adjustTheAltHedge(this.accountData2, this.binanceConnector2, batPosition2, this.accountMode2, this.marginRatio2, 'BATUSDT')
         await this.adjustTheAltHedge(this.accountData2, this.binanceConnector2, linkPosition2, this.accountMode2, this.marginRatio2, 'LINKUSDT')
 
     }
@@ -350,9 +358,9 @@ export class TwoAccountsExploit {
         if (!(this.pnlBTC1 < 1000000000)) this.pnlBTC1 = 0
         if (!(this.pnlBTC2 < 1000000000)) this.pnlBTC2 = 0
 
-        this.closingAt = (Math.floor(Math.random() * (81 - 18 + 1) + 18))
+        this.closingAt = (Math.floor(Math.random() * (27 - 18 + 1) + 18))
 
-        this.addingAt = ((Math.floor(Math.random() * (81 - 18 + 1) + 18))) * -1
+        this.addingAt = ((Math.floor(Math.random() * (27 - 18 + 1) + 18))) * -1
 
         this.totalUnrealizedProfitInPercent1 = (Number(this.accountData1.totalUnrealizedProfit) * 100 / Number(this.accountData2.totalWalletBalance))
         this.totalUnrealizedProfitInPercent2 = (Number(this.accountData2.totalUnrealizedProfit) * 100 / Number(this.accountData2.totalWalletBalance))
@@ -399,9 +407,9 @@ export class TwoAccountsExploit {
 
         const marginDelta = this.getInitialMarginDelta(accountData)
 
-        if (marginDelta > Number(accountData.totalWalletBalance / 10)) {
+        if (marginDelta > Number(accountData.totalWalletBalance / 9)) {
             return 'long'
-        } else if (marginDelta < (Number(accountData.totalWalletBalance / 10) * -1) ) {
+        } else if (marginDelta < (Number(accountData.totalWalletBalance / 9) * -1)) {
             return 'short'
         } else {
             return 'balanced'
