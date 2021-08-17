@@ -49,7 +49,13 @@ export class TwoAccountsExploit {
 
             await this.manageRisk()
 
-            await this.playTheGame()
+            if (this.pauseCounter > 0) {
+
+                console.log(`\nI pause as there has been an extreme move by the centralized forces recently - pauseCounter: ${this.pauseCounter}`)
+                
+                await this.playTheGame()
+
+            }
 
         }, 11 * 1000)
 
@@ -62,13 +68,9 @@ export class TwoAccountsExploit {
 
             await this.startTheGame()
 
-        } else {
-
-            if (this.pauseCounter > 0) {
-
-                console.log(`\nI pause as there has been an extreme move by the centralized forces recently - pauseCounter: ${this.pauseCounter}`)
-
-            } else if (this.getNumberOfOpenPositions() === 4 || this.getNumberOfOpenPositions() === 3) {
+        } else { 
+            
+            if (this.getNumberOfOpenPositions() === 4 || this.getNumberOfOpenPositions() === 3) {
 
                 this.level = 1
 
