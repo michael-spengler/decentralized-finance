@@ -52,7 +52,7 @@ export class TwoAccountsExploit {
             if (this.pauseCounter > 0) {
 
                 console.log(`\nI pause as there has been an extreme move by the centralized forces recently - pauseCounter: ${this.pauseCounter}`)
-                
+
                 await this.playTheGame()
 
             }
@@ -68,8 +68,8 @@ export class TwoAccountsExploit {
 
             await this.startTheGame()
 
-        } else { 
-            
+        } else {
+
             if (this.getNumberOfOpenPositions() === 4 || this.getNumberOfOpenPositions() === 3) {
 
                 this.level = 1
@@ -96,7 +96,7 @@ export class TwoAccountsExploit {
                 }
 
             } else if (this.getNumberOfOpenPositions() === 1 && this.level === 2 || this.level === 0) {
-                
+
                 console.log(`Hmm - probably even the badest position has a pnl > 0 --> closing`)
                 await this.closeAllOpenPositions()
 
@@ -213,8 +213,8 @@ export class TwoAccountsExploit {
 
             await this.addToDOGE1(this.dogeInvestmentAmount)
 
-        } 
-        
+        }
+
         if (this.pnlBTC2 < this.addingAt && this.marginRatio2 < 18) {
 
             await this.addToBTC2(this.bitcoinInvestmentAmount)
@@ -442,54 +442,40 @@ export class TwoAccountsExploit {
 
     private async closeAllOpenPositions(): Promise<void> {
 
-        await this.sellAllLongPositions()
-        await this.sellAllShortPositions()
+        await this.sellAllLongPositions(this.accountData1, this.binanceConnector1)
+        await this.buyBackAllShortPositions(this.accountData1, this.binanceConnector1)
+        await this.sleep((Math.floor(Math.random() * (100 - 10 + 1) + 10))) // staying undercover
+        await this.sellAllLongPositions(this.accountData2, this.binanceConnector2)
+        await this.buyBackAllShortPositions(this.accountData2, this.binanceConnector2)
 
         this.profitInCurrent4To0Session = 0
 
     }
 
+    private async sellAllLongPositions(accountData: any, binanceConnector: any) {
+        for (let position of accountData.positions) {
+            if (position.positionAmt > 0) {
+                console.log(`selling ${position.symbol}`)
+                await binanceConnector.sellFuture(position.symbol, Number(position.positionAmt))
+            }
+        }
+    }
+
+    private async buyBackAllShortPositions(accountData: any, binanceConnector: any) {
+        for (let position of accountData.positions) {
+            if (position.positionAmt < 0) {
+                console.log(`buying back shorted ${position.symbol}`)
+                await binanceConnector.buyFuture(position.symbol, Number(position.positionAmt) * -1)
+            }
+        }
+    }
     private sleep(ms: number) {
         return new Promise((resolve) => {
             setTimeout(resolve, ms);
         });
     }
 
-    private async sellAllLongPositions() {
-        for (let position of this.accountData1.positions) {
-            if (position.positionAmt > 0) {
-                console.log(`selling ${position.symbol}`)
-                await this.binanceConnector1.sellFuture(position.symbol, Number(position.positionAmt))
-            }
-        }
 
-        await this.sleep((Math.floor(Math.random() * (100 - 10 + 1) + 10))) // staying undercover
-
-        for (let position of this.accountData2.positions) {
-            if (position.positionAmt > 0) {
-                console.log(`selling ${position.symbol}`)
-                await this.binanceConnector2.sellFuture(position.symbol, Number(position.positionAmt))
-            }
-        }
-    }
-
-    private async sellAllShortPositions() {
-        for (let position of this.accountData1.positions) {
-            if (position.positionAmt < 0) {
-                console.log(`buying ${position.symbol}`)
-                await this.binanceConnector1.buyFuture(position.symbol, Number(position.positionAmt))
-            }
-        }
-
-        await this.sleep((Math.floor(Math.random() * (100 - 10 + 1) + 10))) // staying undercover
-
-        for (let position of this.accountData2.positions) {
-            if (position.positionAmt < 0) {
-                console.log(`buying ${position.symbol}`)
-                await this.binanceConnector2.buyFuture(position.symbol, Number(position.positionAmt))
-            }
-        }
-    }
 
 }
 
