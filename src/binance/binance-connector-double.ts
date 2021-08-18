@@ -11,11 +11,15 @@ export class BinanceConnectorDouble {
 
 
 
-    public constructor(apiKey: string, apiSecret: string) {
+    public constructor(apiKey: string, apiSecret: string, private readonly accountId: string = 'default') {
         this.binance = new Binance().options({
             APIKEY: apiKey,
             APISECRET: apiSecret
         })
+    }
+
+    public getAccountId(): string {
+        return this.accountId
     }
 
     public async candlesticks(pair: string, timeFrame: string) {
@@ -78,10 +82,11 @@ export class BinanceConnectorDouble {
     }
 
     public async placeBuyOrder(pair: string, amount: number): Promise<void> {
-
+        console.log("super from test double")
     }
 
     public async placeSellOrder(pair: string, amount: number): Promise<void> {
+        console.log("super from test double")
     }
 
     public async getFuturesAccountData() {

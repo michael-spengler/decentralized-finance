@@ -8,13 +8,17 @@ export class BinanceConnector {
 
     private binance: any
 
-    public constructor(apiKey: string, apiSecret: string) {
+    public constructor(apiKey: string, apiSecret: string, private readonly accountId: string = 'default') {
         this.binance = new Binance().options({
             APIKEY: apiKey,
             APISECRET: apiSecret
         })
     }
 
+    public getAccountId(): string {
+        return this.accountId
+    }
+    
     public async candlesticks(pair: string, timeFrame: string) {
         return this.binance.candlesticks(pair, timeFrame)
         // this.binance.candlesticks("ETHUSDT", "1m", (error: any, ticks: any, symbol: string) => {
