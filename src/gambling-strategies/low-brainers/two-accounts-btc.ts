@@ -35,6 +35,8 @@ export class TwoAccountsExploit {
   public constructor(private readonly binanceConnector1: BinanceConnector, private readonly binanceConnector2: BinanceConnector) {
     this.binanceConnector1 = binanceConnector1
     this.binanceConnector2 = binanceConnector2
+    FinancialService.initializeBuyLowSellHighLongPortfolio()
+    FinancialService.initializeBuyLowSellHighShortPortfolio()
   }
 
   public playWithTheForce(): void {
@@ -61,30 +63,20 @@ export class TwoAccountsExploit {
       await this.startTheGame()
     } else {
       await this.cleanTheDeskIfNecessary()
-      await FinancialService.optimizeValueAtRiskOnAccount(
-        this.binanceConnector1,
-        this.bnbSpotAccount1,
-        this.usdtSpotAccount1,
-        this.accountData1,
-      )
-      await FinancialService.optimizeValueAtRiskOnAccount(
-        this.binanceConnector2,
-        this.bnbSpotAccount2,
-        this.usdtSpotAccount2,
-        this.accountData2,
-      )
+      await FinancialService.optimizeValueAtRiskOnAccount(this.binanceConnector1, this.bnbSpotAccount1, this.usdtSpotAccount1, this.accountData1)
+      await FinancialService.optimizeValueAtRiskOnAccount(this.binanceConnector2, this.bnbSpotAccount2, this.usdtSpotAccount2, this.accountData2)
       await this.optimizeBTC1()
       await this.optimizeBTC2()
       await this.enjoyThePerfectHedges()
 
-      // await this.buyLowSellHigh()
-      // await this.considerSavingSomething()
+      if (this.iterationCounter % 1 === 0) {
+        const currentPrices = await this.binanceConnector1.getCurrentPrices()
+        await FinancialService.buyLowSellHigh(this.closingAt, this.binanceConnector1, currentPrices, this.accountData1)
+        await FinancialService.sleep(Math.floor(Math.random() * (200 - 10 + 1) + 10)) // staying undercover
+        await FinancialService.buyLowSellHigh(this.closingAt, this.binanceConnector2, currentPrices, this.accountData2)
+      }
     }
   }
-
-  // private async considerSavingSomething(): Promise<void> { }
-
-  // private async buyLowSellHigh(): Promise<void> { }
 
   private async cleanTheDeskIfNecessary(
     forceIt: boolean = false,
@@ -440,10 +432,7 @@ export class TwoAccountsExploit {
 
   private isItAGoodTimeToReduceBTC1(): boolean {
     const accountMode = FinancialService.getAccountMode(this.accountData1)
-    if (
-      this.pnlBTC1 > this.previousReducepnlBTC1 ||
-      (this.pnlBTC1 > this.closingAt && accountMode === "long")
-    ) {
+    if (this.pnlBTC1 > this.previousReducepnlBTC1 || (this.pnlBTC1 > this.closingAt && accountMode === "long")) {
       if (this.minimumBTCAtRisk < this.bitcoinPosition1.positionAmt) {
         return true
       }
@@ -488,10 +477,7 @@ export class TwoAccountsExploit {
   private isItAGoodTimeToReduceBTC2(): boolean {
     const accountMode = FinancialService.getAccountMode(this.accountData2)
 
-    if (
-      this.pnlBTC2 > this.previousReducepnlBTC2 ||
-      (this.pnlBTC2 > this.closingAt && accountMode === "long")
-    ) {
+    if (this.pnlBTC2 > this.previousReducepnlBTC2 || (this.pnlBTC2 > this.closingAt && accountMode === "long")) {
       if (this.bitcoinPosition2.positionAmt < this.minimumBTCAtRisk * -1) {
         return true
       }
@@ -506,14 +492,14 @@ export class TwoAccountsExploit {
 
   }
 
-  private getNumberOfOpenPositions(): number {
-    let counter = 0
+  // private getNumberOfOpenPositions(): number {
+  //   let counter = 0
 
-    if (Number(this.bitcoinPosition1.positionAmt) > 0) { counter += 1 }
-    if (Number(this.bitcoinPosition2.positionAmt) < 0) { counter += 1 }
+  //   if (Number(this.bitcoinPosition1.positionAmt) > 0) { counter += 1 }
+  //   if (Number(this.bitcoinPosition2.positionAmt) < 0) { counter += 1 }
 
-    return counter
-  }
+  //   return counter
+  // }
 
 }
 

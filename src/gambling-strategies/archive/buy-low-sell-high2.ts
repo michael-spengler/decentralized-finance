@@ -4,11 +4,10 @@ const pair = process.argv[2] // e.g. ETHUSDT or BTCUSDT
 const binanceApiKey = process.argv[3] // check your profile on binance.com --> API Management
 const binanceApiSecret = process.argv[4] // check your profile on binance.com --> API Management
 
-
 export class BuyLowSellHighGambler {
 
-    private binanceConnector: BinanceConnector
-    private historicData: any[] = []
+    private readonly binanceConnector: BinanceConnector
+    private readonly historicData: any[] = []
 
     public constructor(apiKey: string, apiSecret: string) {
         this.binanceConnector = new BinanceConnector(apiKey, apiSecret)
@@ -75,8 +74,10 @@ export class BuyLowSellHighGambler {
             if (price > e) {
                 return counter
             }
-            counter++
+
+            counter += 1
         }
+
         return counter
     }
 
@@ -87,20 +88,18 @@ export class BuyLowSellHighGambler {
             if (price < e) {
                 return counter
             }
-            counter++
+
+            counter += 1
         }
+
         return counter
     }
 }
 
-
 const instance = new BuyLowSellHighGambler(binanceApiKey, binanceApiSecret)
 
+setInterval(() => {
 
-setInterval(async () => {
-
-
-    instance.investWisely()
-
+    void instance.investWisely()
 
 }, 11 * 1000)
