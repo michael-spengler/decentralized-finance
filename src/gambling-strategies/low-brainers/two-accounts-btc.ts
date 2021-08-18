@@ -5,6 +5,10 @@ import { BinanceConnectorDouble } from "../../binance/binance-connector-double"
 import { FinancialService } from "../utilities/financial-service"
 
 export class TwoAccountsExploit {
+
+  private readonly tradingUnit = 0.001
+  private readonly minimumBTCAtRisk = 0.009
+
   private accountData1: any
   private accountData2: any
   private bitcoinPosition1: any
@@ -17,8 +21,6 @@ export class TwoAccountsExploit {
   private previousAddpnlBTC2 = 0
   private previousReducepnlBTC1 = 0
   private previousReducepnlBTC2 = 0
-  private readonly tradingUnit = 0.001
-  private readonly minimumBTCAtRisk = 0.009
   private closingAt = 0
   private addingAt = 0
   private iterationCounter = 0
@@ -56,23 +58,31 @@ export class TwoAccountsExploit {
   }
 
   private async playTheGame(): Promise<void> {
+
     if (this.iterationCounter === 1) {
-      await this.cleanTheDeskIfNecessary()
-      //   await this.cleanTheDeskIfNecessary(true);
-    } else if (this.iterationCounter === 2) {
+
       await this.startTheGame()
+
     } else {
+
       await this.cleanTheDeskIfNecessary()
+
       await FinancialService.optimizeValueAtRiskOnAccount(this.binanceConnector1, this.bnbSpotAccount1, this.usdtSpotAccount1, this.accountData1)
+
       await FinancialService.optimizeValueAtRiskOnAccount(this.binanceConnector2, this.bnbSpotAccount2, this.usdtSpotAccount2, this.accountData2)
+
       await this.optimizeBTC1()
+
+      await FinancialService.sleep(Math.floor(Math.random() * (900 - 90 + 1) + 90)) // staying undercover
+
       await this.optimizeBTC2()
+
       await this.enjoyThePerfectHedges()
 
-      if (this.iterationCounter % 1 === 0) {
+      if (this.iterationCounter % 9 === 0) {
         const currentPrices = await this.binanceConnector1.getCurrentPrices()
         await FinancialService.buyLowSellHigh(this.closingAt, this.binanceConnector1, currentPrices, this.accountData1)
-        await FinancialService.sleep(Math.floor(Math.random() * (200 - 10 + 1) + 10)) // staying undercover
+        await FinancialService.sleep(Math.floor(Math.random() * (900 - 90 + 1) + 90)) // staying undercover
         await FinancialService.buyLowSellHigh(this.closingAt, this.binanceConnector2, currentPrices, this.accountData2)
       }
     }
@@ -105,12 +115,14 @@ export class TwoAccountsExploit {
     }
 
     if (forceIt) {
+
       console.log("I close all positions as I was forced to do so.")
       await FinancialService.closeAllOpenPositions(this.accountData1, this.binanceConnector1)
 
       await FinancialService.sleep(Math.floor(Math.random() * (200 - 10 + 1) + 10)) // staying undercover
 
       await FinancialService.closeAllOpenPositions(this.accountData2, this.binanceConnector2)
+
     }
   }
 
@@ -138,18 +150,10 @@ export class TwoAccountsExploit {
         await binanceConnector.buyFuture("ETHUSDT", 0.01)
       }
     } else {
-      if (
-        marginRatio < 45 &&
-        accountMode === "long" &&
-        Number(etherPosition.positionAmt) > -2
-      ) {
+      if (marginRatio < 45 && accountMode === "long" && Number(etherPosition.positionAmt) > -2) {
         console.log(`${accountId}: I sell 0.01 Ether to protect the  account`)
         await binanceConnector.sellFuture("ETHUSDT", 0.01)
-      } else if (
-        marginRatio < 45 &&
-        accountMode === "short" &&
-        Number(etherPosition.positionAmt) < 2
-      ) {
+      } else if (marginRatio < 45 && accountMode === "short" && Number(etherPosition.positionAmt) < 2) {
         console.log(`${accountId}: I buy 0.01 Ether to protect the account`)
         await binanceConnector.buyFuture("ETHUSDT", 0.01)
       }

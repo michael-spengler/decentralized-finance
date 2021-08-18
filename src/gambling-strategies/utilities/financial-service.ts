@@ -261,7 +261,6 @@ export class FinancialService {
     public static async buyLowSellHigh(closingAt: any, binanceConnector: BinanceConnector, currentPrices: any[], accountData: any) {
 
         const accountId = binanceConnector.getAccountId()
-        console.log(`${accountId}: buy low sell high`)
         const lowestSinceXBuyTrigger = 27
         FinancialService.updateBuyLowSellHighPortfolio(currentPrices)
 
@@ -325,21 +324,21 @@ export class FinancialService {
         return matchingEntry
     }
 
-    private static getPortfolioItemWithHighestHighestSinceX(currentPrices: any) {
-        let matchingEntry
-        let highestHighestSinceX = 0
+    // private static getPortfolioItemWithHighestHighestSinceX(currentPrices: any) {
+    //     let matchingEntry
+    //     let highestHighestSinceX = 0
 
-        for (const entry of FinancialService.buyLowSellHighPortfolio) {
-            const currentPairPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === entry.pair)[0].price)
-            const hmm = FinancialService.getIsHighestSinceX(currentPairPrice, entry.pair)
+    //     for (const entry of FinancialService.buyLowSellHighPortfolio) {
+    //         const currentPairPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === entry.pair)[0].price)
+    //         const hmm = FinancialService.getIsHighestSinceX(currentPairPrice, entry.pair)
 
-            if (hmm > highestHighestSinceX) {
-                matchingEntry = entry
-                highestHighestSinceX = hmm
-            }
+    //         if (hmm > highestHighestSinceX) {
+    //             matchingEntry = entry
+    //             highestHighestSinceX = hmm
+    //         }
 
-        }
+    //     }
 
-        return matchingEntry
-    }
+    //     return matchingEntry
+    // }
 }
