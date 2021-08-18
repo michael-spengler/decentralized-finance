@@ -1,0 +1,42 @@
+{
+    "extends": "tslint:all",
+    "rules": {
+        "semicolon": [
+            true,
+            "never"
+        ],
+        "no-parameter-properties": false,
+        "member-ordering": [
+            true,
+            {
+                "order": [
+                    "public-static-field",
+                    "public-instance-field",
+                    "private-static-field",
+                    "private-instance-field",
+                    "public-constructor",
+                    "private-constructor",
+                    "public-instance-method",
+                    "protected-instance-method",
+                    "private-instance-method"
+                ]
+            }
+        ],
+        "no-inferrable-types": false,
+        "no-unsafe-any": false,
+        "no-var-requires": false,
+        "comment-format": false,
+        "no-any": false,
+        "no-console": false,
+        "typedef": false,
+        "align": false,
+        "no-magic-numbers": false,
+        "max-line-length": false,
+        "no-require-imports": false,
+        "file-name-casing": [
+            true,
+            "kebab-case"
+        ],
+        "completed-docs": false
+    }
+}
