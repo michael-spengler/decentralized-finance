@@ -250,10 +250,8 @@ export class FinancialService {
                 }
 
                 if (position.positionAmt < 0) {
-                    console.log(`${accountId}: buying back some short sold ${position.symbol} to realize some profits`)
-                    const r = await binanceConnector.buyFuture(position.symbol, Number(position.positionAmt))
-
-                    console.log(r)
+                    console.log(`${accountId}: buying back short sold ${position.symbol} to realize some profits`)
+                    await binanceConnector.buyFuture(position.symbol, Number(position.positionAmt) * -1)
                     positionsAdjusted = true
                 }
             }
