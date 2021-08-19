@@ -58,6 +58,7 @@ export class Explorer {
         }, 9 * 999)
     }
 
+
     private async playTheGame(): Promise<void> {
 
         const profitsHaveBeenSaved = await this.saveProfits()
@@ -70,6 +71,45 @@ export class Explorer {
 
             await this.optimizeAccount(this.accountData2, this.binanceConnector2)
 
+            await FinancialService.sleep(Math.floor(Math.random() * (900 - 9 + 1) + 9)) // staying undercover
+
+            await this.exploitMeanManipulation()
+
+        }
+
+    }
+
+
+    private async exploitMeanManipulation() {
+
+        const i = FinancialService.investigateTheLeastSuccessfulPosition(this.accountData1, this.accountData2)
+
+        const pnlInPercent = (i.theLeastSuccessfulPosition.unrealizedProfit * 100) / i.theLeastSuccessfulPosition.initialMargin
+
+        if (pnlInPercent < - 100) {
+
+            if (i.leastSuccessfulPositionIsInAccount === 1) {
+                console.log(`the least successful position is in account 1`)
+                const accountMode = FinancialService.getAccountMode(this.accountData1)
+                const marginRatio = (Number(this.accountData1.totalMaintMargin) * 100) / Number(this.accountData1.totalMarginBalance)
+
+                if (accountMode === 'balanced' && marginRatio < 45) {
+                    await this.addToTheLeastSuccessfulPosition(this.binanceConnector1, i.theLeastSuccessfulPosition)
+                }
+
+            } else if (i.leastSuccessfulPositionIsInAccount === 2) {
+
+                console.log(`the least successful position is in account 2`)
+                const accountMode = FinancialService.getAccountMode(this.accountData2)
+                const marginRatio = (Number(this.accountData2.totalMaintMargin) * 100) / Number(this.accountData2.totalMarginBalance)
+
+                if (accountMode === 'balanced' && marginRatio < 45) {
+                    await this.addToTheLeastSuccessfulPosition(this.binanceConnector2, i.theLeastSuccessfulPosition)
+                }
+
+            }
+        } else {
+            console.log(`The least successful position has a PNL of ${pnlInPercent}. Know your enemy.`)
         }
 
     }
@@ -99,20 +139,11 @@ export class Explorer {
 
         await FinancialService.ensureHedgesAreInShape(binanceConnector, this.currentPrices, accountData)
 
-        const accountMode = FinancialService.getAccountMode(accountData)
-        const marginRatio = (Number(accountData.totalMaintMargin) * 100) / Number(accountData.totalMarginBalance)
-
-        if (accountMode === 'balanced' && marginRatio < 45) {
-            await this.addToTheLeastSuccessfulPosition(accountData, binanceConnector)
-
-        }
-
     }
 
-    private async addToTheLeastSuccessfulPosition(accountData: any, binanceConnector: any) {
+    private async addToTheLeastSuccessfulPosition(binanceConnector: any, theLeastSuccessfulPosition: any) {
 
         const accountId = binanceConnector.getAccountId()
-        const theLeastSuccessfulPosition = FinancialService.getTheLeastSuccessfulPosition(accountData)
         const currentPrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === theLeastSuccessfulPosition.symbol)[0].price)
         const maxiAmount = FinancialService.getMaxiAmountFromPrice(currentPrice)
         const tradingAmount = FinancialService.getTradingAmountFromPrice(currentPrice)
@@ -193,7 +224,6 @@ export class Explorer {
 
         this.prediction = FinancialService.getPrediction(this.currentBitcoinPrice)
 
-        console.log(`ha :${this.previousPrediction}`)
         if (this.previousPrediction === 'up') {
 
             if (this.currentBitcoinPrice >= this.previousBitcoinPrice) {

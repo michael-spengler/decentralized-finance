@@ -331,22 +331,34 @@ export class FinancialService {
         }
     }
 
-    public static getTheLeastSuccessfulPosition(accountData: any) {
+    public static investigateTheLeastSuccessfulPosition(accountData1: any, accountData2: any) {
 
         let lowestPNLSoFar = 1000000000
         let theLeastSuccessfulPositionSoFar: any
-
-        for (const position of accountData.positions) {
+        let leastSuccessfulPositionIsInAccount = 0
+        for (const position of accountData1.positions) {
 
             const pnlInPercent = (position.unrealizedProfit * 100) / position.initialMargin
 
             if (pnlInPercent < lowestPNLSoFar) {
                 theLeastSuccessfulPositionSoFar = position
                 lowestPNLSoFar = pnlInPercent
+                leastSuccessfulPositionIsInAccount = 1
             }
         }
 
-        return theLeastSuccessfulPositionSoFar
+        for (const position of accountData2.positions) {
+
+            const pnlInPercent = (position.unrealizedProfit * 100) / position.initialMargin
+
+            if (pnlInPercent < lowestPNLSoFar) {
+                theLeastSuccessfulPositionSoFar = position
+                lowestPNLSoFar = pnlInPercent
+                leastSuccessfulPositionIsInAccount = 2
+            }
+        }
+
+        return { theLeastSuccessfulPosition: theLeastSuccessfulPositionSoFar, leastSuccessfulPositionIsInAccount }
 
     }
 
@@ -557,7 +569,8 @@ export class FinancialService {
 
         if (price > 1000) { return 0.01 }
         if (price > 100) { return 0.1 }
-        if (price > 10) { return 0.1 }
+        if (price > 60) { return 0.7 }
+        if (price > 10) { return 1 }
         if (price > 1) { return 10 }
 
         return 100
