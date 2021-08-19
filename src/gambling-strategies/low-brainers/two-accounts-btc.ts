@@ -39,6 +39,7 @@ export class TwoAccountsExploit {
     this.binanceConnector2 = binanceConnector2
     FinancialService.initializeBuyLowSellHighLongPortfolio()
     FinancialService.initializeBuyLowSellHighShortPortfolio()
+    FinancialService.initializePortfolio()
   }
 
   public playWithTheForce(): void {
@@ -46,12 +47,12 @@ export class TwoAccountsExploit {
     setInterval(async () => {
       this.iterationCounter += 1
 
-      console.log(
-        `\n******************************* Iteration ${this.iterationCounter} *******************************`,
-      )
+      console.log(`\n******************************* Iteration ${this.iterationCounter} *******************************`)
 
       await this.collectData()
 
+      // const r = await this.binanceConnector1.futuresLeverage('SOLUSDT', 50)
+      // console.log(r)
       await this.playTheGame()
 
     }, 9 * 999)
@@ -79,29 +80,23 @@ export class TwoAccountsExploit {
 
       await this.enjoyThePerfectHedges()
 
+
       if (this.iterationCounter % 9 === 0) {
         const currentPrices = await this.binanceConnector1.getCurrentPrices()
         await FinancialService.buyLowSellHigh(this.closingAt, this.binanceConnector1, currentPrices, this.accountData1)
+        // await FinancialService.getThingsGoingWhenStuckInAnUnRewardingBalance(this.closingAt, this.binanceConnector1, currentPrices, this.accountData1)
         await FinancialService.sleep(Math.floor(Math.random() * (900 - 90 + 1) + 90)) // staying undercover
         await FinancialService.buyLowSellHigh(this.closingAt, this.binanceConnector2, currentPrices, this.accountData2)
+        // await FinancialService.getThingsGoingWhenStuckInAnUnRewardingBalance(this.closingAt, this.binanceConnector2, currentPrices, this.accountData2)
       }
     }
   }
 
-  private async cleanTheDeskIfNecessary(
-    forceIt: boolean = false,
-  ): Promise<void> {
-    const marginRatio1 = (Number(this.accountData1.totalMaintMargin) * 100) /
-      Number(this.accountData1.totalMarginBalance)
-    // tslint:disable-next-line: typedef
-    const marginRatio2 = (Number(this.accountData2.totalMaintMargin) * 100) /
-      Number(this.accountData2.totalMarginBalance)
+  private async cleanTheDeskIfNecessary(forceIt: boolean = false): Promise<void> {
+    const marginRatio1 = (Number(this.accountData1.totalMaintMargin) * 100) / Number(this.accountData1.totalMarginBalance)
+    const marginRatio2 = (Number(this.accountData2.totalMaintMargin) * 100) / Number(this.accountData2.totalMarginBalance)
 
-    if (
-      marginRatio1 > 83 &&
-      this.bnbSpotAccount1 < 0.1 &&
-      this.usdtSpotAccount1 < 10
-    ) {
+    if (marginRatio1 > 83 && this.bnbSpotAccount1 < 0.1 && this.usdtSpotAccount1 < 10) {
       console.log(`I close all positions of account 1 because the strategy did not work well this time - marginRatio1: ${marginRatio1}`)
       await FinancialService.closeAllOpenPositions(this.accountData1, this.binanceConnector1)
     }
@@ -129,11 +124,8 @@ export class TwoAccountsExploit {
   private async adjustTheEtherHedge(etherPosition: any, binanceConnector: any, accountData: any): Promise<void> {
     const accountId = binanceConnector.getAccountId()
     const accountMode = FinancialService.getAccountMode(accountData)
-    const marginRatio = (Number(accountData.totalMaintMargin) * 100) /
-      Number(accountData.totalMarginBalance)
-
-    let pnlInPercent = (etherPosition.unrealizedProfit * 100) /
-      etherPosition.initialMargin
+    const marginRatio = (Number(accountData.totalMaintMargin) * 100) / Number(accountData.totalMarginBalance)
+    let pnlInPercent = (etherPosition.unrealizedProfit * 100) / etherPosition.initialMargin
 
     if (pnlInPercent > 1000000000) {
       pnlInPercent = 0
@@ -239,23 +231,9 @@ export class TwoAccountsExploit {
 
     await FinancialService.sleep(Math.floor(Math.random() * (200 - 10 + 1) + 10)) // staying undercover
 
-    await this.adjustTheAltHedge(
-      this.accountData2,
-      this.binanceConnector2,
-      batPosition2,
-      "BATUSDT",
-    )
-    await this.adjustTheAltHedge(
-      this.accountData2,
-      this.binanceConnector2,
-      linkPosition2,
-      "LINKUSDT",
-    )
-    await this.adjustTheEtherHedge(
-      this.etherPosition2,
-      this.binanceConnector2,
-      this.accountData2,
-    )
+    await this.adjustTheAltHedge(this.accountData2, this.binanceConnector2, batPosition2, "BATUSDT")
+    await this.adjustTheAltHedge(this.accountData2, this.binanceConnector2, linkPosition2, "LINKUSDT")
+    await this.adjustTheEtherHedge(this.etherPosition2, this.binanceConnector2, this.accountData2)
   }
 
   private async optimizeBTC1(): Promise<void> {
@@ -346,17 +324,11 @@ export class TwoAccountsExploit {
       Number(this.accountData1.totalUnrealizedProfit) +
       Number(this.accountData2.totalUnrealizedProfit)
 
-    this.bitcoinPosition1 = this.accountData1.positions.filter(
-      (entry: any) => entry.symbol === "BTCUSDT",
-    )[0]
-    this.bitcoinPosition2 = this.accountData2.positions.filter(
-      (entry: any) => entry.symbol === "BTCUSDT",
-    )[0]
+    this.bitcoinPosition1 = this.accountData1.positions.filter((entry: any) => entry.symbol === "BTCUSDT")[0]
+    this.bitcoinPosition2 = this.accountData2.positions.filter((entry: any) => entry.symbol === "BTCUSDT")[0]
 
-    this.pnlBTC1 = (Number(this.bitcoinPosition1.unrealizedProfit) * 100) /
-      Number(this.bitcoinPosition1.initialMargin)
-    this.pnlBTC2 = (Number(this.bitcoinPosition2.unrealizedProfit) * 100) /
-      Number(this.bitcoinPosition2.initialMargin)
+    this.pnlBTC1 = (Number(this.bitcoinPosition1.unrealizedProfit) * 100) / Number(this.bitcoinPosition1.initialMargin)
+    this.pnlBTC2 = (Number(this.bitcoinPosition2.unrealizedProfit) * 100) / Number(this.bitcoinPosition2.initialMargin)
 
     if (!(this.pnlBTC1 < 1000000000)) { this.pnlBTC1 = 0 }
     if (!(this.pnlBTC2 < 1000000000)) { this.pnlBTC2 = 0 }
@@ -365,57 +337,33 @@ export class TwoAccountsExploit {
 
     this.addingAt = Math.floor(Math.random() * (27 - 18 + 1) + 18) * -1
 
-    this.totalUnrealizedProfitInPercent1 =
-      (Number(this.accountData1.totalUnrealizedProfit) * 100) /
-      Number(this.accountData2.totalWalletBalance)
-    this.totalUnrealizedProfitInPercent2 =
-      (Number(this.accountData2.totalUnrealizedProfit) * 100) /
-      Number(this.accountData2.totalWalletBalance)
-    this.totalUnrealizedProfitInPercent = this.totalUnrealizedProfitInPercent1 +
-      this.totalUnrealizedProfitInPercent2
+    this.totalUnrealizedProfitInPercent1 = (Number(this.accountData1.totalUnrealizedProfit) * 100) / Number(this.accountData2.totalWalletBalance)
+    this.totalUnrealizedProfitInPercent2 = (Number(this.accountData2.totalUnrealizedProfit) * 100) / Number(this.accountData2.totalWalletBalance)
+    this.totalUnrealizedProfitInPercent = this.totalUnrealizedProfitInPercent1 + this.totalUnrealizedProfitInPercent2
 
     // this.accountMode1 = this.getAccountMode(this.accountData1)
     // this.accountMode2 = this.getAccountMode(this.accountData2)
 
-    this.etherPosition1 = this.accountData1.positions.filter(
-      (entry: any) => entry.symbol === "ETHUSDT",
-    )[0]
-    this.etherPosition2 = this.accountData2.positions.filter(
-      (entry: any) => entry.symbol === "ETHUSDT",
-    )[0]
+    this.etherPosition1 = this.accountData1.positions.filter((entry: any) => entry.symbol === "ETHUSDT")[0]
+    this.etherPosition2 = this.accountData2.positions.filter((entry: any) => entry.symbol === "ETHUSDT")[0]
 
-    this.usdtSpotAccount1 = Number(
-      await this.binanceConnector1.getUSDTBalance(),
-    )
-    this.bnbSpotAccount1 = Number(
-      await this.binanceConnector1.getSpotBalance("BNB"),
-    )
+    this.usdtSpotAccount1 = Number(await this.binanceConnector1.getUSDTBalance())
+    this.bnbSpotAccount1 = Number(await this.binanceConnector1.getSpotBalance("BNB"))
 
-    this.usdtSpotAccount2 = Number(
-      await this.binanceConnector2.getUSDTBalance(),
-    )
+    this.usdtSpotAccount2 = Number(await this.binanceConnector2.getUSDTBalance())
     this.bnbSpotAccount2 = Number(
-      await this.binanceConnector2.getSpotBalance("BNB"),
-    )
+      await this.binanceConnector2.getSpotBalance("BNB"))
 
-    console.log(
-      `startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - addingAt: ${this.addingAt} - closingAt: ${this.closingAt}`,
-    )
+    console.log(`startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - addingAt: ${this.addingAt} - closingAt: ${this.closingAt}`)
 
-    console.log(
-      `\nPNL: ${this.totalUnrealizedProfitInPercent} - PNL1: ${this.totalUnrealizedProfitInPercent1} - PNL2: ${this.totalUnrealizedProfitInPercent2} - pnlBTC1: ${this.pnlBTC1} - pnlBTC2: ${this.pnlBTC2} \n`,
-    )
+    console.log(`\nPNL: ${this.totalUnrealizedProfitInPercent} - PNL1: ${this.totalUnrealizedProfitInPercent1} - PNL2: ${this.totalUnrealizedProfitInPercent2} - pnlBTC1: ${this.pnlBTC1} - pnlBTC2: ${this.pnlBTC2} \n`)
   }
 
   private isItAGoodTimeToAddToBTC1(): boolean {
     const marginRatio1 = (Number(this.accountData1.totalMaintMargin) * 100) /
       Number(this.accountData1.totalMarginBalance)
 
-    if (
-      this.pnlBTC1 < this.previousAddpnlBTC1 ||
-      this.pnlBTC1 < this.addingAt ||
-      this.pnlBTC1 > 100
-    ) {
+    if (this.pnlBTC1 < this.previousAddpnlBTC1 || this.pnlBTC1 < this.addingAt || this.pnlBTC1 > 100) {
       if (marginRatio1 < 18) {
         return true
       }
@@ -519,34 +467,13 @@ let binanceConnectorAccount1
 let binanceConnectorAccount2
 
 if (simulationMode === "X") {
-  console.log(
-    "injecting a test double via constructor injection in order to go to simulation mode",
-  )
-  binanceConnectorAccount1 = new BinanceConnectorDouble(
-    binanceApiKey1,
-    binanceApiSecret1,
-    "account1",
-  ) as any
-  binanceConnectorAccount2 = new BinanceConnectorDouble(
-    binanceApiKey2,
-    binanceApiSecret2,
-    "account2",
-  ) as any
+  console.log("injecting a test double via constructor injection in order to go to simulation mode")
+  binanceConnectorAccount1 = new BinanceConnectorDouble(binanceApiKey1, binanceApiSecret1, "account1") as any
+  binanceConnectorAccount2 = new BinanceConnectorDouble(binanceApiKey2, binanceApiSecret2, "account2") as any
 } else {
-  binanceConnectorAccount1 = new BinanceConnector(
-    binanceApiKey1,
-    binanceApiSecret1,
-    "account1",
-  )
-  binanceConnectorAccount2 = new BinanceConnector(
-    binanceApiKey2,
-    binanceApiSecret2,
-    "account2",
-  )
+  binanceConnectorAccount1 = new BinanceConnector(binanceApiKey1, binanceApiSecret1, "account1")
+  binanceConnectorAccount2 = new BinanceConnector(binanceApiKey2, binanceApiSecret2, "account2")
 }
 
-const twoAccountsExploit = new TwoAccountsExploit(
-  binanceConnectorAccount1,
-  binanceConnectorAccount2,
-)
+const twoAccountsExploit = new TwoAccountsExploit(binanceConnectorAccount1, binanceConnectorAccount2)
 twoAccountsExploit.playWithTheForce()
