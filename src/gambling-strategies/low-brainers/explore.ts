@@ -40,6 +40,7 @@ export class Explorer {
 
 
     public explore() {
+
         setInterval(async () => {
             this.iterationCounter += 1
 
@@ -47,17 +48,33 @@ export class Explorer {
 
             await this.collectData()
 
+            await this.cleanTheDeskIfNecessary()
+
             await this.playTheGame()
 
             this.previousPrediction = this.prediction
             this.previousBitcoinPrice = this.currentBitcoinPrice
+
         }, 9 * 999)
     }
 
     private async playTheGame(): Promise<void> {
 
-        await this.cleanTheDeskIfNecessary()
+        const profitsHaveBeenSaved = await this.saveProfits()
 
+        if (!profitsHaveBeenSaved) {
+
+            await this.optimizeAccount(this.accountData1, this.binanceConnector1)
+
+            await FinancialService.sleep(Math.floor(Math.random() * (900 - 9 + 1) + 9)) // staying undercover
+
+            await this.optimizeAccount(this.accountData2, this.binanceConnector2)
+
+        }
+
+    }
+
+    private async saveProfits(): Promise<boolean> {
 
         let updateRequiredForAccount1 = false
         let updateRequiredForAccount2 = false
@@ -67,26 +84,47 @@ export class Explorer {
         updateRequiredForAccount2 = await FinancialService.closeAllPositionsWithAPNLOfHigherThan(this.closingAt, this.accountData2, this.binanceConnector2)
 
         if (updateRequiredForAccount1 || updateRequiredForAccount2) {
+            return true
+        }
 
-            console.log(`collecting data before moving any further `)
+        return false
 
-        } else {
+    }
 
-            if (Number(this.accountData1.totalMaintMargin) === 0) {
-                await this.binanceConnector1.buyFuture('BTCUSDT', 0.007)
-            }
+    private async optimizeAccount(accountData: any, binanceConnector: any) {
 
-            await FinancialService.sleep(Math.floor(Math.random() * (900 - 9 + 1) + 9)) // staying undercover
+        if (Number(accountData.totalMaintMargin) === 0) {
+            await binanceConnector.buyFuture('BTCUSDT', 0.007)
+        }
 
-            if (Number(this.accountData2.totalMaintMargin) === 0) {
-                await this.binanceConnector2.buyFuture('BTCUSDT', 0.007)
-            }
+        await FinancialService.ensureHedgesAreInShape(binanceConnector, this.currentPrices, accountData)
 
-            await FinancialService.ensureHedgesAreInShape(this.binanceConnector1, this.currentPrices, this.accountData1)
-            await FinancialService.sleep(Math.floor(Math.random() * (200 - 10 + 1) + 10)) // staying undercover
-            await FinancialService.ensureHedgesAreInShape(this.binanceConnector2, this.currentPrices, this.accountData2)
+        const accountMode = FinancialService.getAccountMode(accountData)
+        const marginRatio = (Number(accountData.totalMaintMargin) * 100) / Number(accountData.totalMarginBalance)
+
+        if (accountMode === 'balanced' && marginRatio < 45) {
+            await this.addToTheLeastSuccessfulPosition(accountData, binanceConnector)
 
         }
+
+    }
+
+    private async addToTheLeastSuccessfulPosition(accountData: any, binanceConnector: any) {
+
+        const accountId = binanceConnector.getAccountId()
+        const theLeastSuccessfulPosition = FinancialService.getTheLeastSuccessfulPosition(accountData)
+        const currentPrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === theLeastSuccessfulPosition.symbol)[0].price)
+        const maxiAmount = FinancialService.getMaxiAmountFromPrice(currentPrice)
+        const tradingAmount = FinancialService.getTradingAmountFromPrice(currentPrice)
+
+        if (Number(theLeastSuccessfulPosition.positionAmt) > 0 && Number(theLeastSuccessfulPosition.positionAmt) < maxiAmount) {
+            console.log(`${accountId}: I buy ${tradingAmount} of ${theLeastSuccessfulPosition.symbol} as it is the least successful position so far.`)
+            await binanceConnector.buyFuture(theLeastSuccessfulPosition.symbol, tradingAmount)
+        } else if (Number(theLeastSuccessfulPosition.positionAmt) < 0 && Number(theLeastSuccessfulPosition.positionAmt) * -1 < maxiAmount) {
+            console.log(`${accountId}: I short sell ${tradingAmount} of ${theLeastSuccessfulPosition.symbol} as it is the least successful position so far.`)
+            await binanceConnector.sellFuture(theLeastSuccessfulPosition.symbol, tradingAmount)
+        }
+
     }
 
     private async cleanTheDeskIfNecessary(forceIt: boolean = false): Promise<void> {
@@ -118,6 +156,7 @@ export class Explorer {
     }
 
     private async collectData(): Promise<void> {
+
         // this.totalAccount1 = await this.binanceConnector1.getTotalAccount()
         // console.log(JSON.stringify(this.totalAccount1).substr(0, 250))
         this.accountData1 = await this.binanceConnector1.getFuturesAccountData()
@@ -198,5 +237,3 @@ if (simulationMode === "X") {
 
 const explorer = new Explorer(binanceConnectorAccount1, binanceConnectorAccount2)
 explorer.explore()
-
-

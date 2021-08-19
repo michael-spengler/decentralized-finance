@@ -51,13 +51,14 @@ export class FinancialService {
 
         if (FinancialService.portfolio.length === 0) {
             FinancialService.portfolio = [
+                { pair: "XMRUSDT", historicPrices: [] },
                 { pair: "ETHUSDT", historicPrices: [] },
                 { pair: "BTCUSDT", historicPrices: [] },
                 { pair: "UNIUSDT", historicPrices: [] },
+                { pair: "DOGEUSDT", historicPrices: [] },
                 { pair: "LINKUSDT", historicPrices: [] },
                 { pair: "BATUSDT", historicPrices: [] },
-                { pair: "ICPUSDT", historicPrices: [] },
-                { pair: "XMRUSDT", historicPrices: [] },
+                { pair: "BNBUSDT", historicPrices: [] },
                 { pair: "COMPUSDT", historicPrices: [] },
                 { pair: "MANAUSDT", historicPrices: [] },
                 { pair: "AAVEUSDT", historicPrices: [] },
@@ -75,7 +76,7 @@ export class FinancialService {
                 { pair: "LTCUSDT", historicPrices: [] },
                 { pair: "MKRUSDT", historicPrices: [] },
                 { pair: "SNXUSDT", historicPrices: [] },
-                { pair: "THETAUSDT", historicPrices: [] }
+                { pair: "THETAUSDT", historicPrices: [] },
             ]
         }
 
@@ -240,18 +241,21 @@ export class FinancialService {
 
             const pnlInPercent = (position.unrealizedProfit * 100) / position.initialMargin
 
-            if (pnlInPercent > closingAt && Number(position.unrealizedProfit) > 2) {
+            if (pnlInPercent > closingAt && Number(position.unrealizedProfit) > 1) {
+
                 if (position.positionAmt > 0) {
                     console.log(`${accountId}: selling ${position.symbol} to realize some profits`)
                     await binanceConnector.sellFuture(position.symbol, Number(position.positionAmt))
                     positionsAdjusted = true
                 }
+
                 if (position.positionAmt < 0) {
                     console.log(`${accountId}: buying back some short sold ${position.symbol} to realize some profits`)
                     await binanceConnector.buyFuture(position.symbol, Number(position.positionAmt))
                     positionsAdjusted = true
                 }
             }
+
         }
 
         return positionsAdjusted
@@ -327,7 +331,27 @@ export class FinancialService {
         }
     }
 
+    public static getTheLeastSuccessfulPosition(accountData: any) {
+
+        let lowestPNLSoFar = 1000000000
+        let theLeastSuccessfulPositionSoFar: any
+
+        for (const position of accountData.positions) {
+
+            const pnlInPercent = (position.unrealizedProfit * 100) / position.initialMargin
+
+            if (pnlInPercent < lowestPNLSoFar) {
+                theLeastSuccessfulPositionSoFar = position
+                lowestPNLSoFar = pnlInPercent
+            }
+        }
+
+        return theLeastSuccessfulPositionSoFar
+
+    }
+
     public static async ensureHedgesAreInShape(binanceConnector: any, currentPrices: any[], accountData: any): Promise<void> {
+
         const accountId = binanceConnector.getAccountId()
         const marginDelta = FinancialService.getInitialMarginDelta(accountData)
         const accountMode = FinancialService.getAccountMode(accountData)
@@ -339,11 +363,11 @@ export class FinancialService {
         // let pnlInPercent = (etherPosition.unrealizedProfit * 100) / etherPosition.initialMargin
         console.log(`${accountId}: accountMode: ${accountMode} - marginRatio: ${marginRatio} - accountMode: ${accountMode} - prediction: ${prediction} - marginDelta: ${marginDelta}`)
 
-        if (((accountMode === 'balanced' || accountMode === 'short') && prediction === 'up') || marginDelta < - 20) {
+        if ((accountMode === 'short' && prediction === 'up') || marginDelta < - 20) {
             await FinancialService.buyTheBestOpportunity(binanceConnector, currentPrices, accountData)
         }
 
-        if (((accountMode === 'balanced' || accountMode === 'long') && prediction === 'down') || marginDelta > 20) {
+        if ((accountMode === 'long' && prediction === 'down') || marginDelta > 20) {
             await FinancialService.sellTheBestOpportunity(binanceConnector, currentPrices, accountData)
         }
     }
@@ -460,14 +484,16 @@ export class FinancialService {
             maxAmount = 10000
         }
 
-        if (marginRatio < 27 && Number(position.positionAmt) < maxAmount) {
+        if (marginRatio < 36 && Number(position.positionAmt) < maxAmount) {
 
             console.log(`${accountId}: I sell ${tradingAmount} of ${theBestItemToBeSoldNow.pair} - limit would be ${maxAmount}`)
 
             await binanceConnector.sellFuture(theBestItemToBeSoldNow.pair, tradingAmount)
 
         } else {
+
             console.log(`${accountId}: an important hedge sell prerequisite has not been met`)
+
         }
     }
 
@@ -509,15 +535,39 @@ export class FinancialService {
             maxAmount = 10000
         }
 
-        if (marginRatio < 27 && Number(position.positionAmt) < maxAmount) {
+        if (marginRatio < 36 && Number(position.positionAmt) < maxAmount) {
 
             console.log(`${accountId}: I buy ${tradingAmount} of ${theBestItemToBeBoughtNow.pair} - limit would be ${maxAmount}`)
 
             await binanceConnector.buyFuture(theBestItemToBeBoughtNow.pair, tradingAmount)
 
         } else {
+
             console.log(`${accountId}: an important hedge buy prerequisite has not been met`)
+
         }
+    }
+
+    public static getTradingAmountFromPrice(price: number): number {
+
+        if (price > 1000) { return 0.01 }
+        if (price > 100) { return 0.1 }
+        if (price > 10) { return 0.1 }
+        if (price > 1) { return 10 }
+
+        return 100
+
+    }
+
+    public static getMaxiAmountFromPrice(price: number): number {
+
+        if (price > 1000) { return 1 }
+        if (price > 100) { return 10 }
+        if (price > 10) { return 100 }
+        if (price > 1) { return 1000 }
+
+        return 10000
+
     }
 
     public static async buyLowSellHigh(closingAt: any, binanceConnector: BinanceConnector, currentPrices: any[], accountData: any) {
