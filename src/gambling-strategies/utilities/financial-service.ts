@@ -251,7 +251,9 @@ export class FinancialService {
 
                 if (position.positionAmt < 0) {
                     console.log(`${accountId}: buying back some short sold ${position.symbol} to realize some profits`)
-                    await binanceConnector.buyFuture(position.symbol, Number(position.positionAmt))
+                    const r = await binanceConnector.buyFuture(position.symbol, Number(position.positionAmt))
+
+                    console.log(r)
                     positionsAdjusted = true
                 }
             }
@@ -363,12 +365,17 @@ export class FinancialService {
         // let pnlInPercent = (etherPosition.unrealizedProfit * 100) / etherPosition.initialMargin
         console.log(`${accountId}: accountMode: ${accountMode} - marginRatio: ${marginRatio} - accountMode: ${accountMode} - prediction: ${prediction} - marginDelta: ${marginDelta}`)
 
-        if ((accountMode === 'short' && prediction === 'up') || marginDelta < - 20) {
-            await FinancialService.buyTheBestOpportunity(binanceConnector, currentPrices, accountData)
-        }
+        if (marginRatio < 36) {
 
-        if ((accountMode === 'long' && prediction === 'down') || marginDelta > 20) {
-            await FinancialService.sellTheBestOpportunity(binanceConnector, currentPrices, accountData)
+            if ((accountMode === 'short' && prediction === 'up') || marginDelta < - 20) {
+                await FinancialService.buyTheBestOpportunity(binanceConnector, currentPrices, accountData)
+            }
+
+            if ((accountMode === 'long' && prediction === 'down') || marginDelta > 20) {
+                await FinancialService.sellTheBestOpportunity(binanceConnector, currentPrices, accountData)
+            }
+        } else {
+            console.log(`${accountId}: I can't adjust the hedge atm as the margin ratio (${marginRatio}) is above 36`)
         }
     }
 
