@@ -147,6 +147,7 @@ export class FinancialService {
                     "BNBUSDT",
                 )
             }
+
         } else if (usdtSpotAccount > Number(accountData.totalWalletBalance) * 2) {
             const currentPrices = await binanceConnector.getCurrentPrices()
 
@@ -157,6 +158,7 @@ export class FinancialService {
                 await FinancialService.convertToCrypto(binanceConnector, currentPrices, amountToBeConvertedToBNB, "BNBUSDT", 2)
             }
         }
+
     }
 
     public static getInitialMarginDelta(accountData: any): number {

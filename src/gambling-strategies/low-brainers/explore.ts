@@ -30,7 +30,6 @@ export class Explorer {
     private readonly predictionStatistics: IPredictionStatistics
     private previousPrediction = 'stay'
 
-
     public constructor(private readonly binanceConnector1: BinanceConnector, private readonly binanceConnector2: BinanceConnector) {
         this.binanceConnector1 = binanceConnector1
         this.binanceConnector2 = binanceConnector2
@@ -38,7 +37,6 @@ export class Explorer {
 
         this.predictionStatistics = { right: 0, wrong: 0 }
     }
-
 
     public explore() {
 
@@ -59,7 +57,6 @@ export class Explorer {
         }, 9 * 999)
     }
 
-
     private async playTheGame(): Promise<void> {
 
         const profitsHaveBeenSaved = await this.saveProfits()
@@ -79,7 +76,6 @@ export class Explorer {
         }
 
     }
-
 
     private async exploitMeanManipulation() {
 
@@ -133,9 +129,9 @@ export class Explorer {
     }
 
     private async optimizeAccount(accountData: any, binanceConnector: any) {
-
-        if (Number(accountData.totalMaintMargin) === 0) {
-            await binanceConnector.buyFuture('BTCUSDT', 0.007)
+        const marginRatio = (Number(accountData.totalMaintMargin) * 100) / Number(accountData.totalMarginBalance)
+        if (Number(accountData.totalMaintMargin) === 0 || marginRatio < 3) {
+            await binanceConnector.buyFuture('BTCUSDT', 0.009)
         }
 
         await FinancialService.ensureHedgesAreInShape(binanceConnector, this.currentPrices, accountData)
