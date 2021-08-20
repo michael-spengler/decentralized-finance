@@ -1,4 +1,5 @@
 
+// https://medium.com/dydxderivatives/programatic-trading-on-dydx-4c74b8e86d88
 
 import { BinanceConnector } from "../../binance/binance-connector"
 import { BinanceConnectorDouble } from "../../binance/binance-connector-double"
@@ -93,7 +94,7 @@ export class Explorer {
                 const accountMode = FinancialService.getAccountMode(this.accountData1)
                 const marginRatio = (Number(this.accountData1.totalMaintMargin) * 100) / Number(this.accountData1.totalMarginBalance)
 
-                if (accountMode === 'balanced' && marginRatio < 45) {
+                if ((accountMode === 'balanced' || marginRatio < 18) && marginRatio < 45) {
                     await this.addToTheLeastSuccessfulPosition(this.binanceConnector1, i.theLeastSuccessfulPosition)
                 }
 
@@ -103,7 +104,7 @@ export class Explorer {
                 const accountMode = FinancialService.getAccountMode(this.accountData2)
                 const marginRatio = (Number(this.accountData2.totalMaintMargin) * 100) / Number(this.accountData2.totalMarginBalance)
 
-                if (accountMode === 'balanced' && marginRatio < 45) {
+                if ((accountMode === 'balanced' || marginRatio < 18) && marginRatio < 45) {
                     await this.addToTheLeastSuccessfulPosition(this.binanceConnector2, i.theLeastSuccessfulPosition)
                 }
 
