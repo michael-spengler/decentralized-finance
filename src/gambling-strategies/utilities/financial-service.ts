@@ -537,7 +537,7 @@ export class FinancialService {
 
         const deltaToAverageInPercent = (currentPairPrice * 100 / averagePairPrice) - 100
 
-        console.log(`${accountId}: theBestPairToBeSoldtNow: ${theBestItemToBeSoldNow.pair} - currentPairPrice: ${currentPairPrice} = highestSinceX: ${highestSinceX} - deltaToAverageInPercent: ${deltaToAverageInPercent}`)
+        console.log(`${accountId}: theBestPairToBeSoldNow: ${theBestItemToBeSoldNow.pair} - currentPairPrice: ${currentPairPrice} = highestSinceX: ${highestSinceX} - deltaToAverageInPercent: ${deltaToAverageInPercent}`)
 
         const position = accountData.positions.filter((i: any) => i.symbol === theBestItemToBeSoldNow.pair)[0]
 

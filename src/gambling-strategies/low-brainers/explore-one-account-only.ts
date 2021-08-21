@@ -105,7 +105,7 @@ export class Explorer {
 
             if (pnlInPercentMS > this.reducingAt) {
                 console.log(`reducing the most successful position`)
-                await this.reduceTheMostSuccessfulPosition(this.binanceConnector1, investigationResultMS.mostSuccessfulPositionIsInAccount)
+                await this.reduceTheMostSuccessfulPosition(this.binanceConnector1, investigationResultMS.theMostSuccessfulPosition)
             }
 
         }
