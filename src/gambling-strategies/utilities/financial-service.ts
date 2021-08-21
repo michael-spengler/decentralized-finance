@@ -418,15 +418,34 @@ export class FinancialService {
 
         if (marginRatio < 45) {
 
-            if ((accountMode === 'short' && prediction === 'up') || marginDelta < - 20) {
+            if ((accountMode === 'short' && prediction === 'up')) {
                 await FinancialService.buyTheBestOpportunity(binanceConnector, currentPrices, accountData)
             }
 
             if ((accountMode === 'long' && prediction === 'down') || marginDelta > 20) {
                 await FinancialService.sellTheBestOpportunity(binanceConnector, currentPrices, accountData)
             }
-        } else {
-            console.log(`${accountId}: I can't adjust the hedge atm as the margin ratio (${marginRatio}) is above 36`)
+
+        }
+    }
+
+    public static async reducePositionsByTradingAmount(accountData: any, binanceConnector: any, currentPrices: any[]) {
+
+        for (const position of accountData.positions) {
+
+            if (Number(position.positionAmt) !== 0) {
+
+                const currentPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === position.symbol)[0].price)
+                const tradingAmount = FinancialService.getTradingAmountFromPrice(currentPrice)
+
+                if (Number(position.positionAmt) > 0) {
+                    await binanceConnector.sellFuture(position.symbol, tradingAmount)
+                } else if (Number(position.positionAmt) < 0) {
+                    await binanceConnector.buyFuture(position.symbol, tradingAmount)
+                }
+
+            }
+
         }
     }
 
@@ -522,25 +541,8 @@ export class FinancialService {
 
         const position = accountData.positions.filter((i: any) => i.symbol === theBestItemToBeSoldNow.pair)[0]
 
-        let tradingAmount = 0
-        let maxAmount = 0
-
-        if (currentPairPrice > 1000) {
-            tradingAmount = 0.01
-            maxAmount = 1
-        } else if (currentPairPrice > 100) {
-            tradingAmount = 0.1
-            maxAmount = 10
-        } else if (currentPairPrice > 10) {
-            tradingAmount = 1
-            maxAmount = 100
-        } else if (currentPairPrice > 1) {
-            tradingAmount = 10
-            maxAmount = 1000
-        } else {
-            tradingAmount = 100
-            maxAmount = 10000
-        }
+        const tradingAmount = FinancialService.getTradingAmountFromPrice(currentPairPrice)
+        const maxAmount = FinancialService.getMaxiAmountFromPrice(currentPairPrice)
 
         if (marginRatio < 36 && Number(position.positionAmt) < maxAmount) {
 
@@ -573,25 +575,8 @@ export class FinancialService {
 
         const position = accountData.positions.filter((i: any) => i.symbol === theBestItemToBeBoughtNow.pair)[0]
 
-        let tradingAmount = 0
-        let maxAmount = 0
-
-        if (currentPairPrice > 1000) {
-            tradingAmount = 0.01
-            maxAmount = 1
-        } else if (currentPairPrice > 100) {
-            tradingAmount = 0.1
-            maxAmount = 10
-        } else if (currentPairPrice > 10) {
-            tradingAmount = 1
-            maxAmount = 100
-        } else if (currentPairPrice > 1) {
-            tradingAmount = 10
-            maxAmount = 1000
-        } else {
-            tradingAmount = 100
-            maxAmount = 10000
-        }
+        const tradingAmount = FinancialService.getTradingAmountFromPrice(currentPairPrice)
+        const maxAmount = FinancialService.getMaxiAmountFromPrice(currentPairPrice)
 
         if (marginRatio < 45 && Number(position.positionAmt) < maxAmount) {
 
@@ -647,25 +632,8 @@ export class FinancialService {
 
         const position = accountData.positions.filter((i: any) => i.symbol === theBestItemToBeBoughtNow.pair)[0]
 
-        let tradingAmount = 0
-        let maxAmount = 0
-
-        if (currentPairPrice > 1000) {
-            tradingAmount = 0.01
-            maxAmount = 1
-        } else if (currentPairPrice > 100) {
-            tradingAmount = 0.1
-            maxAmount = 10
-        } else if (currentPairPrice > 10) {
-            tradingAmount = 1
-            maxAmount = 100
-        } else if (currentPairPrice > 1) {
-            tradingAmount = 10
-            maxAmount = 1000
-        } else {
-            tradingAmount = 100
-            maxAmount = 10000
-        }
+        const tradingAmount = FinancialService.getTradingAmountFromPrice(currentPairPrice)
+        const maxAmount = FinancialService.getMaxiAmountFromPrice(currentPairPrice)
 
         if (lowestSinceX > lowestSinceXBuyTrigger && marginRatio < 27 && Number(position.positionAmt) < maxAmount && deltaToAverageInPercent < 0) {
 

@@ -13,6 +13,8 @@ export interface IPredictionStatistics {
 export class Explorer {
 
     private accountData1: any
+    private accountMode = ""
+    private marginRatio: any
     private currentPrices: any[] = []
     private currentBitcoinPrice = 0
     private previousBitcoinPrice = 0
@@ -26,6 +28,7 @@ export class Explorer {
     private prediction = 'stay'
     private readonly predictionStatistics: IPredictionStatistics
     private previousPrediction = 'stay'
+    private thingsWentWrongCounter = 0
 
     public constructor(private readonly binanceConnector1: BinanceConnector) {
         this.binanceConnector1 = binanceConnector1
@@ -53,28 +56,41 @@ export class Explorer {
         }, 9 * 999)
     }
 
-
-
     private async playTheGame(): Promise<void> {
 
         const profitsHaveBeenSaved = await this.saveProfits()
 
-        if (!profitsHaveBeenSaved) {
+        if (profitsHaveBeenSaved) { return }
 
-            await this.optimizeAccount(this.accountData1, this.binanceConnector1)
+        if (Number(this.accountData1.totalMaintMargin) === 0 || this.marginRatio < 9) {
 
+            await this.binanceConnector1.buyFuture('BTCUSDT', 0.009)
+
+        } else if (this.marginRatio > 54 && this.accountMode !== 'balanced') {
+
+            console.log(`special situation requires risk reduction`)
+            this.thingsWentWrongCounter += 1
+            await FinancialService.reducePositionsByTradingAmount(this.accountData1, this.binanceConnector1, this.currentPrices)
+
+        } else if (this.marginRatio > 63) {
+
+            console.log(`very special situation requires risk reduction`)
+            this.thingsWentWrongCounter += 1
+            await FinancialService.reducePositionsByTradingAmount(this.accountData1, this.binanceConnector1, this.currentPrices)
+
+        } else {
+
+            await FinancialService.ensureHedgesAreInShape(this.binanceConnector1, this.currentPrices, this.accountData1)
             await FinancialService.sleep(Math.floor(Math.random() * (900 - 9 + 1) + 9)) // staying undercover
-
             await this.exploitMeanManipulation()
 
         }
 
+
+
     }
 
     private async exploitMeanManipulation() {
-
-        const marginRatio = (Number(this.accountData1.totalMaintMargin) * 100) / Number(this.accountData1.totalMarginBalance)
-        const accountMode = FinancialService.getAccountMode(this.accountData1)
 
         const investigationResultLS = FinancialService.investigateTheLeastSuccessfulPosition(this.accountData1)
         const investigationResultMS = FinancialService.investigateTheMostSuccessfulPosition(this.accountData1)
@@ -82,15 +98,15 @@ export class Explorer {
         const pnlInPercentLS = (investigationResultLS.theLeastSuccessfulPosition.unrealizedProfit * 100) / investigationResultLS.theLeastSuccessfulPosition.initialMargin
         const pnlInPercentMS = (investigationResultMS.theMostSuccessfulPosition.unrealizedProfit * 100) / investigationResultMS.theMostSuccessfulPosition.initialMargin
 
-
-        if (marginRatio > 0) {
+        if (this.marginRatio > 0) {
 
             if (pnlInPercentLS < - 100) {
 
                 if (investigationResultLS.leastSuccessfulPositionIsInAccount === 1) {
-                    console.log(`the least successful position is in account 1`)
+                    if ((this.accountMode === 'balanced' || this.marginRatio < 18) && this.marginRatio < 45) {
 
-                    if ((accountMode === 'balanced' || marginRatio < 18) && marginRatio < 45) {
+                        console.log(`adding to the least successful position`)
+
                         await this.addToTheLeastSuccessfulPosition(this.binanceConnector1, investigationResultLS.theLeastSuccessfulPosition)
                     }
 
@@ -99,8 +115,7 @@ export class Explorer {
                 console.log(`The least successful position has a PNL of ${pnlInPercentLS}.`)
             }
 
-            if (marginRatio < 63 && accountMode === 'balanced') {
-
+            if (this.marginRatio < 63 && this.accountMode === 'balanced') {
 
                 if (pnlInPercentMS > 100) {
                     await this.reduceToTheMostSuccessfulPosition(this.binanceConnector1, investigationResultMS.mostSuccessfulPositionIsInAccount)
@@ -122,16 +137,6 @@ export class Explorer {
         }
 
         return false
-
-    }
-
-    private async optimizeAccount(accountData: any, binanceConnector: any) {
-        const marginRatio = (Number(accountData.totalMaintMargin) * 100) / Number(accountData.totalMarginBalance)
-        if (Number(accountData.totalMaintMargin) === 0 || marginRatio < 9) {
-            await binanceConnector.buyFuture('BTCUSDT', 0.009)
-        }
-
-        await FinancialService.ensureHedgesAreInShape(binanceConnector, this.currentPrices, accountData)
 
     }
 
@@ -168,10 +173,8 @@ export class Explorer {
     }
     private async cleanTheDeskIfNecessary(forceIt: boolean = false): Promise<void> {
 
-        const marginRatio1 = (Number(this.accountData1.totalMaintMargin) * 100) / Number(this.accountData1.totalMarginBalance)
-
-        if (marginRatio1 > 83 && this.bnbSpotAccount1 < 0.1 && this.usdtSpotAccount1 < 10) {
-            console.log(`I close all positions of account 1 because the strategy did not work well this time - marginRatio1: ${marginRatio1}`)
+        if (this.marginRatio > 83 && this.bnbSpotAccount1 < 0.1 && this.usdtSpotAccount1 < 10) {
+            console.log(`I close all positions of account 1 because the strategy did not work well this time - marginRatio1: ${this.marginRatio}`)
             await FinancialService.closeAllOpenPositions(this.accountData1, this.binanceConnector1)
         }
 
@@ -227,7 +230,11 @@ export class Explorer {
             }
         }
 
-        console.log(`prediction: ${this.prediction} - predictionStatistics: ${JSON.stringify(this.predictionStatistics)} - startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - addingAt: ${this.addingAt} - closingAt: ${this.closingAt}`)
+        this.marginRatio = (Number(this.accountData1.totalMaintMargin) * 100) / Number(this.accountData1.totalMarginBalance)
+
+        this.accountMode = FinancialService.getAccountMode(this.accountData1)
+
+        console.log(`thingsWentWrongCounter: ${this.thingsWentWrongCounter} - predictionStatistics: ${JSON.stringify(this.predictionStatistics)} - startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - addingAt: ${this.addingAt} - closingAt: ${this.closingAt}`)
 
     }
 
@@ -240,7 +247,6 @@ const simulationMode = process.argv[4]
 // let cryptometerConnector = new CryptoMeterConnector(cryptoMeterAPIKey)
 
 let binanceConnectorAccount1
-let binanceConnectorAccount2
 
 if (simulationMode === "X") {
     console.log("injecting a test double via constructor injection in order to go to simulation mode")
