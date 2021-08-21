@@ -67,7 +67,6 @@ export class FinancialService {
                 { pair: "AVAXUSDT", historicPrices: [] },
                 { pair: "EGLDUSDT", historicPrices: [] },
                 { pair: "RENUSDT", historicPrices: [] },
-                { pair: "SOLUSDT", historicPrices: [] },
                 { pair: "LUNAUSDT", historicPrices: [] },
                 { pair: "TRXUSDT", historicPrices: [] },
                 { pair: "VETUSDT", historicPrices: [] },
@@ -571,7 +570,7 @@ export class FinancialService {
 
         const deltaToAverageInPercent = (currentPairPrice * 100 / averagePairPrice) - 100
 
-        console.log(`${accountId}: theBestPairToBeBoughtNow: ${theBestItemToBeBoughtNow.pair} - currentPairPrice: ${currentPairPrice} = lowestSince: ${lowestSinceX} - deltaToAverageInPercent: ${deltaToAverageInPercent}`)
+        console.log(`average needs to be taken into consideration - ${accountId}: theBestPairToBeBoughtNow: ${theBestItemToBeBoughtNow.pair} - currentPairPrice: ${currentPairPrice} = lowestSince: ${lowestSinceX} - deltaToAverageInPercent: ${deltaToAverageInPercent}`)
 
         const position = accountData.positions.filter((i: any) => i.symbol === theBestItemToBeBoughtNow.pair)[0]
 
