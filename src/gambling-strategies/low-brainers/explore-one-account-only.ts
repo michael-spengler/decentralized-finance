@@ -18,7 +18,7 @@ export class Explorer {
     private currentPrices: any[] = []
     private currentBitcoinPrice = 0
     private previousBitcoinPrice = 0
-    private closingAt = 0
+    private reducingAt = 0
     private addingAt = 0
     private iterationCounter = 0
     private startBalanceUnderRisk = 0
@@ -58,13 +58,9 @@ export class Explorer {
 
     private async playTheGame(): Promise<void> {
 
-        const profitsHaveBeenSaved = await this.saveProfits()
-
-        if (profitsHaveBeenSaved) { return }
-
         if (Number(this.accountData1.totalMaintMargin) === 0 || this.marginRatio < 9) {
 
-            await this.binanceConnector1.buyFuture('BTCUSDT', 0.009)
+            await this.binanceConnector1.buyFuture('BTCUSDT', 0.009) // replace this by portfolio ...
 
         } else if (this.marginRatio > 54 && this.accountMode !== 'balanced') {
 
@@ -82,7 +78,7 @@ export class Explorer {
 
             await FinancialService.ensureHedgesAreInShape(this.binanceConnector1, this.currentPrices, this.accountData1)
 
-            await FinancialService.sleep(Math.floor(Math.random() * (900 - 9 + 1) + 9)) // staying undercover
+            await FinancialService.sleep(Math.floor(Math.random() * (3000 - 3 + 1) + 3)) // staying undercover
 
             await this.exploitMeanManipulation()
 
@@ -100,47 +96,34 @@ export class Explorer {
         const pnlInPercentLS = (investigationResultLS.theLeastSuccessfulPosition.unrealizedProfit * 100) / investigationResultLS.theLeastSuccessfulPosition.initialMargin
         const pnlInPercentMS = (investigationResultMS.theMostSuccessfulPosition.unrealizedProfit * 100) / investigationResultMS.theMostSuccessfulPosition.initialMargin
 
-        if (this.marginRatio > 0) {
+        if (this.marginRatio > 0 && this.accountMode === 'balanced') {
 
-            if (pnlInPercentLS < - 100) {
-
-                if (investigationResultLS.leastSuccessfulPositionIsInAccount === 1) {
-                    if ((this.accountMode === 'balanced' || this.marginRatio < 18) && this.marginRatio < 45) {
-
-                        console.log(`adding to the least successful position`)
-
-                        await this.addToTheLeastSuccessfulPosition(this.binanceConnector1, investigationResultLS.theLeastSuccessfulPosition)
-                    }
-
-                }
-            } else {
-                console.log(`The least successful position has a PNL of ${pnlInPercentLS}.`)
+            if (pnlInPercentLS < this.addingAt && this.marginRatio < 45) {
+                console.log(`adding to the least successful position`)
+                await this.addToTheLeastSuccessfulPosition(this.binanceConnector1, investigationResultLS.theLeastSuccessfulPosition)
             }
 
-            if (this.marginRatio < 63 && this.accountMode === 'balanced') {
-
-                if (pnlInPercentMS > 100) {
-                    await this.reduceToTheMostSuccessfulPosition(this.binanceConnector1, investigationResultMS.mostSuccessfulPositionIsInAccount)
-                }
-            } else {
-                console.log(`The most successful position has a PNL of ${pnlInPercentMS}. `)
+            if (pnlInPercentMS > this.reducingAt) {
+                console.log(`reducing the most successful position`)
+                await this.reduceTheMostSuccessfulPosition(this.binanceConnector1, investigationResultMS.mostSuccessfulPositionIsInAccount)
             }
+
         }
     }
 
-    private async saveProfits(): Promise<boolean> {
+    // private async saveProfits(): Promise<boolean> {
 
-        let updateRequiredForAccount1 = false
+    //     let updateRequiredForAccount1 = false
 
-        updateRequiredForAccount1 = await FinancialService.closeAllPositionsWithAPNLOfHigherThan(this.closingAt, this.accountData1, this.binanceConnector1)
+    //     updateRequiredForAccount1 = await FinancialService.closeAllPositionsWithAPNLOfHigherThan(this.reducingAt, this.accountData1, this.binanceConnector1)
 
-        if (updateRequiredForAccount1) {
-            return true
-        }
+    //     if (updateRequiredForAccount1) {
+    //         return true
+    //     }
 
-        return false
+    //     return false
 
-    }
+    // }
 
     private async addToTheLeastSuccessfulPosition(binanceConnector: any, theLeastSuccessfulPosition: any) {
 
@@ -158,7 +141,7 @@ export class Explorer {
 
     }
 
-    private async reduceToTheMostSuccessfulPosition(binanceConnector: any, theMostSuccessfulPosition: any) {
+    private async reduceTheMostSuccessfulPosition(binanceConnector: any, theMostSuccessfulPosition: any) {
 
         const currentPrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === theMostSuccessfulPosition.symbol)[0].price)
         const maxiAmount = FinancialService.getMaxiAmountFromPrice(currentPrice)
@@ -205,9 +188,9 @@ export class Explorer {
 
         this.balanceUnderRisk = Number(this.accountData1.totalWalletBalance) + Number(this.accountData1.totalUnrealizedProfit)
 
-        this.closingAt = Math.floor(Math.random() * (27 - 18 + 1) + 18)
+        this.reducingAt = Math.floor(Math.random() * (81 - 18 + 1) + 18)
 
-        this.addingAt = Math.floor(Math.random() * (27 - 18 + 1) + 18) * -1
+        this.addingAt = Math.floor(Math.random() * (81 - 18 + 1) + 18) * -1
 
         this.usdtSpotAccount1 = Number(await this.binanceConnector1.getUSDTBalance())
         this.bnbSpotAccount1 = Number(await this.binanceConnector1.getSpotBalance("BNB"))
@@ -236,7 +219,7 @@ export class Explorer {
 
         this.accountMode = FinancialService.getAccountMode(this.accountData1)
 
-        console.log(`thingsWentWrongCounter: ${this.thingsWentWrongCounter} - predictionStatistics: ${JSON.stringify(this.predictionStatistics)} - startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - addingAt: ${this.addingAt} - closingAt: ${this.closingAt}`)
+        console.log(`thingsWentWrongCounter: ${this.thingsWentWrongCounter} - predictionStatistics: ${JSON.stringify(this.predictionStatistics)} - startBalUnderRisk: ${this.startBalanceUnderRisk} - balUnderRisk: ${this.balanceUnderRisk} - addingAt: ${this.addingAt} - reducingAt: ${this.reducingAt}`)
 
     }
 

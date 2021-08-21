@@ -411,10 +411,10 @@ export class FinancialService {
         const marginRatio = (Number(accountData.totalMaintMargin) * 100) / Number(accountData.totalMarginBalance)
         const currentBitcoinPrice = Number(currentPrices.filter((e: any) => e.coinSymbol === 'BTCUSDT')[0].price)
 
-        const prediction = FinancialService.getPrediction(currentBitcoinPrice)
+        // const prediction = FinancialService.getPrediction(currentBitcoinPrice)
 
         // let pnlInPercent = (etherPosition.unrealizedProfit * 100) / etherPosition.initialMargin
-        console.log(`${accountId}: accountMode: ${accountMode} - marginRatio: ${marginRatio} - accountMode: ${accountMode} - prediction: ${prediction} - marginDelta: ${marginDelta}`)
+        console.log(`${accountId}: accountMode: ${accountMode} - marginRatio: ${marginRatio} - accountMode: ${accountMode} - marginDelta: ${marginDelta}`)
 
         if (marginRatio < 45) {
 
