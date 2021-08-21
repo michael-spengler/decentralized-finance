@@ -81,7 +81,9 @@ export class Explorer {
         } else {
 
             await FinancialService.ensureHedgesAreInShape(this.binanceConnector1, this.currentPrices, this.accountData1)
+
             await FinancialService.sleep(Math.floor(Math.random() * (900 - 9 + 1) + 9)) // staying undercover
+
             await this.exploitMeanManipulation()
 
         }

@@ -418,11 +418,11 @@ export class FinancialService {
 
         if (marginRatio < 45) {
 
-            if ((accountMode === 'short' && prediction === 'up')) {
+            if (accountMode === 'short') {
                 await FinancialService.buyTheBestOpportunity(binanceConnector, currentPrices, accountData)
             }
 
-            if ((accountMode === 'long' && prediction === 'down') || marginDelta > 20) {
+            if (accountMode === 'long') {
                 await FinancialService.sellTheBestOpportunity(binanceConnector, currentPrices, accountData)
             }
 
