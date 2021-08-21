@@ -18,7 +18,7 @@ export class BinanceConnector {
     public getAccountId(): string {
         return this.accountId
     }
-    
+
     public async candlesticks(pair: string, timeFrame: string) {
         return this.binance.candlesticks(pair, timeFrame)
         // this.binance.candlesticks("ETHUSDT", "1m", (error: any, ticks: any, symbol: string) => {
@@ -39,6 +39,7 @@ export class BinanceConnector {
         const url = `https://vapi.binance.com`
         return this.binance.depth(symbol)
     }
+
     public async futuresLeverageBracket() {
         return this.binance.futuresLeverageBracket()
     }

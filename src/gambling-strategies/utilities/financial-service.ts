@@ -304,12 +304,14 @@ export class FinancialService {
 
     public static async adjustLeverageEffect(accountData: any, binanceConnector: any): Promise<void> {
 
+
         const leverageEntries = await binanceConnector.futuresLeverageBracket()
 
         for (const p of accountData.positions) {
-            if (p.positionAmt > 0) {
+            const portfolioItem = FinancialService.portfolio.filter((e) => e.pair === p.symbol)[0]
+            if (portfolioItem !== undefined) {
 
-                const leverageInfo = leverageEntries.filter((e: any) => e.symbol == p.symbol)[0]
+                const leverageInfo = leverageEntries.filter((e: any) => e.symbol === p.symbol)[0]
                 if (leverageInfo !== undefined) {
                     console.log(p.symbol)
 
@@ -333,7 +335,7 @@ export class FinancialService {
         }
     }
 
-    public static investigateTheLeastSuccessfulPosition(accountData1: any, accountData2: any) {
+    public static investigateTheLeastSuccessfulPosition(accountData1: any, accountData2?: any) {
 
         let lowestPNLSoFar = 1000000000
         let theLeastSuccessfulPositionSoFar: any
@@ -349,14 +351,17 @@ export class FinancialService {
             }
         }
 
-        for (const position of accountData2.positions) {
+        if (accountData2 !== undefined) {
 
-            const pnlInPercent = (position.unrealizedProfit * 100) / position.initialMargin
+            for (const position of accountData2.positions) {
 
-            if (pnlInPercent < lowestPNLSoFar) {
-                theLeastSuccessfulPositionSoFar = position
-                lowestPNLSoFar = pnlInPercent
-                leastSuccessfulPositionIsInAccount = 2
+                const pnlInPercent = (position.unrealizedProfit * 100) / position.initialMargin
+
+                if (pnlInPercent < lowestPNLSoFar) {
+                    theLeastSuccessfulPositionSoFar = position
+                    lowestPNLSoFar = pnlInPercent
+                    leastSuccessfulPositionIsInAccount = 2
+                }
             }
         }
 
@@ -377,7 +382,7 @@ export class FinancialService {
         // let pnlInPercent = (etherPosition.unrealizedProfit * 100) / etherPosition.initialMargin
         console.log(`${accountId}: accountMode: ${accountMode} - marginRatio: ${marginRatio} - accountMode: ${accountMode} - prediction: ${prediction} - marginDelta: ${marginDelta}`)
 
-        if (marginRatio < 36) {
+        if (marginRatio < 45) {
 
             if ((accountMode === 'short' && prediction === 'up') || marginDelta < - 20) {
                 await FinancialService.buyTheBestOpportunity(binanceConnector, currentPrices, accountData)
@@ -554,7 +559,7 @@ export class FinancialService {
             maxAmount = 10000
         }
 
-        if (marginRatio < 36 && Number(position.positionAmt) < maxAmount) {
+        if (marginRatio < 45 && Number(position.positionAmt) < maxAmount) {
 
             console.log(`${accountId}: I buy ${tradingAmount} of ${theBestItemToBeBoughtNow.pair} - limit would be ${maxAmount}`)
 
