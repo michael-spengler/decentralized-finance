@@ -369,6 +369,40 @@ export class FinancialService {
 
     }
 
+    public static investigateTheMostSuccessfulPosition(accountData1: any, accountData2?: any) {
+
+        let highestPNLSoFar = - 1000000000
+        let theMostSuccessfulPositionSoFar: any
+        let mostSuccessfulPositionIsInAccount = 0
+        for (const position of accountData1.positions) {
+
+            const pnlInPercent = (position.unrealizedProfit * 100) / position.initialMargin
+
+            if (pnlInPercent > highestPNLSoFar) {
+                theMostSuccessfulPositionSoFar = position
+                highestPNLSoFar = pnlInPercent
+                mostSuccessfulPositionIsInAccount = 1
+            }
+        }
+
+        if (accountData2 !== undefined) {
+
+            for (const position of accountData2.positions) {
+
+                const pnlInPercent = (position.unrealizedProfit * 100) / position.initialMargin
+
+                if (pnlInPercent > highestPNLSoFar) {
+                    theMostSuccessfulPositionSoFar = position
+                    highestPNLSoFar = pnlInPercent
+                    mostSuccessfulPositionIsInAccount = 2
+                }
+            }
+        }
+
+        return { theMostSuccessfulPosition: theMostSuccessfulPositionSoFar, mostSuccessfulPositionIsInAccount }
+
+    }
+
     public static async ensureHedgesAreInShape(binanceConnector: any, currentPrices: any[], accountData: any): Promise<void> {
 
         const accountId = binanceConnector.getAccountId()

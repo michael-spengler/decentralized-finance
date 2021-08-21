@@ -74,27 +74,40 @@ export class Explorer {
     private async exploitMeanManipulation() {
 
         const marginRatio = (Number(this.accountData1.totalMaintMargin) * 100) / Number(this.accountData1.totalMarginBalance)
-        const i = FinancialService.investigateTheLeastSuccessfulPosition(this.accountData1)
+        const accountMode = FinancialService.getAccountMode(this.accountData1)
 
-        const pnlInPercent = (i.theLeastSuccessfulPosition.unrealizedProfit * 100) / i.theLeastSuccessfulPosition.initialMargin
+        const investigationResultLS = FinancialService.investigateTheLeastSuccessfulPosition(this.accountData1)
+        const investigationResultMS = FinancialService.investigateTheMostSuccessfulPosition(this.accountData1)
+
+        const pnlInPercentLS = (investigationResultLS.theLeastSuccessfulPosition.unrealizedProfit * 100) / investigationResultLS.theLeastSuccessfulPosition.initialMargin
+        const pnlInPercentMS = (investigationResultMS.theMostSuccessfulPosition.unrealizedProfit * 100) / investigationResultMS.theMostSuccessfulPosition.initialMargin
+
 
         if (marginRatio > 0) {
 
-            if (pnlInPercent < - 100) {
+            if (pnlInPercentLS < - 100) {
 
-                if (i.leastSuccessfulPositionIsInAccount === 1) {
+                if (investigationResultLS.leastSuccessfulPositionIsInAccount === 1) {
                     console.log(`the least successful position is in account 1`)
-                    const accountMode = FinancialService.getAccountMode(this.accountData1)
 
                     if ((accountMode === 'balanced' || marginRatio < 18) && marginRatio < 45) {
-                        await this.addToTheLeastSuccessfulPosition(this.binanceConnector1, i.theLeastSuccessfulPosition)
+                        await this.addToTheLeastSuccessfulPosition(this.binanceConnector1, investigationResultLS.theLeastSuccessfulPosition)
                     }
 
                 }
             } else {
-                console.log(`The least successful position has a PNL of ${pnlInPercent}. Know your enemy.`)
+                console.log(`The least successful position has a PNL of ${pnlInPercentLS}.`)
             }
 
+            if (marginRatio < 63 && accountMode === 'balanced') {
+
+
+                if (pnlInPercentMS > 100) {
+                    await this.reduceToTheMostSuccessfulPosition(this.binanceConnector1, investigationResultMS.mostSuccessfulPositionIsInAccount)
+                }
+            } else {
+                console.log(`The most successful position has a PNL of ${pnlInPercentMS}. `)
+            }
         }
     }
 
@@ -124,7 +137,6 @@ export class Explorer {
 
     private async addToTheLeastSuccessfulPosition(binanceConnector: any, theLeastSuccessfulPosition: any) {
 
-        const accountId = binanceConnector.getAccountId()
         const currentPrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === theLeastSuccessfulPosition.symbol)[0].price)
         const maxiAmount = FinancialService.getMaxiAmountFromPrice(currentPrice)
         const tradingAmount = FinancialService.getTradingAmountFromPrice(currentPrice)
@@ -139,6 +151,21 @@ export class Explorer {
 
     }
 
+    private async reduceToTheMostSuccessfulPosition(binanceConnector: any, theMostSuccessfulPosition: any) {
+
+        const currentPrice = Number(this.currentPrices.filter((e: any) => e.coinSymbol === theMostSuccessfulPosition.symbol)[0].price)
+        const maxiAmount = FinancialService.getMaxiAmountFromPrice(currentPrice)
+        const tradingAmount = FinancialService.getTradingAmountFromPrice(currentPrice)
+
+        if (Number(theMostSuccessfulPosition.positionAmt) > 0 && Number(theMostSuccessfulPosition.positionAmt) < maxiAmount) {
+            console.log(`I sell ${tradingAmount} of ${theMostSuccessfulPosition.symbol} as it is the least successful position so far.`)
+            await binanceConnector.sellFuture(theMostSuccessfulPosition.symbol, tradingAmount)
+        } else if (Number(theMostSuccessfulPosition.positionAmt) < 0 && Number(theMostSuccessfulPosition.positionAmt) * -1 < maxiAmount) {
+            console.log(`I buy back short sold ${tradingAmount} of ${theMostSuccessfulPosition.symbol} as it is the least successful position so far.`)
+            await binanceConnector.buyFuture(theMostSuccessfulPosition.symbol, tradingAmount)
+        }
+
+    }
     private async cleanTheDeskIfNecessary(forceIt: boolean = false): Promise<void> {
 
         const marginRatio1 = (Number(this.accountData1.totalMaintMargin) * 100) / Number(this.accountData1.totalMarginBalance)
