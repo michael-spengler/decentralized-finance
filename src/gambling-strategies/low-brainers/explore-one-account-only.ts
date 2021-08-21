@@ -58,7 +58,7 @@ export class Explorer {
 
     private async playTheGame(): Promise<void> {
 
-        if (Number(this.accountData1.totalMaintMargin) === 0 || this.marginRatio < 9) {
+        if (Number(this.accountData1.totalMaintMargin) === 0 || this.marginRatio < 18) {
 
             await this.binanceConnector1.buyFuture('BTCUSDT', 0.009) // replace this by portfolio ...
 
@@ -78,7 +78,7 @@ export class Explorer {
 
             await FinancialService.ensureHedgesAreInShape(this.binanceConnector1, this.currentPrices, this.accountData1)
 
-            await FinancialService.sleep(Math.floor(Math.random() * (3000 - 3 + 1) + 3)) // staying undercover
+            await FinancialService.sleep(Math.floor(Math.random() * (900 - 9 + 1) + 9)) // staying undercover
 
             await this.exploitMeanManipulation()
 
@@ -96,7 +96,7 @@ export class Explorer {
         const pnlInPercentLS = (investigationResultLS.theLeastSuccessfulPosition.unrealizedProfit * 100) / investigationResultLS.theLeastSuccessfulPosition.initialMargin
         const pnlInPercentMS = (investigationResultMS.theMostSuccessfulPosition.unrealizedProfit * 100) / investigationResultMS.theMostSuccessfulPosition.initialMargin
 
-        if (this.marginRatio > 0 && this.accountMode === 'balanced') {
+        if (this.marginRatio > 0 && (this.accountMode === 'balanced' || this.marginRatio < 18)) {
 
             if (pnlInPercentLS < this.addingAt && this.marginRatio < 45) {
                 console.log(`adding to the least successful position`)
@@ -151,7 +151,7 @@ export class Explorer {
             console.log(`I sell ${tradingAmount} of ${theMostSuccessfulPosition.symbol} as it is the least successful position so far.`)
             await binanceConnector.sellFuture(theMostSuccessfulPosition.symbol, tradingAmount)
         } else if (Number(theMostSuccessfulPosition.positionAmt) < 0 && Number(theMostSuccessfulPosition.positionAmt) * -1 < maxiAmount) {
-            console.log(`I buy back short sold ${tradingAmount} of ${theMostSuccessfulPosition.symbol} as it is the least successful position so far.`)
+            console.log(`I buy back short sold ${tradingAmount} of ${theMostSuccessfulPosition.symbol} as it is the most successful position so far.`)
             await binanceConnector.buyFuture(theMostSuccessfulPosition.symbol, tradingAmount)
         }
 
