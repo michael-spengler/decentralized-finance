@@ -188,7 +188,7 @@ export class Explorer {
 
         this.balanceUnderRisk = Number(this.accountData1.totalWalletBalance) + Number(this.accountData1.totalUnrealizedProfit)
 
-        this.reducingAt = Math.floor(Math.random() * (81 - 18 + 1) + 18)
+        this.reducingAt = Math.floor(Math.random() * (81 - 54 + 1) + 54)
 
         this.addingAt = Math.floor(Math.random() * (81 - 18 + 1) + 18) * -1
 
