@@ -197,7 +197,7 @@ You can find some simple examples for solidity based smart contract development 
 
 
 ## General Recommendations
-You might also check [aave.com](https://aave.com/), [klopapier.exchange](https://toiletpaper.eth.link/) and [compound.finance](https://compound.finance). If you want to get a general overview on DeFi Services, you might check the [defipulse.com](https://defipulse.com/).
+You might also check [aave.com](https://aave.com/), and [compound.finance](https://compound.finance). If you want to get a general overview on DeFi Services, you might check the [defipulse.com](https://defipulse.com/).
 
 ## Distributed Domain Name Services
 To provide your user interfaces in a sustainable way you might check [ens.domains](https://ens.domains). If you want to try it, you might check [this tutorial](https://www.youtube.com/watch?v=oA4oOY5zgU0).
@@ -239,20 +239,17 @@ npm config set ignore-scripts false
 ```
 
 
-## Reference Projects
-Some of the most famous projects using this package 
-[<img src="https://user-images.githubusercontent.com/43786652/106395210-475db300-6401-11eb-857a-492c52b1c837.jpg" alt="drawing" width="200"/>](https://toiletpaper.eth.link)
-
 ## Philosophy
 This package shall increase freedom for those who increase freedom. Actions of the weak shall be private. Actions of the powerful shall be transparent.
 
 ## Open Source DeFi Coin
 Under Construction
+
 ### Tokenomics
 **Challenges**
 If we define a max supply, the problem might be that at one point there will be less and less transactions if many of the owners decide just to hodl.
 Clearly define the incentives.
-Who will add Liquidity Pools?
+Who will create / add to Liquidity Pools?
 How could the process of collecting wallet addresses who want to participate look like?
 
 ## Support our Open Source Contributions
